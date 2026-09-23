@@ -4,10 +4,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from atlas.webhook import record_receipt, valid_signature, verify_challenge
+from atlas.webhook import ExclusiveHTTPServer, Handler, record_receipt, valid_signature, verify_challenge
 
 
 class WebhookTests(unittest.TestCase):
+    def test_second_server_cannot_bind_same_port(self):
+        first = ExclusiveHTTPServer(('127.0.0.1', 0), Handler)
+        self.addCleanup(first.server_close)
+        with self.assertRaises(OSError):
+            second = ExclusiveHTTPServer(first.server_address, Handler)
+            second.server_close()
+
     def test_challenge_requires_exact_mode_and_token(self):
         query = "hub.mode=subscribe&hub.verify_token=test&hub.challenge=123"
         self.assertEqual(verify_challenge(query, "test"), "123")

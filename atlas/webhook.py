@@ -5,6 +5,7 @@ import hmac
 import json
 import os
 import sqlite3
+import socket
 import threading
 from .messaging import ingest, worker
 from contextlib import closing
@@ -92,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-webhook-test")
+            return self.respond(200, "atlas-private-replies-v1")
         if url.path != "/webhook":
             return self.respond(404, "not found")
         challenge = verify_challenge(url.query, settings().get("WHATSAPP_VERIFY_TOKEN", ""))
@@ -142,10 +143,20 @@ class Handler(BaseHTTPRequestHandler):
         self.respond(200, "EVENT_RECEIVED")
 
 
+class ExclusiveHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = False
+    allow_reuse_port = False
+
+    def server_bind(self):
+        if os.name == "nt":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
+
+
 def main():
     if not settings().get("WHATSAPP_VERIFY_TOKEN"):
         raise SystemExit("Set WHATSAPP_VERIFY_TOKEN in the local .env file first.")
-    server = ThreadingHTTPServer(("127.0.0.1", 8787), Handler)
+    server = ExclusiveHTTPServer(("127.0.0.1", 8787), Handler)
     stop = threading.Event()
     thread = threading.Thread(target=worker, args=(settings, ROOT / "work" / "conversations.db", stop), daemon=True)
     thread.start()

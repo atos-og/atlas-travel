@@ -1,5 +1,9 @@
 # Estado do Atlas
 
+## Correção de operação local
+
+Duas instâncias do receptor coexistiram na mesma porta no Windows; o túnel continuava entregando eventos à versão antiga, sem respostas. Ambas foram encerradas e uma instância nova iniciada. O servidor agora usa bind exclusivo no Windows e health check identifica a versão com respostas. Doze testes passaram, incluindo rejeição de um segundo servidor na mesma porta. Teste controlado de `oi` executado pelo endpoint HTTPS para verificar fila e envio; isso não equivale a recuperar o conteúdo de eventos antigos.
+
 ## Implementado e validado localmente
 
 - Simulador de conversa guiada independente de canal.
