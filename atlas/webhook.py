@@ -1,10 +1,12 @@
-"""Development-only webhook receiver. Never sends outbound messages."""
+"""Development webhook with opt-in private WhatsApp replies."""
 
 import hashlib
 import hmac
 import json
 import os
 import sqlite3
+import threading
+from .messaging import ingest, worker
 from contextlib import closing
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -22,7 +24,9 @@ def settings():
             if "=" in line and not line.lstrip().startswith("#"):
                 key, value = line.split("=", 1)
                 values[key.strip()] = value.strip()
-    for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET"):
+    for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "WHATSAPP_ACCESS_TOKEN",
+                "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
+                "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED"):
         if key in os.environ:
             values[key] = os.environ[key]
     return values
@@ -126,9 +130,14 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(payload, dict) or payload.get("object") != "whatsapp_business_account":
             return self.respond(400, "unsupported event")
         try:
+            queued = ingest(payload, settings(), ROOT / "work" / "conversations.db")
             fresh = record_receipt(body, ROOT / "work" / "webhooks.db")
         except (sqlite3.Error, OSError):
             return self.respond(503, "storage unavailable")
+        except (TypeError, AttributeError, KeyError):
+            return self.respond(400, "invalid event structure")
+        if queued:
+            print(f"Authorized text messages queued: {queued}", flush=True)
         print("Signed webhook received." if fresh else "Duplicate webhook received.", flush=True)
         self.respond(200, "EVENT_RECEIVED")
 
@@ -137,12 +146,17 @@ def main():
     if not settings().get("WHATSAPP_VERIFY_TOKEN"):
         raise SystemExit("Set WHATSAPP_VERIFY_TOKEN in the local .env file first.")
     server = ThreadingHTTPServer(("127.0.0.1", 8787), Handler)
-    print("Atlas webhook test receiver: http://127.0.0.1:8787 (no outbound messages)", flush=True)
+    stop = threading.Event()
+    thread = threading.Thread(target=worker, args=(settings, ROOT / "work" / "conversations.db", stop), daemon=True)
+    thread.start()
+    print("Atlas private webhook: http://127.0.0.1:8787", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
+        stop.set()
+        thread.join(timeout=25)
         server.server_close()
 
 

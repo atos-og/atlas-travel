@@ -1,5 +1,11 @@
 # Validação do webhook do Atlas
 
+## Atualização: conversa privada
+
+O receptor agora pode enfileirar textos e responder pela API oficial quando ATLAS_WHATSAPP_REPLIES_ENABLED=true. Exige ATLAS_ALLOWED_WHATSAPP_USER em formato internacional sem sinal +, WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID e META_GRAPH_API_VERSION. Sem destinatário autorizado, não enfileira conversas. O teste continua sem tarifas reais.
+
+A fila conversations.db guarda texto, remetente e sessão localmente, fora do Git. Eventos de status não geram respostas. Janela conservadora de 23 horas para enviar; sem templates proativos. Cada ID recebido gera no máximo uma tentativa automática: timeout e reinício durante envio ficam como uncertain e exigem análise, pois a API pode já ter aceitado a mensagem. Erros não são impressos com conteúdo ou credenciais. Os parágrafos abaixo sobre receptor sem envio descrevem o marco anterior.
+
 ## Estado conhecido
 
 - Usuário confirmou recebimento de Hello World no destinatário colombiano.

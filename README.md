@@ -4,7 +4,7 @@ Assistente de viagens em desenvolvimento. Canal inicial: WhatsApp Cloud API ofic
 
 ## Estado atual
 
-Simulador local de conversa guiada e receptor de testes de webhook com validação de desafio, assinatura e registro de recebimentos sem conteúdo pessoal. Não consulta tarifas nem envia mensagens reais. Conversa no WhatsApp, fornecedores de voos, persistência das viagens, roteiros e alertas ainda serão implementados. Veja [configuração do webhook](docs/WHATSAPP_SETUP.md).
+Conversa guiada local e integração privada com WhatsApp: webhook assinado, fila SQLite, sessões persistentes e respostas de texto pela API oficial. Apenas o destinatário configurado pode conversar. Não consulta tarifas reais; fontes de voos, roteiros e alertas ainda serão implementados. Veja [configuração do webhook](docs/WHATSAPP_SETUP.md).
 
 ## Executar
 
@@ -34,7 +34,9 @@ Entrar com a conta Facebook, concluir o cadastro de desenvolvedor e procurar a c
 
 A recepção de mensagens exige um webhook HTTPS acessível pela Meta. Para testes, usar túnel temporário gratuito conforme o guia. Executar apenas um programa local não torna esse endpoint acessível. O endereço temporário não faz parte do repositório.
 
-`.env.example` lista os campos previstos. Não enviar tokens pelo chat nem versionar `.env`. O receptor lê WHATSAPP_VERIFY_TOKEN e META_APP_SECRET; não chama a API de envio.
+`.env.example` lista os campos previstos. Não enviar tokens pelo chat nem versionar `.env`. As respostas exigem access token, phone number ID, versão da API, destinatário permitido e ATLAS_WHATSAPP_REPLIES_ENABLED=true. Por padrão ficam desativadas.
+
+Mensagens e estado da conversa autorizada são armazenados somente no SQLite local ignorado pelo Git. Logs não exibem telefone ou texto. Duplicatas são filtradas pelo ID da mensagem. Falhas e envios incertos não são reenviados automaticamente; a sessão pode já ter avançado, então `cancelar` permite recomeçar. Confirmação da API é aceite para envio, não confirmação de entrega.
 
 ## Próximas entregas
 

@@ -13,9 +13,11 @@
 
 ## Pendente
 
+Atualização: respostas privadas implementadas com fila por ID da mensagem, sessão persistida e allowlist obrigatória. Onze testes passaram, incluindo duplicação, remetente não autorizado, mensagens antigas e resultado incerto. Ativação e entrega real devem ser verificadas separadamente.
+
 - Validar POST de mensagem real enviado pela Meta. Não confundir teste sintético local com entrega real da plataforma.
 - Validar as condições de recebimento de mensagens reais segundo o aviso de publicação do painel.
-- Implementar processamento por ID de mensagem, destinatário permitido e resposta pela API.
+- Validar conversa completa com o usuário pelo WhatsApp; integração implementada e testada com transportes simulados.
 - Integrar fontes reais de tarifas e demais funcionalidades do plano.
 
 Não confundir recebimento técnico do webhook com bot conversacional completo. A etapa atual não exige access token nem contrata serviços.
