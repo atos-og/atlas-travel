@@ -1,48 +1,44 @@
 # Atlas
 
-Assistente de viagens em desenvolvimento. Canal inicial: WhatsApp Cloud API oficial, em ambiente de testes. Telegram será alternativa se o WhatsApp exigir custos.
+Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Protótipo privado em Python com WhatsApp Cloud API oficial, sessões persistentes e consulta experimental de voos.
 
-## Estado atual
+## Recursos
 
-Conversa guiada local e integração privada com WhatsApp: webhook assinado, fila SQLite, sessões persistentes e respostas de texto pela API oficial. Apenas o destinatário configurado pode conversar. Não consulta tarifas reais; fontes de voos, roteiros e alertas ainda serão implementados. Veja [configuração do webhook](docs/WHATSAPP_SETUP.md).
+- Aeroportos, datas de ida/volta, 1 a 6 adultos e confirmação antes da consulta.
+- Menor preço, menor duração, sem paradas ou maior preço entre as ofertas retornadas.
+- Até quatro ofertas com total de ida e volta, horários, companhias, duração e links no Google Flights quando a fonte retorna dados válidos.
+- Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `link 1` e `cancelar`.
+- Webhook HMAC, destinatário permitido, fila SQLite, deduplicação e status de entrega.
+
+**Fonte aérea em validação:** consultas reais em 23/09/2026 retornaram vazias. Ainda não foi validada uma tarifa real nesta integração. O bot informa o resultado sem inventar preços. Testes automatizados usam dados sintéticos e não comprovam disponibilidade externa.
+
+Ônibus, roteiros, orçamento, alertas e preferências são próximos marcos. O fluxo atual é guiado e não usa IA.
 
 ## Executar
 
-Python 3.12 ou superior:
+Python 3.12+ e Git. Simulador e testes não precisam de dependências externas:
 
 ```sh
 python -m atlas
 python -m unittest discover -s tests -v
 ```
 
-Digite `cancelar` para recomeçar e `sair` para encerrar. Datas usam DD/MM/AAAA. Cada sessão pertence a um identificador de usuário; este primeiro simulador guarda sessões apenas em memória.
+Para o webhook e a fonte experimental, crie um ambiente virtual, instale `requirements.txt`, copie `.env.example` para `.env` e configure conforme [o guia](docs/WHATSAPP_SETUP.md). Execute `python -m atlas.webhook` usando esse ambiente. Servidor: `127.0.0.1:8787`. A callback precisa de HTTPS externo. Respostas e consultas externas ficam desativadas por padrão.
 
-## Decisões
+Exemplo: `oi` → `Confins` → `Bogotá` → data da ida → data da volta → `1` adulto → `1` menor preço → `sim`. Datas futuras em DD/MM/AAAA. `São Paulo` e `Colômbia` pedem escolha de aeroporto. O comando `python -m atlas` continua sendo uma demonstração sem internet.
 
-- R$ 0 em serviços; uso privado durante a validação.
-- Código de conversa independente do canal de mensagens.
-- Nenhum preço, link ou busca será inventado.
-- Preparar demonstração e código público separadamente de credenciais e dados reais.
-- Não reutilizar tokens ou configurações privadas do Fly Club.
-- Próximo marco: adaptar recepção e resposta do WhatsApp, validar assinatura do webhook, restringir destinatário e deduplicar eventos antes de conectar a fonte aérea.
+## Limitações
 
-## Configuração futura do WhatsApp
+Fonte não oficial de Google Flights, sujeita a mudanças. Não cobre todas as fontes nem garante o menor preço do mercado. Links levam ao Google Flights, não a checkout próprio. Bagagem, reembolso e conforto não são inferidos do preço. Apenas econômica, ida e volta e adultos nesta versão.
 
-Começar pelo Developer Hub oficial: https://whatsappbusiness.com/developers/developer-hub/
+Operação inicial sem contratação de serviços, em teste privado. Isso não garante gratuidade do WhatsApp em produção. Computador, túnel e processo precisam estar ativos. Não está pronto para atendimento público.
 
-Entrar com a conta Facebook, concluir o cadastro de desenvolvedor e procurar a configuração de WhatsApp para criar um aplicativo de teste. O caminho exato pode variar conforme a conta. Usar o número de teste disponibilizado pela Meta e cadastrar o destinatário de teste quando solicitado. Parar se houver solicitação de contratação ou cobrança.
+## Documentação
 
-A recepção de mensagens exige um webhook HTTPS acessível pela Meta. Para testes, usar túnel temporário gratuito conforme o guia. Executar apenas um programa local não torna esse endpoint acessível. O endereço temporário não faz parte do repositório.
+- [Plano e diferenciais](docs/PLAN.md)
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [Estado da validação](docs/STATUS.md)
+- [WhatsApp](docs/WHATSAPP_SETUP.md)
+- [Segurança](SECURITY.md)
 
-`.env.example` lista os campos previstos. Não enviar tokens pelo chat nem versionar `.env`. As respostas exigem access token, phone number ID, versão da API, destinatário permitido e ATLAS_WHATSAPP_REPLIES_ENABLED=true. Por padrão ficam desativadas.
-
-Mensagens e estado da conversa autorizada são armazenados somente no SQLite local ignorado pelo Git. Logs não exibem telefone ou texto. Duplicatas são filtradas pelo ID da mensagem. Falhas e envios incertos não são reenviados automaticamente; a sessão pode já ter avançado, então `cancelar` permite recomeçar. Confirmação da API é aceite para envio, não confirmação de entrega.
-
-## Próximas entregas
-
-1. Configuração de teste Meta e primeira mensagem de ida e volta.
-2. Persistência local, validação de aeroportos e critérios completos de passageiros.
-3. Adaptador aéreo revisado a partir do Fly Club, com ranking e links verificáveis.
-4. Refinamento, datas flexíveis, roteiro e preferências.
-
-Plano detalhado: [docs/PLAN.md](docs/PLAN.md).
+Adaptação seletiva do [Fly Club](https://github.com/atos-og/flyclub), também de Atos Barros. [Atribuições](THIRD_PARTY_NOTICES.md). Licença MIT.

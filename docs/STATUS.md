@@ -1,27 +1,11 @@
-# Estado do Atlas
+# Estado em 23/09/2026
 
-## Correção de operação local
+O usuário confirmou respostas reais no WhatsApp de teste. A aplicação e a conta WhatsApp foram inscritas; acesso continua restrito ao destinatário local permitido.
 
-Duas instâncias do receptor coexistiram na mesma porta no Windows; o túnel continuava entregando eventos à versão antiga, sem respostas. Ambas foram encerradas e uma instância nova iniciada. O servidor agora usa bind exclusivo no Windows e health check identifica a versão com respostas. Doze testes passaram, incluindo rejeição de um segundo servidor na mesma porta. Teste controlado de `oi` executado pelo endpoint HTTPS para verificar fila e envio; isso não equivale a recuperar o conteúdo de eventos antigos.
+Fluxo experimental implementado: confirmação, aeroportos, datas, adultos, preferências, normalização de ida/volta, até quatro resultados e seleção de links. Consulta em subprocesso limitado a 55 segundos, sem manter transação SQLite aberta durante a busca.
 
-## Implementado e validado localmente
+Consultas externas CNF–GRU e GRU–BOG com datas futuras retornaram `empty`. Nenhuma tarifa real foi validada nesta etapa. Isso não comprova ausência de voos e não é substituído por resultados fictícios.
 
-- Simulador de conversa guiada independente de canal.
-- Receptor de testes HTTP em loopback: desafio de verificação, assinatura HMAC SHA-256, limites de corpo e timeout.
-- Recebimentos persistidos apenas como hash e horário; nenhuma mensagem enviada automaticamente.
-- Sete testes unitários passaram. Health check e desafio GET também passaram via HTTP local.
-- Configuração privada ignorada pelo Git; App Secret e access token preenchidos pelo usuário. Token validado pela API como pertencente ao Atlas, com permissões de gerenciamento e mensagens WhatsApp.
-- Webhook reconfigurado pela API após restauração dos processos locais. GET de subscriptions confirmou callback ativo e campo messages (versão retornada v26.0).
-- POST subscribed_apps aprovado; consulta posterior confirmou Atlas vinculado à conta de teste. Aplicativo interno da Meta mantido.
-- Repositório Git local iniciado, com plano e instruções. Publicação no GitHub ainda não realizada.
+Testes automatizados cobrem conversa, assinatura, duplicatas, acesso, datas, total de ida/volta, ranking, links, timeout e persistência. Não substituem validação externa.
 
-## Pendente
-
-Atualização: respostas privadas implementadas com fila por ID da mensagem, sessão persistida e allowlist obrigatória. Onze testes passaram, incluindo duplicação, remetente não autorizado, mensagens antigas e resultado incerto. Ativação e entrega real devem ser verificadas separadamente.
-
-- Validar POST de mensagem real enviado pela Meta. Não confundir teste sintético local com entrega real da plataforma.
-- Validar as condições de recebimento de mensagens reais segundo o aviso de publicação do painel.
-- Validar conversa completa com o usuário pelo WhatsApp; integração implementada e testada com transportes simulados.
-- Integrar fontes reais de tarifas e demais funcionalidades do plano.
-
-Não confundir recebimento técnico do webhook com bot conversacional completo. A etapa atual não exige access token nem contrata serviços.
+Pendências: tarifas reais e links; estabilidade da fonte; crianças; orçamento; ônibus; roteiros; preferências; monitoramento. Sem pagamento, emissão, reserva ou implantação pública do bot.

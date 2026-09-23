@@ -27,7 +27,7 @@ def settings():
                 values[key.strip()] = value.strip()
     for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "WHATSAPP_ACCESS_TOKEN",
                 "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
-                "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED"):
+                "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED"):
         if key in os.environ:
             values[key] = os.environ[key]
     return values
@@ -93,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-private-replies-v1")
+            return self.respond(200, "atlas-flights-v2")
         if url.path != "/webhook":
             return self.respond(404, "not found")
         challenge = verify_challenge(url.query, settings().get("WHATSAPP_VERIFY_TOKEN", ""))

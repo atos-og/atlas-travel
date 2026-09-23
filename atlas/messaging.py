@@ -122,10 +122,16 @@ def process_one(config, path, sender=send_text, now=None):
             db.execute("UPDATE inbox SET state='skipped' WHERE id=?", (mid,))
             return True
         saved = db.execute("SELECT step,data FROM sessions WHERE sender=?", (recipient,)).fetchone()
-        conversation = Conversation()
-        if saved:
-            conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
+        db.execute("UPDATE inbox SET state='processing' WHERE id=?", (mid,))
+    from .flights import search
+    conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None)
+    if saved:
+        conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
+    try:
         reply = conversation.reply(recipient, body)
+    except Exception:
+        reply = "Não consegui concluir essa etapa. Digite cancelar para recomeçar."
+    with database(path) as db:
         session = conversation.sessions.get(recipient, Session())
         db.execute("INSERT OR REPLACE INTO sessions(sender,step,data) VALUES (?,?,?)",
                    (recipient, session.step, json.dumps(session.values)))
@@ -145,6 +151,7 @@ def worker(config_loader, path, stop):
     # A crash during an HTTP send leaves an ambiguous result; do not resend.
     with database(path) as db:
         db.execute("UPDATE inbox SET state='uncertain' WHERE state='sending'")
+        db.execute("UPDATE inbox SET state='pending' WHERE state='processing'")
     while not stop.is_set():
         try:
             if not process_one(config_loader(), path):
