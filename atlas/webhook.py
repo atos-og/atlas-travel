@@ -93,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-conversation-v5")
+            return self.respond(200, "atlas-conversation-v6")
         if url.path != "/webhook":
             return self.respond(404, "not found")
         challenge = verify_challenge(url.query, settings().get("WHATSAPP_VERIFY_TOKEN", ""))
