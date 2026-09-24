@@ -39,6 +39,7 @@ def payload_for(session, reply):
     session.values.pop('_choices', None)
     if session.values.pop('_capabilities', False):
         options = [('voos', 'Consultar voos'), ('roteiro', 'Montar roteiro'),
+                   ('explorar destinos', 'Destinos por orçamento'),
                    ('datas flexiveis', 'Comparar datas'), ('minhas preferencias', 'Minhas preferências'),
                    ('ajuda', 'Todos os comandos')]
         nonce = uuid.uuid4().hex
@@ -46,6 +47,17 @@ def payload_for(session, reply):
         session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
         return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
                 'action': {'button': 'Explorar recursos', 'sections': [{'title': 'Atlas', 'rows': rows}]}}}
+    discovery = session.values.get('_discovery', {})
+    if discovery.get('active'):
+        from .discovery import choices
+        if len(reply) > 1024:
+            return text_payload(reply)
+        options = choices(discovery)
+        nonce = uuid.uuid4().hex
+        rows = [{'id': f'atlas:{nonce}:{i}', 'title': title} for i, (_, title) in enumerate(options)]
+        session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
+        return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
+                'action': {'button': 'Comparar destinos', 'sections': [{'title': 'Sua comparação', 'rows': rows}]}}}
     itinerary = session.values.get('_itinerary', {})
     if itinerary.get('active'):
         from .itinerary import choices

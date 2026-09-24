@@ -29,21 +29,32 @@ class Conversation:
             current.values.pop('_capabilities', None)
         if command in {'menu', 'recursos', 'o que voce faz', 'o que voce pode fazer'}:
             session = self.sessions.setdefault(user_id, Session())
+            if session.values.get('_discovery'):
+                session.values['_discovery']['active'] = False
             if session.values.get('_itinerary'):
                 session.values['_itinerary']['active'] = False
             session.values['_capabilities'] = True
             return ('Como posso ajudar na sua viagem?\n'
                     '• Voos: ida e volta, preço, duração, paradas e orçamento.\n'
                     '• Datas próximas: comparar até 3 combinações em ±1 dia.\n'
+                    '• Destinos por orçamento: comparar até 3 aeroportos escolhidos por você.\n'
                     '• Roteiro: 1 a 3 dias de passeios em São Paulo ou Bogotá.\n'
                     '• Preferências: salvar e reutilizar suas escolhas.\n'
                     'Escolha no menu ou escreva voos, roteiro, datas flexíveis ou minhas preferências.')
         if command in {'voos', 'consultar voos', 'voltar aos voos', 'sair do roteiro'}:
             session = self.sessions.setdefault(user_id, Session())
+            if session.values.get('_discovery'):
+                session.values['_discovery']['active'] = False
             if session.values.get('_itinerary'):
                 session.values['_itinerary']['active'] = False
             return self.resume_flights(session)
         if clean(text) not in {'cancelar', '/cancelar', '/start'}:
+            from .discovery import handle as discover
+            session = self.sessions.get(user_id, Session())
+            discovery_reply = discover(session, text, today, self.flight_search, self.on_search)
+            if discovery_reply is not None:
+                self.sessions[user_id] = session
+                return discovery_reply
             from .itinerary import handle
             session = self.sessions.get(user_id, Session())
             itinerary_reply = handle(session, text, today)
