@@ -33,3 +33,11 @@ Run `python -m atlas.check` with the project environment to check required setti
 A successful check does not prove public tunnel reachability, callback configuration, message delivery, available fares, or a complete user journey. Check those independently. `token_expired` means a new token is needed; `access_or_permission_denied` calls for checking the Meta account and permissions; `network_or_response` does not by itself prove that a token is invalid. Do not infer the exact cause of a permission error without inspecting the account.
 
 Keep the existing app, scope, and recipient restriction when refreshing a development token. Complete any account confirmation in Meta itself. Temporary tunnels can expire independently of the token, so verify and update the callback after replacing one. Do not commit token values or operational tunnel URLs.
+
+### Token lifetime
+
+Set `META_APP_ID` in the private environment and run `python -m atlas.check --meta --token` to inspect both token and data-access expiry. Dates are UTC; `expiring_soon` means 24 hours or less remain. A still-valid token with this warning does not fail the command. An expired deadline, invalid token, wrong app, or failed inspection does. Missing expiry metadata is `unknown`; zero is `no_scheduled_expiry`, which is not a promise that Meta cannot revoke access. This command never renews credentials.
+
+The debug request sends the token only to Meta's official Graph endpoint. Do not enable HTTP URL logging around it: the inspection endpoint requires the inspected token in its query. Atlas prints only sanitized results and never raw exceptions.
+
+Meta documents system-user tokens as an alternative to temporary user tokens, with durations up to 60 days or no scheduled expiry. This is a separate configuration decision, not automatic renewal. Prefer a bounded lifetime and the minimum required permissions; do not broaden business access just to avoid token expiry. See [Meta's WhatsApp Cloud API collection](https://www.postman.com/meta/whatsapp-business-platform/collection/wlk6lh4/whatsapp-cloud-api).

@@ -20,7 +20,7 @@ The budget is a total BRL cap for all adults and both directions. Confirmation s
 
 ## Validation and remaining work
 
-The latest implementation run passed 68 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
+The latest implementation run passed 73 local unit tests, including token expiry diagnostics, cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
 
 Remaining work includes supplier-page price verification, source reliability, child passengers, whole-month searches, bus fares, sightseeing itineraries and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 
@@ -36,4 +36,8 @@ Explicit save/view/reuse/delete commands persist origin, adults, and ranking def
 
 ## Integration recovery and diagnostics
 
-Account confirmation was completed by the owner. A new token was saved locally after app/scopes validation; the current callback and account subscription were verified. Meta accepted a reconnection notice and the receiver processed its signed sent-status event. Delivery to the recipient and the latest feature acceptance remain unconfirmed. `python -m atlas.check` checks local readiness; `--meta` adds a read-only API check without sending messages or printing credentials. Both local and live diagnostics passed.
+Account confirmation was completed by the owner. A new token was saved locally after app/scopes validation; the callback and account subscription were verified. The reconnection notice subsequently received a delivery confirmation. This does not complete acceptance of the latest conversation features.
+
+The temporary token expired again and was renewed with the same WhatsApp permissions. Read-only checks passed after renewal, with expiry reported at 22:00 UTC on September 24, 2026. A durable credential strategy remains pending; this is not a claim of ongoing availability.
+
+`python -m atlas.check` checks local readiness; `--meta` adds a read-only API check and `--token` inspects expiry using the optional `META_APP_ID` setting. No messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline.
