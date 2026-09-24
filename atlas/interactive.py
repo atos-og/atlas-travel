@@ -37,6 +37,19 @@ def money(value):
 def payload_for(session, reply):
     """Final response payload. Search progress is sent separately without choices."""
     session.values.pop('_choices', None)
+    itinerary = session.values.get('_itinerary', {})
+    if itinerary.get('active'):
+        from .itinerary import choices
+        # Source messages retain their complete links; never turn them into flight CTAs.
+        if 'https://' in reply or len(reply) > 1024:
+            return text_payload(reply)
+        options = choices(itinerary)
+        nonce = uuid.uuid4().hex
+        rows = [{'id': f'atlas:{nonce}:{i}', 'title': title} for i, (_, title) in enumerate(options)]
+        session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
+        return {'type': 'interactive', 'interactive': {
+            'type': 'list', 'body': {'text': reply}, 'action': {'button': 'Opções do roteiro',
+            'sections': [{'title': 'Planeje seus passeios', 'rows': rows}]}}}
     urls = re.findall(r'https://\S+', reply)
     if urls:
         url = urls[-1]
@@ -51,7 +64,7 @@ def payload_for(session, reply):
             for index, journey in enumerate(offer['journeys']):
                 duration = journey['duration']
                 lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']} | {journey['stops']} parada(s)")
-            lines.append('Horários locais. Link para Google Flights; confira preço final, bagagem e regras. Para outras opções, escreva ofertas.')
+            lines.append('Horários locais. Link para Google Flights; confira preço final, bagagem e regras. Para outras opções, escreva ofertas. Dica: digite roteiro para passeios em São Paulo ou Bogotá.')
             return {'type': 'interactive', 'interactive': {
                 'type': 'cta_url', 'body': {'text': '\n'.join(lines)[:1024]},
                 'action': {'name': 'cta_url', 'parameters': {'display_text': 'Abrir oferta', 'url': url}}}}

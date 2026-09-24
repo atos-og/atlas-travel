@@ -23,6 +23,13 @@ class Conversation:
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
         today = today or local_today()
+        if clean(text) not in {'cancelar', '/cancelar', '/start'}:
+            from .itinerary import handle
+            session = self.sessions.get(user_id, Session())
+            itinerary_reply = handle(session, text, today)
+            if itinerary_reply is not None:
+                self.sessions[user_id] = session
+                return itinerary_reply
         if self.flight_search is not None:
             return self.live_reply(user_id, text, today)
         if not text:
@@ -143,7 +150,7 @@ class Conversation:
             return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos." + saved_hint
         text = choice(text, session.step)
         if command == "ajuda":
-            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Preferências: salvar preferências, minhas preferências, usar preferências ou apagar preferências. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros e busca por mês inteiro."
+            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Digite roteiro para planejar de 1 a 3 dias de passeios em São Paulo ou Bogotá, com fontes. Preferências: salvar preferências, minhas preferências, usar preferências ou apagar preferências. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus e busca por mês inteiro."
         if session.step == "complete":
             if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
                 values['_price_question'] = True
