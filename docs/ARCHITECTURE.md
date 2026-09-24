@@ -22,6 +22,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `preferences.py`: explicit per-user defaults, stored separately from conversation sessions.
 - `itinerary.py`: bounded sightseeing planner and an independent session overlay; no external API calls.
 - `destinations.py`: an editorial catalog with primary-source links and selected closure rules.
+- `discovery.py`: bounded destination comparisons using a separate session overlay, with explicit adoption of a selected fare snapshot.
 - `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
 - `flexible.py`: at most three concurrent nearby-date queries, actual-date attribution, and partial-failure reporting.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.

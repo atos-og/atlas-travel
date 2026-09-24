@@ -18,3 +18,6 @@ Earlier queries returned no offers. No adapter change was required for the later
 ## September 24, 2026 — nearby-date provider check
 
 A one-adult CNF–GRU round-trip test queried October 23–30, October 22–29, and October 24–31, 2026 through the existing bounded provider subprocesses. All three calls succeeded and returned 114 normalized offers in aggregate. Four ranked options had links and explicit actual dates; their returned total was BRL 823.00 for October 22–29 at the time of this test. This is historical provider output, not a current-price promise. No purchase or supplier checkout verification occurred. Native client rendering for this new flow remains unconfirmed.
+# Destination comparison — September 24, 2026
+
+At 22:42 UTC, the production provider boundary was queried concurrently for CNF–GRU and CNF–REC, departing October 23 and returning October 30, 2026, one adult, with a BRL 2,500 total round-trip budget. Both destination queries returned matching offers. The lowest returned totals were BRL 786 for GRU and BRL 947 for REC. These are historical observations, not current fare promises. No WhatsApp delivery, supplier checkout, reservation, or purchase was performed during this validation.

@@ -17,6 +17,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu, opened with `menu`, that makes implemented features discoverable.
+- Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
@@ -66,6 +67,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
 - [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
+- [Destination comparison by budget](docs/DESTINATION_DISCOVERY.md)
 - [Security](SECURITY.md)
 - [Contribution and language policy](CONTRIBUTING.md)
 

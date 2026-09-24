@@ -46,4 +46,6 @@ The temporary token expired again and was renewed with the same WhatsApp permiss
 
 ## Sightseeing and capability discovery
 
+The expanded product suite now passes 98 local tests. Destination exploration compares up to three explicitly chosen airports against one total ticket budget, with exact dates, per-destination failures, confirmation, and explicit adoption into the original trip. See [comparison behavior](DESTINATION_DISCOVERY.md). It does not search every possible destination. Live WhatsApp acceptance remains pending.
+
 A native `menu` exposes implemented features. Sightseeing runs alongside the saved flight flow, with explicit city, start date or no date, 1–3 days, interest, pace, and confirmation. The catalog contains four sourced places each for São Paulo and Bogotá. Plans group by editorial region, avoid repetitions and known recorded closures, and can be edited or have a place excluded. Empty days disclose catalog limits. Sources are accessible in the chat; live opening hours, costs, availability, and route times are not verified. The flight link message suggests this feature. All of this is tested locally, including persistence through the message queue; live WhatsApp acceptance remains pending. The expanded suite passes 90 tests, superseding the earlier count above.

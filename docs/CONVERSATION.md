@@ -66,7 +66,7 @@ After searching, `orçamento`, `alterar orçamento`, or clear price complaints s
 
 `datas flexíveis` opens a native choice between exact dates and a ±1-day comparison. Atlas shifts departure and return together, preserving the stay length. It queries the original pair and the preceding/following pair, omitting past departures. There are at most three calls, executed concurrently through the existing provider boundary; each production subprocess remains limited to 55 seconds. A separate confirmation is required after changing this setting.
 
-The result identifies every attempted date pair, reports partial failures, and carries each offer's actual dates into its text, native row, and URL-button summary. Budget filtering and ranking still apply to all returned offers. This is a small nearby-date comparison, not a whole-month calendar or an exhaustive search across independent departure and return dates. Destination discovery by budget remains planned.
+The result identifies every attempted date pair, reports partial failures, and carries each offer's actual dates into its text, native row, and URL-button summary. Budget filtering and ranking still apply to all returned offers. This is a small nearby-date comparison, not a whole-month calendar or an exhaustive search across independent departure and return dates. A separate budget-led flow compares up to three explicit destinations; see DESTINATION_DISCOVERY.md.
 
 ## Saved preferences
 
@@ -76,7 +76,7 @@ Dates, destination, fares, and budget are not copied into preferences. Starting 
 
 ## Validation and references
 
-The latest suite contains 90 passing tests; the earlier integration evidence below remains historical.
+The latest suite contains 98 passing tests; the earlier integration evidence below remains historical.
 
 The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 

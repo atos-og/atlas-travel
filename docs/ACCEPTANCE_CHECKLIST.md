@@ -15,6 +15,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] 90 local tests, including the sightseeing flow and native choices persisted through the queue.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu and contextual itinerary suggestion.
+- [x] Budget-led comparison of up to three explicit destinations, preserving the original trip until selection. The expanded suite passes 98 tests.
 - [x] Live nearby-date provider check: three successful date pairs; see [the evidence](LIVE_VALIDATION.md).
 - [x] Approved brand reference and English identity guide committed.
 
@@ -45,6 +46,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 11. Send `menu`, choose the itinerary flow, and complete a 1–3-day draft. Verify its city, interests, pace, dates, and sources.
 12. Remove a place, confirm rebuilding, and verify that it does not return. Change the pace and confirm again.
 13. Use `voltar aos voos` and verify the previous flight question or results are preserved; reopen with `meu roteiro`.
+14. Use `explorar destinos`, provide a budget and up to three destinations, and confirm. Verify separate failures/no-matches, price order, and that selecting `destino 1` adopts exactly that destination without another search.
 
 ## Remaining product work
 
