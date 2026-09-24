@@ -14,3 +14,7 @@ These prices are historical observations, not guaranteed offers. The two-adult t
 This check did not validate checkout totals, baggage/refund rules, ticket issuance, or end-to-end delivery of these particular results through a real WhatsApp conversation. A later owner-driven conversation succeeded separately, as recorded in [STATUS.md](STATUS.md).
 
 Earlier queries returned no offers. No adapter change was required for the later successful response, so the cause of the earlier empty results was not established.
+
+## September 24, 2026 — nearby-date provider check
+
+A one-adult CNF–GRU round-trip test queried October 23–30, October 22–29, and October 24–31, 2026 through the existing bounded provider subprocesses. All three calls succeeded and returned 114 normalized offers in aggregate. Four ranked options had links and explicit actual dates; their returned total was BRL 823.00 for October 22–29 at the time of this test. This is historical provider output, not a current-price promise. No purchase or supplier checkout verification occurred. Native client rendering for this new flow remains unconfirmed.

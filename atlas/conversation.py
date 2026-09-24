@@ -88,6 +88,18 @@ class Conversation:
             self.sessions[user_id] = Session()
         session = self.sessions[user_id]
         values = session.values
+        if command in {'datas flexiveis', 'datas proximas', 'flexibilidade'} and session.step != 'flexibility':
+            session.step = 'flexibility'
+            return 'Posso comparar as datas originais com um dia antes e um dia depois, movendo ida e volta juntas e mantendo a estadia. São até 3 consultas, não o mês inteiro. Escolha datas próximas ou datas exatas.'
+        if session.step == 'flexibility':
+            options = {'datas proximas': 'nearby', '1': 'nearby', 'datas exatas': 'exact', '2': 'exact'}
+            options.update({'comparar 1 dia': 'nearby', 'manter datas': 'exact'})
+            if command not in options:
+                return 'Escolha comparar 1 dia para variar ida e volta juntas, ou manter datas para datas exatas.'
+            values['flexibility'] = options[command]
+            for key in ('result', '_choices', '_budget_refine', '_price_question'):
+                values.pop(key, None)
+            return self.next_question(session)
         from .trip_input import extract_trip
         import re
         if re.search(r'\b(?:criancas?|bebes?)\b', command) or re.search(r'-\s*\d+\s+adult', command):
@@ -108,7 +120,7 @@ class Conversation:
             return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos."
         text = choice(text, session.step)
         if command == "ajuda":
-            return "Disponível: busca de voos de ida e volta, 1 a 6 adultos, limite total de orçamento, comparação por preço/duração e filtro sem paradas. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros, datas flexíveis e preferências."
+            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros, busca por mês inteiro e preferências."
         if session.step == "complete":
             if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
                 values['_price_question'] = True
@@ -153,7 +165,12 @@ class Conversation:
                 return "A data de ida passou. Informe uma nova data em DD/MM/AAAA."
             if self.on_search:
                 self.on_search('Estou consultando as opções para sua viagem. A busca pode levar até um minuto.')
-            result = self.flight_search({k: v for k, v in values.items() if k != "result" and not k.startswith('_')})
+            request = {k: v for k, v in values.items() if k != "result" and not k.startswith('_')}
+            if values.get('flexibility') == 'nearby':
+                from .flexible import search_nearby
+                result = search_nearby(self.flight_search, request, today)
+            else:
+                result = self.flight_search(request)
             values["result"] = result
             session.step = "complete"
             return format_results(result, values)
@@ -205,7 +222,7 @@ class Conversation:
         if session.step in values:
             return self.next_question(session)
         if session.step == "confirm":
-            return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; {label(values.get('budget'))}. Digite sim para consultar (pode levar até um minuto) ou cancelar.")
+            return self.next_question(session)
         return answer
 
     def next_question(self, session):
@@ -224,9 +241,10 @@ class Conversation:
                 session.step = key
                 return prompt
         session.step = 'confirm'
+        from .flexible import label as flexibility_label
         return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, "
                 f"volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; "
-                f"{label(values.get('budget'))}. Digite sim para consultar ou informe o que deseja alterar.")
+                f"{label(values.get('budget'))}. {flexibility_label(values)} Digite sim para consultar ou informe o que deseja alterar.")
 
     def apply_trip_fields(self, session, fields, today):
         """Keep valid explicit fields, ask about invalid ones, and invalidate old fares."""

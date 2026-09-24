@@ -62,10 +62,14 @@ The cap appears in confirmation. Decimal filtering happens before ranking and th
 
 After searching, `orçamento`, `alterar orçamento`, or clear price complaints such as `tá caro` and `achei bem caro` open budget adjustment. The informal `carinho em` asks whether the traveler means the price is high before changing the budget step. This filters the stored result snapshot, keeps its query time, and states that no new search occurred. `buscar` refreshes the source; `sem limite` removes the filter. Changing passengers retains the total-budget concept and asks for confirmation again. Older sessions without a budget default to no cap.
 
-Flexible dates and destination discovery by budget are still planned. Atlas does not issue extra searches to guarantee exhaustive price coverage.
+## Nearby-date comparison
+
+`datas flexíveis` opens a native choice between exact dates and a ±1-day comparison. Atlas shifts departure and return together, preserving the stay length. It queries the original pair and the preceding/following pair, omitting past departures. There are at most three calls, executed concurrently through the existing provider boundary; each production subprocess remains limited to 55 seconds. A separate confirmation is required after changing this setting.
+
+The result identifies every attempted date pair, reports partial failures, and carries each offer's actual dates into its text, native row, and URL-button summary. Budget filtering and ranking still apply to all returned offers. This is a small nearby-date comparison, not a whole-month calendar or an exhaustive search across independent departure and return dates. Destination discovery by budget remains planned.
 
 ## Validation and references
 
-The implementation passed 47 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
+The implementation passed 55 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
 References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.

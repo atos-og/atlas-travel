@@ -7,6 +7,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Guided round-trip searches with explicit airports, dates, and 1–6 adults.
 - Combined trip requests and explicit corrections that preserve unrelated details.
 - Search progress notices and contextual price-objection clarification.
+- Opt-in nearby-date comparisons: at most three date pairs, shifting both legs by ±1 day.
 - Supported Portuguese date expressions, such as `dia 23 de outubro desse ano` (October 23 this year), `amanhã` (tomorrow), and `7 dias depois` (seven days after departure).
 - Native passenger, preference, and offer lists; confirmation buttons; an **Open offer** URL button, currently labeled `Abrir oferta` in the Portuguese conversation.
 - Ranking by lowest price, shortest duration, nonstop service, or highest price among returned offers.
@@ -16,7 +17,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Bus travel, sightseeing itineraries, flexible dates, alerts, and saved preferences are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification.
+Bus travel, sightseeing itineraries, whole-month date searches, alerts, and saved preferences are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification.
 
 ## Run locally
 

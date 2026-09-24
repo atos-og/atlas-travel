@@ -6,7 +6,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 
 1. **Private conversation — implemented:** webhooks, replies, persistent sessions, deduplication, and an allowlisted recipient.
 2. **Flight search — in validation:** guided inputs, rankings, links, and failure handling are implemented. Live searches returned offers for one and two adults. The owner completed a search through WhatsApp. Supplier-page availability and checkout totals still need validation.
-3. **Budget and refinement — partially implemented:** a total BRL cap, post-search adjustments, explicit over-budget messages, and consistent offer selection are implemented. Flexible dates with query limits and destination suggestions remain planned. Estimates must be distinguished from verified fares.
+3. **Budget and refinement — partially implemented:** a total BRL cap, post-search adjustments, explicit over-budget messages, and consistent offer selection are implemented. An opt-in ±1-day comparison now queries up to three date pairs while preserving stay length. Whole-month searches and destination suggestions remain planned. Estimates must be distinguished from verified fares.
 4. **Flights and buses:** select a viable bus data source before promising coverage. Compare total cost, duration, stops, terminals, and supplier-reported travel class. Include terminal transfers when reliable information is available.
 5. **Personalized sightseeing itineraries:** use travel dates, interests, pace, location, and spending preferences. Group activities by proximity. Opening hours, prices, and availability need sources, dates, and confirmation where appropriate.
 6. **Preferences and alerts:** remember useful choices with an option to delete them. Monitoring requires a stable source and a cost assessment for proactive messaging.
@@ -15,7 +15,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 
 Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, and persisted search progress notices. Offer details now include duration in the URL-button message; long result summaries retain travel dates and query time. These changes still need live WhatsApp acceptance.
 
-Next: broaden language coverage using concrete examples and regression tests; evaluate offer artwork and carousel feasibility against the test account and cost constraint; add a verified flexible-date search strategy before exposing that action. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
+Next: broaden language coverage using concrete examples and regression tests; evaluate offer artwork and carousel feasibility against the test account and cost constraint; extend the bounded nearby-date strategy only after validating source reliability and query limits. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
 
 ## Intended differentiators
 

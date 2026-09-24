@@ -20,8 +20,12 @@ The budget is a total BRL cap for all adults and both directions. Confirmation s
 
 ## Validation and remaining work
 
-The latest implementation run passed 47 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
+The latest implementation run passed 55 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
 
-Remaining work includes supplier-page price verification, source reliability, child passengers, flexible dates, bus fares, sightseeing itineraries, saved preferences, and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
+Remaining work includes supplier-page price verification, source reliability, child passengers, whole-month searches, bus fares, sightseeing itineraries, saved preferences, and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 
 Runtime tokens and temporary tunnels can expire; this file records implementation evidence, not a live uptime guarantee.
+
+## Nearby dates
+
+An opt-in ±1-day comparison preserves stay length and performs at most three provider calls. It requires confirmation, labels actual offer dates, omits past departures, and reports partial failures. Unit tests cover year boundaries, query bounds, native payloads, and budget filtering. Live WhatsApp acceptance remains pending.

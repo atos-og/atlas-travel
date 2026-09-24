@@ -6,6 +6,7 @@ from decimal import Decimal
 from urllib.parse import urlsplit
 from .flights import rank
 from .budget import label
+from .flexible import coverage
 
 ACTION_PREFIX = '__atlas_action__:'
 
@@ -45,6 +46,8 @@ def payload_for(session, reply):
         if offer and len(url) <= 2048 and parsed.hostname in {'www.google.com', 'www.google.com.br', 'google.com'} and not parsed.username:
             lines = [f"{session.values['origin']} → {session.values['destination']}",
                      f"R$ {money(offer['price'])} • ida e volta • {session.values['adults']} adulto(s)"]
+            if offer.get('travel_dates'):
+                lines.append(f"Ida {offer['travel_dates']['departure']} • volta {offer['travel_dates']['return']}")
             for index, journey in enumerate(offer['journeys']):
                 duration = journey['duration']
                 lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']} | {journey['stops']} parada(s)")
@@ -65,6 +68,8 @@ def payload_for(session, reply):
         options = [('sim', 'Confirmar busca', ''), ('cancelar', 'Recomeçar', '')]
     elif session.step == 'budget':
         options = [('sem limite', 'Sem limite', ''), ('cancelar', 'Recomeçar', '')]
+    elif session.step == 'flexibility':
+        options = [('comparar 1 dia', 'Comparar ±1 dia', ''), ('manter datas', 'Datas exatas', '')]
     elif session.step == 'complete':
         values = session.values
         if values.get('_price_question'):
@@ -78,8 +83,10 @@ def payload_for(session, reply):
                                        for action, _, title in actions]}}}
         offers = rank(values.get('result', {}).get('offers', []), values.get('priority', '1'), values.get('budget'))
         for i, offer in enumerate(offers, 1):
+            dates = offer.get('travel_dates')
+            scope = f"{dates['departure']}–{dates['return']}" if dates else 'Ida e volta'
             options.append((f'link {i}', f'Oferta {i} • R$ {money(offer["price"])}'[:24],
-                            f"Ida e volta | {offer['duration']//60}h{offer['duration']%60:02} total | até {offer['stops']} parada(s)"[:72]))
+                            f"{scope} | {offer['duration']//60}h{offer['duration']%60:02} total | até {offer['stops']} parada(s)"[:72]))
         options += [('filtros', 'Mudar preferência', ''), ('datas', 'Alterar datas', ''),
                     ('passageiros', 'Alterar passageiros', ''), ('orcamento', 'Alterar orçamento', ''), ('buscar', 'Atualizar busca', ''),
                     ('cancelar', 'Nova viagem', '')]
@@ -89,13 +96,14 @@ def payload_for(session, reply):
                      f"Google Flights • consulta: {values.get('result', {}).get('checked_at', 'horário não disponível')}. "
                      f"{label(values.get('budget'))}. "
                      'Escolha uma oferta abaixo para ver os detalhes e abrir o link. Preços sujeitos a alteração; bagagem e regras precisam de confirmação no fornecedor.')
+            reply += '\n' + (coverage(values.get('result', {})) or 'Dica: digite datas flexíveis para comparar ±1 dia.')
     if not options or len(reply) > 1024:
         return text_payload(reply)
     nonce = uuid.uuid4().hex
     rows = [{'id': f'atlas:{nonce}:{i}', 'title': title, **({'description': description} if description else {})}
             for i, (_, title, description) in enumerate(options)]
     session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
-    if session.step in {'confirm', 'budget'}:
+    if session.step in {'confirm', 'budget', 'flexibility'}:
         action = {'buttons': [{'type': 'reply', 'reply': {'id': row['id'], 'title': row['title']}} for row in rows]}
         kind = 'button'
     else:

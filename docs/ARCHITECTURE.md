@@ -20,6 +20,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
 - `language.py`: supported Portuguese dates and short phrases, interpreted locally.
 - `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
+- `flexible.py`: at most three concurrent nearby-date queries, actual-date attribution, and partial-failure reporting.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
 - `providers/google_flights.py`: the unofficial provider boundary.
 - `interactive.py`: text/list/button/URL payloads, session-bound choice IDs, and inbound click normalization.

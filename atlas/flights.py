@@ -86,6 +86,15 @@ def rank(offers, priority, budget=None):
 
 
 def format_results(result, values):
+    from .flexible import coverage
+    note = coverage(result)
+    message = _format_results(result, values)
+    if note:
+        return note + '\n' + message
+    return message + '\nDica: digite datas flexíveis para comparar a viagem com ±1 dia.'
+
+
+def _format_results(result, values):
     messages = {
         'empty': 'A fonte não retornou opções para esses critérios. Isso não prova ausência de voos.',
         'timeout': 'A consulta demorou além do limite. Não tenho tarifas confirmadas para mostrar.',
@@ -115,6 +124,8 @@ def format_results(result, values):
     for i, offer in enumerate(selected, 1):
         price = f"{Decimal(offer['price']):,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
         lines.append(f"\n{i}. R$ {price} no total • até {offer['stops']} parada(s) por sentido")
+        if offer.get('travel_dates'):
+            lines.append(f"Datas: {offer['travel_dates']['departure']} → {offer['travel_dates']['return']}")
         for j, journey in enumerate(offer['journeys']):
             duration = journey['duration']
             lines.append(f"{'Ida' if j == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']}")
