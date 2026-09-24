@@ -5,6 +5,8 @@ Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Pro
 ## Recursos
 
 - Aeroportos, datas de ida/volta, 1 a 6 adultos e confirmação antes da consulta.
+- Datas em português: `dia 23 de outubro desse ano`, `amanhã`, `daqui a 3 dias` e volta `7 dias depois`.
+- Listas nativas de passageiros, preferências e ofertas; botões de confirmação e CTA `Abrir oferta`.
 - Menor preço, menor duração, sem paradas ou maior preço entre as ofertas retornadas.
 - Até quatro ofertas com total de ida e volta, horários, companhias, duração e links no Google Flights quando a fonte retorna dados válidos.
 - Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `link 1` e `cancelar`.
@@ -12,7 +14,7 @@ Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Pro
 
 **Fonte aérea experimental:** consultas reais CNF–GRU foram executadas com sucesso para um e dois adultos em 23/09/2026 (horário de Brasília), com ranking e links gerados. A fonte havia retornado vazia anteriormente e continua sujeita a instabilidade. A compra e o preço final no site do fornecedor não foram validados. Veja [o registro da consulta](docs/LIVE_VALIDATION.md).
 
-Ônibus, roteiros, orçamento, alertas e preferências são próximos marcos. O fluxo atual é guiado e não usa IA.
+Ônibus, roteiros, orçamento, alertas e preferências são próximos marcos. O fluxo atual é guiado com interpretação determinística de frases em português; não usa LLM nem exige API paga de IA. Datas ambíguas pedem esclarecimento.
 
 ## Executar
 
@@ -39,6 +41,7 @@ Operação inicial sem contratação de serviços, em teste privado. Isso não g
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Estado da validação](docs/STATUS.md)
 - [WhatsApp](docs/WHATSAPP_SETUP.md)
+- [Linguagem e mensagens interativas](docs/CONVERSATION.md)
 - [Segurança](SECURITY.md)
 
 Adaptação seletiva do [Fly Club](https://github.com/atos-og/flyclub), também de Atos Barros. [Atribuições](THIRD_PARTY_NOTICES.md). Licença MIT.

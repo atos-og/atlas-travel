@@ -93,7 +93,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-flights-v2")
+            return self.respond(200, "atlas-interactive-v3")
         if url.path != "/webhook":
             return self.respond(404, "not found")
         challenge = verify_challenge(url.query, settings().get("WHATSAPP_VERIFY_TOKEN", ""))
@@ -138,7 +138,7 @@ class Handler(BaseHTTPRequestHandler):
         except (TypeError, AttributeError, KeyError):
             return self.respond(400, "invalid event structure")
         if queued:
-            print(f"Authorized text messages queued: {queued}", flush=True)
+            print(f"Authorized messages queued: {queued}", flush=True)
         print("Signed webhook received." if fresh else "Duplicate webhook received.", flush=True)
         self.respond(200, "EVENT_RECEIVED")
 

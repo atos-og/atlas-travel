@@ -21,3 +21,5 @@ Normalização exige ida/volta completas, datas/aeroportos correspondentes, BRL 
 Credenciais em `.env`; conversas/ofertas em SQLite local. Logs omitem payloads, telefone e tokens. Dependência fli fixada em revisão Git. Testes de domínio sem rede.
 
 Limitações: servidor de desenvolvimento, destinatário único, banco sem criptografia própria e sem expiração automática, túnel temporário. Antes de uso público: consentimento, retenção/exclusão, limites, observabilidade, hospedagem estável e revisão das condições das fontes.
+
+`language.py` interpreta frases suportadas localmente. `interactive.py` adapta respostas para texto/lista/botões/CTA, associa IDs aleatórios à sessão e normaliza eventos de cliques. O núcleo continua independente do canal. O resultado enviado continua sendo uma mensagem por evento; IDs de escolha são persistidos antes do envio.

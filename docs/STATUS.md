@@ -9,3 +9,7 @@ As consultas iniciais retornaram vazias. Uma nova execução real de CNF–GRU, 
 Testes automatizados cobrem conversa, assinatura, duplicatas, acesso, datas, total de ida/volta, ranking, links, timeout e persistência. Não substituem validação externa.
 
 Pendências: validação de preços e disponibilidade no site do fornecedor; estabilidade da fonte; crianças; orçamento; ônibus; roteiros; preferências; monitoramento. Sem pagamento, emissão, reserva ou implantação pública do bot.
+
+## Atualização de conversa e interface
+
+O teste real do usuário terminou em sessão `complete`, com `success` e 38 ofertas recebidas. As respostas recentes foram entregues. Foram implementadas datas naturais em português, sinônimos de preferências/passageiros, listas, botões de confirmação e CTA URL nativo. A Meta aceitou a lista e o CTA no teste privado. Detalhes em [CONVERSATION.md](CONVERSATION.md).

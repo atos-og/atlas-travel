@@ -1,13 +1,14 @@
-"""Local guided prototype. No external searches or messages."""
+"""Channel-independent guided travel conversation with optional live search."""
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
+from .language import local_today, parse_date, choice, clean
 
 
 @dataclass
 class Session:
     step: str = "origin"
-    values: dict[str, str] = field(default_factory=dict)
+    values: dict = field(default_factory=dict)
 
 
 class Conversation:
@@ -17,7 +18,7 @@ class Conversation:
 
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
-        today = today or date.today()
+        today = today or local_today()
         if self.flight_search is not None:
             return self.live_reply(user_id, text, today)
         if not text:
@@ -76,7 +77,7 @@ class Conversation:
 
     def live_reply(self, user_id, text, today):
         from .flights import resolve_airport, format_results, rank
-        command = text.casefold()
+        command = clean(text)
         choices = "Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas."
         if command in {"cancelar", "/cancelar", "/start"}:
             self.sessions.pop(user_id, None)
@@ -85,12 +86,15 @@ class Conversation:
             return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Digite ajuda para conhecer os recursos."
         session = self.sessions[user_id]
         values = session.values
+        text = choice(text, session.step)
         if command == "ajuda":
             return "Disponível: busca de voos de ida e volta, 1 a 6 adultos, comparação por preço/duração e filtro sem paradas. Após a busca: link 1, filtros, datas, passageiros ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, orçamento, roteiros e preferências."
         if session.step == "complete":
             if "adults" not in values:
                 session.step = "adults"
                 return "Atualizei o Atlas com busca de voos. Quantos adultos vão viajar? De 1 a 6."
+            if command in {'ofertas', 'opcoes', 'ver ofertas'}:
+                return format_results(values.get('result', {'status': 'empty'}), values)
             if command.startswith("link "):
                 offers = rank(values.get("result", {}).get("offers", []), values["priority"])
                 try:
@@ -111,16 +115,18 @@ class Conversation:
             else:
                 return "Use link 1 para ver uma oferta; filtros, datas ou passageiros para ajustar; buscar para atualizar; cancelar para outra viagem."
         if session.step == "confirm":
-            if command not in {"sim", "s", "buscar", "confirmar"}:
+            if command not in {"sim", "s", "buscar", "confirmar", "pode buscar", "pode sim", "isso", "isso mesmo", "ok"}:
                 return "Digite sim para consultar ou cancelar para recomeçar."
             if datetime.strptime(values["departure"], "%d/%m/%Y").date() < today:
                 session.step = "departure"
                 return "A data de ida passou. Informe uma nova data em DD/MM/AAAA."
-            result = self.flight_search({k: v for k, v in values.items() if k != "result"})
+            result = self.flight_search({k: v for k, v in values.items() if k != "result" and not k.startswith('_')})
             values["result"] = result
             session.step = "complete"
             return format_results(result, values)
         if session.step in {"origin", "destination"}:
+            import re
+            text = re.sub(r'^(?:(?:eu )?(?:saio|vou sair|quero sair) de|(?:eu )?quero ir (?:para|pra)|(?:vou )?(?:para|pra))\s+', '', clean(text))
             code, error = resolve_airport(text)
             if error:
                 return error
@@ -129,9 +135,10 @@ class Conversation:
             text = code
         if session.step in {"departure", "return"}:
             try:
-                parsed = datetime.strptime(text, "%d/%m/%Y").date()
+                departure = datetime.strptime(values['departure'], '%d/%m/%Y').date() if session.step == 'return' else None
+                parsed = parse_date(text, today, departure)
             except ValueError:
-                return "Informe uma data válida em DD/MM/AAAA."
+                return 'Não consegui entender essa data. Pode escrever "23/10/2026", "dia 23 de outubro desse ano" ou "amanhã". Inclua o mês se disser só o dia.'
             if parsed < today:
                 return "A data não pode estar no passado."
             if session.step == "return" and parsed < datetime.strptime(values["departure"], "%d/%m/%Y").date():
@@ -143,8 +150,8 @@ class Conversation:
             return choices
         transitions = {
             "origin": ("destination", f"Origem: {text}. Para qual cidade ou aeroporto você vai?"),
-            "destination": ("departure", f"Destino: {text}. Qual é a data de ida? DD/MM/AAAA."),
-            "departure": ("return", "Qual é a data de volta? DD/MM/AAAA."),
+            "destination": ("departure", f'Destino: {text}. Qual é a data de ida? Pode escrever "dia 23 de outubro desse ano" ou DD/MM/AAAA.'),
+            "departure": ("return", f"Entendi a ida em {text}. Qual é a data de volta? Pode usar uma data ou '7 dias depois'."),
             "return": ("adults", "Quantos adultos? De 1 a 6."),
             "adults": ("priority", choices),
             "priority": ("confirm", ""),
