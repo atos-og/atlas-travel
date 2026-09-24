@@ -122,6 +122,8 @@ class Conversation:
             return self.next_question(session)
         from .trip_input import extract_trip
         import re
+        if re.search(r'\b(?:onibus|rodoviari[oa])\b', command):
+            return 'A busca de ônibus ainda não está disponível. Não alterei sua viagem nem consultei voos no lugar de ônibus. Posso ajudar com passagens aéreas; digite ajuda para ver os recursos disponíveis.'
         if re.search(r'\b(?:criancas?|bebes?)\b', command) or re.search(r'-\s*\d+\s+adult', command):
             return 'Nesta versão, a busca atende apenas de 1 a 6 adultos. Não alterei os dados da viagem.'
         try:
@@ -147,7 +149,7 @@ class Conversation:
                 values['_price_question'] = True
                 return 'Você achou o preço alto? Responda sim para ajustar o orçamento ou diga o que gostaria de mudar.'
             price_question = values.pop('_price_question', False)
-            if command in {'orcamento', 'alterar orcamento', 'ta caro', 'esta caro', 'muito caro', 'achei caro', 'achei bem caro', 'ficou caro', 'caro demais'} or (price_question and command in {'sim', 'isso', 'isso mesmo'}):
+            if command in {'orcamento', 'alterar orcamento', 'ta caro', 'esta caro', 'muito caro', 'achei caro', 'achei bem caro', 'ficou caro', 'caro demais', 'achei mais caro', 'ficou mais caro', 'ta mais caro', 'esta mais caro'} or (price_question and command in {'sim', 'isso', 'isso mesmo'}):
                 values['_budget_refine'] = True
                 session.step = 'budget'
                 return BUDGET_PROMPT

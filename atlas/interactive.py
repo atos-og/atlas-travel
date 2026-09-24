@@ -97,6 +97,7 @@ def payload_for(session, reply):
                      f"{label(values.get('budget'))}. "
                      'Escolha uma oferta abaixo para ver os detalhes e abrir o link. Preços sujeitos a alteração; bagagem e regras precisam de confirmação no fornecedor.')
             reply += '\n' + (coverage(values.get('result', {})) or 'Dica: digite datas flexíveis para comparar ±1 dia.')
+            reply += '\nDigite salvar preferências para reutilizar origem, adultos e ordenação.'
     if not options or len(reply) > 1024:
         return text_payload(reply)
     nonce = uuid.uuid4().hex

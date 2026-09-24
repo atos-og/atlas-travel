@@ -90,8 +90,8 @@ def format_results(result, values):
     note = coverage(result)
     message = _format_results(result, values)
     if note:
-        return note + '\n' + message
-    return message + '\nDica: digite datas flexíveis para comparar a viagem com ±1 dia.'
+        return note + '\n' + message + '\nDigite salvar preferências para reutilizar origem, adultos e ordenação em outra viagem.'
+    return message + '\nDicas: datas flexíveis compara ±1 dia; salvar preferências guarda origem, adultos e ordenação para outra viagem.'
 
 
 def _format_results(result, values):

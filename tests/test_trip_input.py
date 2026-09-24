@@ -98,6 +98,21 @@ class TripInputTests(unittest.TestCase):
         self.assertIn('todos os adultos', self.send('Achei bem caro'))
         self.assertEqual(self.bot.sessions['u'].step, 'budget')
 
+    def test_more_expensive_complaint_does_not_select_highest_price(self):
+        self.prepare()
+        self.send('sim')
+        self.assertIn('todos os adultos', self.send('ficou mais caro'))
+        self.assertEqual(self.bot.sessions['u'].values['priority'], '1')
+        self.assertEqual(len(self.calls), 1)
+
+    def test_bus_request_is_not_silently_converted_to_flights(self):
+        self.prepare()
+        before = dict(self.bot.sessions['u'].values)
+        answer = self.send('Confins para Guarulhos de ônibus, 2 adultos')
+        self.assertIn('ônibus ainda não', answer)
+        self.assertEqual(self.bot.sessions['u'].values, before)
+        self.assertEqual(self.calls, [])
+
 
 class ProgressQueueTests(unittest.TestCase):
     setUp = messaging_tests.MessagingTests.setUp

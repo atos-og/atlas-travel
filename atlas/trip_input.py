@@ -19,6 +19,9 @@ MARKERS = re.compile(
 
 def extract_trip(text):
     value = clean(text)
+    # A price objection is not an instruction to rank the most expensive fares.
+    if value in {'achei mais caro', 'ficou mais caro', 'ta mais caro', 'esta mais caro'}:
+        return {}
     fields = {}
     def assign(key, value):
         if key in fields:
