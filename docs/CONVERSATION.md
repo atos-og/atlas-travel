@@ -1,46 +1,56 @@
-# Conversa natural e controles nativos
+# Conversation behavior and native controls
 
-## Entrada em português
+Documentation is in English. Literal Portuguese phrases below are examples of the currently supported chat language; English equivalents are explanatory, not supported-input guarantees.
 
-A conversa continua guiada por estado, mas aceita alternativas ao script numérico:
+## Natural date and choice input
 
-- `dia 23 de outubro desse ano`, `23 de outubro de 2027`, `23/10/2027` e `23/10`.
-- `amanhã`, `depois de amanhã`, `daqui a 3 dias` e `em uma semana`.
-- Na volta, `7 dias depois` e `uma semana depois` referem-se à data de ida.
-- `somos duas pessoas`, `só eu`, `prefiro a mais barata`, `sem escalas` e `pode buscar`.
-- `saio de Confins` e `quero ir para Bogotá` nos passos de origem/destino.
+The flow is still guided by conversation state, but users can use alternatives to numeric scripts:
 
-Usa-se horário de Brasília (UTC−3) para hoje/amanhã. Sem ano, assume o ano corrente e exibe a data interpretada; datas passadas são rejeitadas, nunca deslocadas silenciosamente ao próximo ano. Datas impossíveis, várias alternativas e expressões incompletas como `dia 23` exigem esclarecimento. A confirmação final sempre mostra DD/MM/AAAA antes de consultar.
+| Supported input | Meaning |
+| --- | --- |
+| `dia 23 de outubro desse ano` | October 23 this year |
+| `23 de outubro de 2027`, `23/10/2027` | An explicit date |
+| `23/10` | October 23 of the current year |
+| `amanhã`, `depois de amanhã` | Tomorrow, the day after tomorrow |
+| `daqui a 3 dias`, `em uma semana` | In three days, in one week |
+| `7 dias depois`, `uma semana depois` | On the return step: seven days after departure |
+| `somos duas pessoas`, `só eu` | Two adults, one adult |
+| `prefiro a mais barata`, `sem escalas` | Lowest price, nonstop |
+| `saio de Confins`, `quero ir para Bogotá` | Origin/destination phrases at the relevant step |
+| `pode buscar` | Confirm the search |
 
-Não é interpretação irrestrita por IA. Dias da semana isolados, pedidos contendo vários campos e correções arbitrárias ainda não são interpretados. O parser é local, sem serviço de IA ou custo de API.
+Relative dates use Brasília time (UTC−3). Missing years mean the current year; past dates are rejected, never silently moved to the next year. Impossible dates, multiple alternatives, and incomplete phrases such as `dia 23` require clarification. Final confirmation always shows DD/MM/YYYY.
 
-## WhatsApp
+This is not unrestricted AI understanding. Bare weekdays, multi-field requests, and arbitrary corrections are not yet interpreted. Parsing is local and does not require a paid AI service.
 
-- Passageiros: lista com seis opções de adultos.
-- Preferências: lista com quatro critérios, sem confundir preço com conforto.
-- Confirmação: botões `Confirmar busca` e `Recomeçar`.
-- Resultados: lista com até quatro ofertas e ações para ajustar a viagem.
-- Oferta selecionada: resumo e botão nativo de URL `Abrir oferta`, direcionado ao link retornado pelo Google Flights. Ainda não é checkout próprio nem link direto garantido da companhia.
-- `ofertas` reapresenta as opções; os comandos digitados continuam funcionando.
+## Native WhatsApp controls
 
-Listas usam no máximo dez itens, títulos de até 24 caracteres e descrições de até 72; confirmações usam dois botões com títulos curtos. O corpo interativo fica limitado conservadoramente a 1.024 caracteres. Links extensos não são transformados em CTA; permanecem como texto.
+- Passengers: a list of six adult-count options.
+- Preferences: four ranking/filter choices; price is not treated as comfort.
+- Budget: typed total or the `Sem limite` (No limit) button.
+- Confirmation: `Confirmar busca` (Confirm search) and `Recomeçar` (Start over).
+- Results: up to four offers plus refinement actions.
+- Selected offer: a summary and `Abrir oferta` (Open offer), a native URL button using the returned Google Flights link. This is not an Atlas checkout or a guaranteed direct airline purchase link.
+- `ofertas` redisplays options; typed commands remain supported.
 
-Respostas `list_reply` e `button_reply` são tratadas pelos IDs, nunca pelo título enviado no evento. IDs aleatórios são vinculados à última mensagem de escolhas da sessão. Uma escolha antiga ou desconhecida não altera a viagem; o bot oferece as opções atuais. A deduplicação por ID da mensagem também cobre cliques. Ao selecionar uma oferta, o menu anterior fica obsoleto; use `ofertas` para reabrir.
+Lists contain at most ten rows, with titles limited to 24 characters and descriptions to 72. Confirmation uses two short buttons. Interactive bodies are conservatively limited to 1,024 characters. URLs longer than the local CTA limit remain text links.
 
-O envio usa a mesma Graph API oficial e a mesma conversa ativa. Nenhum template pago ou serviço adicional foi contratado. Isso não garante gratuidade de uso em produção.
+`list_reply` and `button_reply` events are handled by ID, not the submitted title. Random IDs are tied to the latest choice message in a session. Old or unknown choices do not change the trip; the bot offers current choices again. Message-ID deduplication covers clicks. Selecting an offer invalidates the previous menu; `ofertas` opens it again.
 
-## Validação
+Delivery uses the official Graph API and the active test conversation. No paid template or additional service was purchased. This does not guarantee free production use.
 
-35 testes locais: datas, ambiguidades, confirmação, payloads nativos, IDs antigos/falsos, fila, persistência, assinatura e voos. A Meta aceitou em teste real `interactive.type=cta_url` e `interactive.type=list` para o destinatário privado.
+## Total-trip budget
 
-Referências: [exemplos oficiais de listas/botões da Meta](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (SDK arquivado; payloads de lista/botão), [documentação de CTA URL](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). A página de CTA retornou HTTP 429 durante a consulta; o formato foi validado também por envio real à API.
+After the ranking preference, Atlas asks for a BRL cap covering round-trip tickets for every requested adult. Accepted examples include `até R$ 1.500,50`, `2 mil`, `1500`, and `sem limite`. Hotel costs, activities, and charges absent from the provider's fare are not included. Per-person amounts, multiple amounts, and other currencies require clarification.
 
-## Orçamento total
+The cap appears in confirmation. Decimal filtering happens before ranking and the four-offer limit. Text, lists, and link selection share the filtered set. Offers above the cap have no matching-offer purchase choice. If none fit, Atlas names the lowest returned fare for the criteria and explicitly says it exceeds the cap. This is not evidence that no cheaper fare exists elsewhere.
 
-Depois da preferência, o bot pede o teto em BRL para todas as passagens de ida e volta de todos os adultos. Pode-se digitar `até R$ 1.500,50`, `2 mil`, `1500` ou usar o botão `Sem limite`. Não inclui hospedagem, passeios ou taxas não informadas pelo fornecedor. Valores por pessoa, múltiplos valores e moedas diferentes exigem esclarecimento.
+After searching, `orçamento`, `alterar orçamento`, or `tá caro` opens budget adjustment. This filters the stored result snapshot, keeps its query time, and states that no new search occurred. `buscar` refreshes the source; `sem limite` removes the filter. Changing passengers retains the total-budget concept and asks for confirmation again. Older sessions without a budget default to no cap.
 
-O orçamento aparece na confirmação. Filtro usa Decimal e é aplicado antes do ranking e do limite de quatro opções. Mensagem, lista e seleção do link usam o mesmo conjunto filtrado. Uma oferta acima do teto não recebe opção de compra. Se não houver resultado dentro do limite, informa-se a menor tarifa recebida para os critérios, explicitamente acima do teto; isso não garante inexistência de tarifas menores em outras fontes.
+Flexible dates and destination discovery by budget are still planned. Atlas does not issue extra searches to guarantee exhaustive price coverage.
 
-Após consultar, `orçamento`, `alterar orçamento` ou `tá caro` abrem o ajuste. Esse ajuste filtra o resultado armazenado, preserva o horário da consulta e informa que não houve nova busca. `buscar` atualiza a fonte; `sem limite` remove o filtro. Alterar passageiros mantém o conceito de orçamento total, que é perguntado e confirmado novamente.
+## Validation and references
 
-Sessões antigas sem orçamento equivalem a sem limite. Datas flexíveis e destinos por orçamento continuam pendentes. A busca usa a amostra retornada pelo provedor; não faz consultas adicionais para garantir cobertura de todas as tarifas.
+The implementation passed 35 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
+
+References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.

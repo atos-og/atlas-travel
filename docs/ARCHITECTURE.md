@@ -1,25 +1,44 @@
-# Arquitetura
+# Architecture
 
 ```text
-WhatsApp → Meta → HTTPS/túnel → webhook HMAC → inbox SQLite
-                                               ↓ worker único
-                                     conversa e sessão SQLite
-                                               ↓ confirmação
-                                     subprocesso fli (55s)
-                                               ↓
-                                     normalização e ranking
-                                               ↓
-                                     WhatsApp Graph API
+WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
+                                                       ↓ single worker
+                                              conversation + session
+                                                       ↓ confirmation
+                                              fli subprocess (55s)
+                                                       ↓
+                                              normalize, filter, rank
+                                                       ↓
+                                              WhatsApp Graph API
 ```
 
-`webhook.py` valida desafio, assinatura e tamanho; confirma eventos após persistência. `messaging.py` filtra remetente/idade, deduplica, processa e envia. `conversation.py` mantém passos com busca injetável. `flights.py` resolve aeroportos, limita execução e apresenta resultados. `providers/google_flights.py` isola a biblioteca não oficial.
+## Responsibilities
 
-A transação SQLite é liberada antes da consulta. No reinício, itens `processing` voltam à fila; `sending` vira `uncertain`, evitando repetir envios possivelmente entregues. Não existe garantia de entrega exatamente uma vez. Worker único: cancelamentos aguardam a busca em andamento.
+- `webhook.py`: challenge verification, HMAC validation, request limits, and event acknowledgment after persistence.
+- `messaging.py`: sender and message-age checks, deduplication, queue processing, outbound delivery, and delivery-status updates.
+- `conversation.py`: channel-independent conversation states and an injectable search function.
+- `language.py`: supported Portuguese dates and short phrases, interpreted locally.
+- `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
+- `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
+- `providers/google_flights.py`: the unofficial provider boundary.
+- `interactive.py`: text/list/button/URL payloads, session-bound choice IDs, and inbound click normalization.
 
-Normalização exige ida/volta completas, datas/aeroportos correspondentes, BRL e preço positivo. No fli, o preço da primeira jornada representa a ida e volta: não se somam as jornadas. Ranking remove duplicatas, limita a quatro e não promete cobrir o mercado. Maior preço ordena somente as opções encontradas.
+## Persistence and delivery
 
-Credenciais em `.env`; conversas/ofertas em SQLite local. Logs omitem payloads, telefone e tokens. Dependência fli fixada em revisão Git. Testes de domínio sem rede.
+The worker releases its SQLite transaction before querying the provider. On restart, `processing` items return to the queue; `sending` items become `uncertain` to avoid repeating possibly delivered messages. This is not an exactly-once delivery guarantee. The prototype has one worker, so cancellation waits for an ongoing query to finish.
 
-Limitações: servidor de desenvolvimento, destinatário único, banco sem criptografia própria e sem expiração automática, túnel temporário. Antes de uso público: consentimento, retenção/exclusão, limites, observabilidade, hospedagem estável e revisão das condições das fontes.
+Choice IDs are stored before sending the response. The system sends one response message per processed event. An API acceptance and a delivery confirmation are separate states. Ambiguous sends are not automatically retried.
 
-`language.py` interpreta frases suportadas localmente. `interactive.py` adapta respostas para texto/lista/botões/CTA, associa IDs aleatórios à sessão e normaliza eventos de cliques. O núcleo continua independente do canal. O resultado enviado continua sendo uma mensagem por evento; IDs de escolha são persistidos antes do envio.
+## Fare integrity
+
+Normalization requires a complete outbound and return journey, matching airports and dates, BRL currency, and a positive price. In the pinned fli representation, the first journey's price represents the round-trip total; journey prices must not be added together.
+
+The optional cap applies to the total for all requested adults, before sorting and limiting the display to four options. Text, lists, and link selection use the same filter. Highest-price ranking only reorders returned options and makes no claim about comfort or full-market coverage.
+
+Budget refinement uses the existing result snapshot and retains its query time. A new search must be requested explicitly. Travel-source coverage remains limited to the provider's returned sample.
+
+## Privacy and operational limits
+
+Secrets stay in `.env`; conversations and offers stay in local SQLite files. Logs omit tokens, phone numbers, and message payloads. The optional fli dependency is pinned to a Git revision. Domain tests do not require network access.
+
+This is a development HTTP server with one permitted recipient, a temporary tunnel, and local storage without application-level encryption or automatic retention expiry. Before public use, address consent, deletion and retention, limits, observability, stable hosting, and provider terms.

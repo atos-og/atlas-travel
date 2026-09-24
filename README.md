@@ -1,48 +1,61 @@
 # Atlas
 
-Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Protótipo privado em Python com WhatsApp Cloud API oficial, sessões persistentes e consulta experimental de voos.
+A conversational travel assistant built as a public portfolio project. The current private prototype uses Python, the official WhatsApp Cloud API, persistent conversations, and experimental flight search.
 
-## Recursos
+## Features
 
-- Aeroportos, datas de ida/volta, 1 a 6 adultos e confirmação antes da consulta.
-- Datas em português: `dia 23 de outubro desse ano`, `amanhã`, `daqui a 3 dias` e volta `7 dias depois`.
-- Listas nativas de passageiros, preferências e ofertas; botões de confirmação e CTA `Abrir oferta`.
-- Menor preço, menor duração, sem paradas ou maior preço entre as ofertas retornadas.
-- Orçamento total em reais para ida e volta de todos os adultos, ajustável após a consulta.
-- Até quatro ofertas com total de ida e volta, horários, companhias, duração e links no Google Flights quando a fonte retorna dados válidos.
-- Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `orçamento`, `ofertas`, `link 1` e `cancelar`.
-- Webhook HMAC, destinatário permitido, fila SQLite, deduplicação e status de entrega.
+- Guided round-trip searches with explicit airports, dates, and 1–6 adults.
+- Supported Portuguese date expressions, such as `dia 23 de outubro desse ano` (October 23 this year), `amanhã` (tomorrow), and `7 dias depois` (seven days after departure).
+- Native passenger, preference, and offer lists; confirmation buttons; an **Open offer** URL button, currently labeled `Abrir oferta` in the Portuguese conversation.
+- Ranking by lowest price, shortest duration, nonstop service, or highest price among returned offers.
+- An optional total budget in BRL for all adults and both directions, adjustable after a search.
+- Up to four displayed offers with round-trip totals, local times, airlines, durations, and Google Flights links when valid data is available.
+- Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
 
-**Fonte aérea experimental:** consultas reais CNF–GRU foram executadas com sucesso para um e dois adultos em 23/09/2026 (horário de Brasília), com ranking e links gerados. A fonte havia retornado vazia anteriormente e continua sujeita a instabilidade. A compra e o preço final no site do fornecedor não foram validados. Veja [o registro da consulta](docs/LIVE_VALIDATION.md).
+**Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Ônibus, roteiros, datas flexíveis, alertas e preferências são próximos marcos. O fluxo atual é guiado com interpretação determinística de frases em português; não usa LLM nem exige API paga de IA. Datas ambíguas pedem esclarecimento.
+Bus travel, sightseeing itineraries, flexible dates, alerts, and saved preferences are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification.
 
-## Executar
+## Run locally
 
-Python 3.12+ e Git. Simulador e testes não precisam de dependências externas:
+Python 3.12+ and Git are required. The offline simulator and unit tests have no third-party dependencies:
 
 ```sh
 python -m atlas
 python -m unittest discover -s tests -v
 ```
 
-Para o webhook e a fonte experimental, crie um ambiente virtual, instale `requirements.txt`, copie `.env.example` para `.env` e configure conforme [o guia](docs/WHATSAPP_SETUP.md). Execute `python -m atlas.webhook` usando esse ambiente. Servidor: `127.0.0.1:8787`. A callback precisa de HTTPS externo. Respostas e consultas externas ficam desativadas por padrão.
+To run the webhook with the optional flight provider:
 
-Exemplo: `oi` → `Confins` → `Bogotá` → data da ida → data da volta → `1` adulto → `1` menor preço → `sim`. Datas futuras em DD/MM/AAAA. `São Paulo` e `Colômbia` pedem escolha de aeroporto. O comando `python -m atlas` continua sendo uma demonstração sem internet.
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env
+# Fill in the private settings described in the setup guide.
+.venv\Scripts\python.exe -m atlas.webhook
+```
 
-## Limitações
+The server listens on `127.0.0.1:8787`. Meta needs a publicly reachable HTTPS callback. Outbound replies and external searches are disabled by default. Follow the [WhatsApp setup guide](docs/WHATSAPP_SETUP.md).
 
-Fonte não oficial de Google Flights, sujeita a mudanças. Não cobre todas as fontes nem garante o menor preço do mercado. Links levam ao Google Flights, não a checkout próprio. Bagagem, reembolso e conforto não são inferidos do preço. Apenas econômica, ida e volta e adultos nesta versão.
+Example conversation, one message per step: `oi` → `Confins` → `Bogotá` → departure date → return date → `1` adult → `1` for lowest price → `sem limite` for no budget limit → `sim` to confirm. Use future dates. Ambiguous places such as São Paulo or Colombia require a specific airport. `python -m atlas` remains an offline demonstration and does not query fares.
 
-Operação inicial sem contratação de serviços, em teste privado. Isso não garante gratuidade do WhatsApp em produção. Computador, túnel e processo precisam estar ativos. Não está pronto para atendimento público.
+## Scope and limitations
 
-## Documentação
+The unofficial Google Flights provider may change or become unavailable. Atlas does not cover every source or guarantee the market's lowest price. Links open Google Flights, not an Atlas checkout. Baggage, refund rules, and comfort are not inferred from price. Only economy round trips for adults are supported.
 
-- [Plano e diferenciais](docs/PLAN.md)
-- [Arquitetura](docs/ARCHITECTURE.md)
-- [Estado da validação](docs/STATUS.md)
-- [WhatsApp](docs/WHATSAPP_SETUP.md)
-- [Linguagem e mensagens interativas](docs/CONVERSATION.md)
-- [Segurança](SECURITY.md)
+The initial setup is a private test without purchased services. This does not guarantee free WhatsApp production usage. The computer, tunnel, and server must remain running. The prototype is not ready for public customer service.
 
-Adaptação seletiva do [Fly Club](https://github.com/atos-og/flyclub), também de Atos Barros. [Atribuições](THIRD_PARTY_NOTICES.md). Licença MIT.
+## Documentation
+
+- [Brand and product brief — nontechnical](docs/BRAND_BRIEF.md)
+- [Product plan and differentiators](docs/PLAN.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Implementation and validation status](docs/STATUS.md)
+- [WhatsApp setup](docs/WHATSAPP_SETUP.md)
+- [Conversation behavior and native controls](docs/CONVERSATION.md)
+- [Security](SECURITY.md)
+- [Contribution and language policy](CONTRIBUTING.md)
+
+Repository documentation is written in English. Quoted Portuguese phrases document the current user-facing conversation; they are not English-language input support claims.
+
+Selected provider behavior was adapted from [Fly Club](https://github.com/atos-og/flyclub), also by Atos Barros. See [third-party notices](THIRD_PARTY_NOTICES.md). Licensed under MIT.

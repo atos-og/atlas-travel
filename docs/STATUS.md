@@ -1,19 +1,27 @@
-# Estado em 23/09/2026
+# Implementation status — September 24, 2026
 
-O usuário confirmou respostas reais no WhatsApp de teste. A aplicação e a conta WhatsApp foram inscritas; acesso continua restrito ao destinatário local permitido.
+## WhatsApp
 
-Fluxo experimental implementado: confirmação, aeroportos, datas, adultos, preferências, normalização de ida/volta, até quatro resultados e seleção de links. Consulta em subprocesso limitado a 55 segundos, sem manter transação SQLite aberta durante a busca.
+The owner confirmed receiving real replies from the test integration. The application and WhatsApp account subscriptions were configured. Access remains limited to the configured private recipient. A subsequent conversation reached `complete` with a successful search and 38 returned offers; recent conversation replies had delivery confirmations.
 
-As consultas iniciais retornaram vazias. Uma nova execução real de CNF–GRU, ida 23/10/2026 e volta 30/10/2026, retornou ofertas para um e dois adultos pelo mesmo subprocesso usado pelo bot. Ranking e formatação exibiram quatro opções com links em ambos os casos. Detalhes e limites em [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Não houve compra nem confirmação de preço no checkout.
+Native lists, confirmation buttons, and an offer URL button are implemented. Meta accepted real `list` and `cta_url` test messages. Acceptance alone is not proof that every client rendered the controls correctly or that every later message was delivered.
 
-Testes automatizados cobrem conversa, assinatura, duplicatas, acesso, datas, total de ida/volta, ranking, links, timeout e persistência. Não substituem validação externa.
+## Flights
 
-Pendências: validação de preços e disponibilidade no site do fornecedor; estabilidade da fonte; crianças; datas flexíveis; ônibus; roteiros; preferências; monitoramento. Sem pagamento, emissão, reserva ou implantação pública do bot.
+The flow collects airports, dates, adults, preferences, an optional total budget, and confirmation. It normalizes complete round trips and displays up to four ranked offers with links. Searches run in a subprocess limited to 55 seconds without holding a SQLite transaction open.
 
-## Atualização de conversa e interface
+Initial external searches returned no results. Later CNF–GRU queries for October 23–30, 2026 succeeded for one and two adults through the same subprocess used by the bot. Both produced four displayable offers with links. See [LIVE_VALIDATION.md](LIVE_VALIDATION.md). No purchase or checkout-total verification was performed.
 
-O teste real do usuário terminou em sessão `complete`, com `success` e 38 ofertas recebidas. As respostas recentes foram entregues. Foram implementadas datas naturais em português, sinônimos de preferências/passageiros, listas, botões de confirmação e CTA URL nativo. A Meta aceitou a lista e o CTA no teste privado. Detalhes em [CONVERSATION.md](CONVERSATION.md).
+## Conversation and budget
 
-## Busca por orçamento
+Supported Portuguese dates and preference/passenger phrases are parsed locally. Ambiguous inputs require clarification. Native choices have session-bound IDs; old choices cannot silently change the trip.
 
-Implementado teto total em BRL para todos os adultos, confirmação explícita, botão Sem limite, ajuste via comando/lista e filtro consistente entre ranking, lista e links. Acima do teto não é apresentado como oferta compatível. Refinamento da consulta anterior não dispara busca externa. 35 testes locais passaram, incluindo limites de centavos, remoção do teto, mensagens ambíguas, confirmação e menu de até dez linhas.
+The budget is a total BRL cap for all adults and both directions. Confirmation states its scope. Ranking, native lists, and link selection share the filter. Over-budget fares are not presented as matching offers. Refining the stored results does not trigger a new external search and is labeled accordingly.
+
+## Validation and remaining work
+
+The latest implementation run passed 35 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test.
+
+Remaining work includes supplier-page price verification, source reliability, child passengers, flexible dates, bus fares, sightseeing itineraries, saved preferences, and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
+
+Runtime tokens and temporary tunnels can expire; this file records implementation evidence, not a live uptime guarantee.

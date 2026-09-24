@@ -1,27 +1,27 @@
-# WhatsApp privado de teste
+# Private WhatsApp test setup
 
-1. Crie um app Meta com o caso de uso WhatsApp e os recursos de teste disponibilizados pela conta.
-2. Cadastre/verifique o destinatário de teste e confirme o envio de exemplo.
-3. Copie `.env.example` para `.env`. Preencha access token, ID do número remetente, versão da Graph API e App Secret. Gere um verify token aleatório diferente do access token.
-4. Configure `ATLAS_ALLOWED_WHATSAPP_USER` com DDI e número, somente dígitos, correspondente ao remetente dos eventos oficiais.
-5. Execute `python -m atlas.webhook` no ambiente virtual. Use túnel HTTPS para a porta 8787 e callback `/webhook`, com o mesmo verify token.
-6. Inscreva o campo `messages` da aplicação e a aplicação na conta WhatsApp (WABA). Verificar a URL sozinha não comprova entrega de eventos.
-7. Ative `ATLAS_WHATSAPP_REPLIES_ENABLED=true`. Para voos, instale `requirements.txt` e ative `ATLAS_LIVE_FLIGHTS_ENABLED=true`.
-8. Envie `cancelar` do usuário autorizado para começar uma sessão nova.
+1. Create a Meta app with the WhatsApp use case and the test resources available to the account.
+2. Register/verify a test recipient and confirm the example message can be sent.
+3. Copy `.env.example` to `.env`. Set the access token, sending phone-number ID, Graph API version, and App Secret. Generate a random verification token distinct from the access token.
+4. Set `ATLAS_ALLOWED_WHATSAPP_USER` to the permitted sender's country code and number, digits only, matching the official incoming event.
+5. Run `python -m atlas.webhook` in the virtual environment. Expose port 8787 through an HTTPS tunnel and configure the `/webhook` callback with the same verification token.
+6. Subscribe to the application's `messages` field and subscribe the application to the WhatsApp Business Account (WABA). URL verification alone does not prove event delivery.
+7. Set `ATLAS_WHATSAPP_REPLIES_ENABLED=true`. For flight search, install `requirements.txt` and set `ATLAS_LIVE_FLIGHTS_ENABLED=true`.
+8. From the allowlisted recipient, send `cancelar` (the current Portuguese restart command) to begin a new session.
 
-Telas e requisitos variam conforme a conta. Este guia descreve o projeto, não garante gratuidade ou requisitos de produção. Esta etapa usa o número de teste, sem registrar um número de produção.
+Meta screens and requirements vary by account. This guide describes Atlas configuration, not a guarantee of free service or production eligibility. This stage uses the test number without registering a production phone number.
 
-## Diagnóstico
+## Diagnosis
 
-- `/health` identifica o servidor, não valida fontes externas.
-- Callback verificada: desafio GET e verify token aceitos.
-- POST assinado recebido: assinatura do App Secret validada.
-- `sent`: API aceitou envio; entrega é confirmada separadamente pelos eventos `statuses`.
-- `failed`: examine o código de erro local. Restrições de país/conta não se resolvem repetindo envios.
-- Sem resposta: confira processo, túnel, token, assinaturas, destinatário permitido e fila.
+- `/health` identifies the local server version; it does not validate external sources.
+- A verified callback means the GET challenge and verification token succeeded.
+- An accepted signed POST means App Secret signature verification succeeded.
+- Local `sent` means the API accepted the message; delivery is confirmed separately through status events.
+- For `failed`, inspect the local error code. Country/account restrictions are not fixed by repeated sends.
+- If replies stop, check the process, tunnel, token validity, subscriptions, allowlisted sender, and queue.
 
-Túnel temporário pode mudar de URL ao reiniciar; atualize a callback. Mantenha uma única instância de `atlas.webhook` com a Python do ambiente virtual. O servidor impede reutilização da porta.
+Temporary tunnels can expire or change their URL after restart. Update the callback when required. Keep one `atlas.webhook` instance using the virtual environment's Python. The server prevents port reuse. Settings are loaded for each event; changing `.env` does not require restarting the server solely to load a new token. Verify token validity with Meta without printing it.
 
-## Dados locais
+## Local data
 
-`work/conversations.db`: mensagens, respostas, remetente, ofertas e estado. `work/webhooks.db`: hashes dos eventos. Os bancos e `.env` ficam fora do Git. Envios incertos não são reenviados automaticamente. Use `cancelar` para recuperar uma conversa.
+`work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases and `.env` are excluded from Git. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.

@@ -1,20 +1,26 @@
-# Plano do Atlas
+# Product plan
 
-Objetivo: consultar e refinar viagens pelo WhatsApp, comparar alternativas e abrir links de fornecedores. Repositório público de portfólio, operação privada inicialmente sem contratação de serviços. Telegram permanece alternativa de canal.
+Atlas helps people search and refine travel options through WhatsApp, compare alternatives, and open provider links. Its source is public for portfolio purposes; operation starts as a private, no-purchased-services experiment. Telegram remains a possible alternative channel.
 
-## Marcos
+## Milestones
 
-1. **Conversa privada — implementada:** webhook, respostas, sessões, deduplicação e destinatário restrito.
-2. **Busca aérea — em validação:** fluxo, ranking, links e erros implementados. Consultas reais retornaram ofertas para um e dois adultos, com ranking e links. Ainda falta conferir disponibilidade e preço final no site do fornecedor; o usuário já concluiu uma busca real pelo WhatsApp.
-3. **Orçamento e refinamento — parcial:** teto total em BRL, ajuste após busca, mensagens para resultados acima do teto e seleção consistente implementados. Próximos: datas flexíveis com limite de consultas e destinos sugeridos. Separar estimativas de tarifas verificadas.
-4. **Avião e ônibus:** selecionar fonte rodoviária viável. Comparar total, duração, paradas, terminais e categoria informada; deslocamento terrestre quando houver dados.
-5. **Roteiro personalizado:** interesses, dias, ritmo e orçamento; passeios por proximidade. Horários/preços com fonte, data e confirmação quando necessária.
-6. **Preferências e alertas:** salvar escolhas com opção de apagar. Monitoramento exige fonte estável e avaliação do custo de mensagens proativas.
+1. **Private conversation — implemented:** webhooks, replies, persistent sessions, deduplication, and an allowlisted recipient.
+2. **Flight search — in validation:** guided inputs, rankings, links, and failure handling are implemented. Live searches returned offers for one and two adults. The owner completed a search through WhatsApp. Supplier-page availability and checkout totals still need validation.
+3. **Budget and refinement — partially implemented:** a total BRL cap, post-search adjustments, explicit over-budget messages, and consistent offer selection are implemented. Flexible dates with query limits and destination suggestions remain planned. Estimates must be distinguished from verified fares.
+4. **Flights and buses:** select a viable bus data source before promising coverage. Compare total cost, duration, stops, terminals, and supplier-reported travel class. Include terminal transfers when reliable information is available.
+5. **Personalized sightseeing itineraries:** use travel dates, interests, pace, location, and spending preferences. Group activities by proximity. Opening hours, prices, and availability need sources, dates, and confirmation where appropriate.
+6. **Preferences and alerts:** remember useful choices with an option to delete them. Monitoring requires a stable source and a cost assessment for proactive messaging.
 
-## Diferenciais
+## Intended differentiators
 
-Comparação avião × ônibus; busca por orçamento; roteiro personalizado; memória de preferências; sugestões contextuais dos recursos disponíveis. Após escolher voo, oferecer roteiro; diante de preço alto, sugerir outras datas ou transportes. Recursos futuros não serão apresentados como disponíveis. `ajuda` já distingue os dois.
+Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. After choosing a flight, a future version could offer an itinerary. When prices are high, it could suggest alternative dates or transport.
 
-## Portfólio
+Planned capabilities must never be presented as already available. The help response distinguishes current features from future work. No audited competitor feature comparison has been completed, so these are product directions rather than verified exclusivity claims.
 
-O valor técnico está na integração real, estado de conversa, normalização de tarifas, segurança e tratamento de falhas. Prioridade: validar a fonte aérea antes de adicionar IA ou ônibus. Uma futura IA deverá transformar pedidos em critérios validados; preços e links continuarão vindo das fontes.
+## Portfolio value
+
+The project demonstrates real integrations, conversation state, fare normalization, webhook security, testing, and honest failure handling. Source reliability takes priority over adding an LLM or additional transport providers. A future LLM may translate requests into validated criteria; prices and links must still come from travel sources.
+
+## Language
+
+Documentation, contribution guidance, and commit descriptions use English. The current traveler conversation is in Portuguese. Future localization should be deliberate and tested; translating documentation does not change supported chat inputs.

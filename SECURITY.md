@@ -1,7 +1,7 @@
-# Segurança
+# Security
 
-Protótipo privado. Não publique `.env`, tokens, telefones reais, payloads, bancos ou logs em commits/issues. Reproduza falhas com dados sintéticos. Se uma credencial vazar, revogue no provedor; apagar o arquivo não remove o histórico.
+Atlas is a private prototype. Never publish `.env`, tokens, real phone numbers, raw payloads, conversation databases, or private logs in commits or issues. Use synthetic data to reproduce failures. Revoke exposed credentials with the provider; removing a file does not erase Git history.
 
-Eventos exigem assinatura, ID comercial esperado e destinatário permitido. Respostas desativadas por padrão. Dados em `work/` permanecem até exclusão manual com o servidor parado; não há expiração automática.
+Incoming events require a valid signature, the expected business phone-number ID, and an allowlisted sender. Replies are disabled by default. Data in `work/` remains until manually deleted with the server stopped; automatic retention expiry is not implemented.
 
-Relate vulnerabilidades em canal privado do mantenedor ou relato privado do GitHub se disponível. Nunca inclua segredos em issue pública.
+Report vulnerabilities through a private maintainer channel or GitHub private vulnerability reporting if available. Never include secrets in a public issue.
