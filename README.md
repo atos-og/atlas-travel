@@ -56,6 +56,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [Product plan and differentiators](docs/PLAN.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Implementation and validation status](docs/STATUS.md)
+- [Private prototype acceptance and remaining work](docs/ACCEPTANCE_CHECKLIST.md)
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
 - [Security](SECURITY.md)
