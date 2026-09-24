@@ -61,7 +61,7 @@ class FlightTests(unittest.TestCase):
         bot = Conversation(provider)
         def say(text):
             return bot.reply('test', text, today=date(2026, 9, 23))
-        for message in ['oi', 'CNF', 'GRU', '23/10/2026', '30/10/2026', '2', '1']:
+        for message in ['oi', 'CNF', 'GRU', '23/10/2026', '30/10/2026', '2', '1', 'sem limite']:
             last = say(message)
         self.assertIn('Confirmar', last)
         self.assertEqual(calls, [])
@@ -73,7 +73,7 @@ class FlightTests(unittest.TestCase):
     def test_live_links_follow_display_order(self):
         offer = normalize(self.raw, self.client, self.values)
         bot = Conversation(lambda _: {'status': 'success', 'offers': [offer]})
-        for text in ['oi', 'CNF', 'GRU', '23/10/2026', '30/10/2026', '2', '1', 'sim']:
+        for text in ['oi', 'CNF', 'GRU', '23/10/2026', '30/10/2026', '2', '1', 'sem limite', 'sim']:
             answer = bot.reply('test', text, today=date(2026, 9, 23))
         self.assertIn('900,00', answer)
         self.assertLess(len(answer), 4096)

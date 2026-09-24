@@ -7,6 +7,7 @@ import sys
 import unicodedata
 from datetime import datetime, timezone
 from decimal import Decimal
+from .budget import money, label
 
 
 def plain(text):
@@ -63,9 +64,11 @@ def search(values):
         return {'status': 'unavailable', 'offers': []}
 
 
-def rank(offers, priority):
+def rank(offers, priority, budget=None):
     unique = {}
     for offer in offers:
+        if budget is not None and Decimal(offer['price']) > Decimal(budget):
+            continue
         if priority == '3' and offer['stops'] != 0:
             continue
         key = json.dumps(offer['journeys'], sort_keys=True)
@@ -92,13 +95,23 @@ def format_results(result, values):
     }
     if result.get('status') != 'success':
         return messages.get(result.get('status'), messages['unavailable']) + '\nUse buscar para tentar novamente, datas para ajustar ou cancelar para recomeçar.'
-    selected = rank(result['offers'], values['priority'])
+    selected = rank(result['offers'], values['priority'], values.get('budget'))
     if not selected:
+        eligible = rank(result['offers'], '3' if values['priority'] == '3' else '1')
+        if values.get('budget') is not None and eligible:
+            cheapest = eligible[0]['price']
+            return (f"Nenhuma das ofertas retornadas cabe no {label(values['budget'])}. "
+                    f"A menor tarifa encontrada para os critérios foi R$ {money(cheapest)}, acima do limite. "
+                    f"Consulta: {result.get('checked_at', 'horário não disponível')}. "
+                    'Isso não prova ausência de tarifas mais baratas em outras fontes. '
+                    'Use orçamento para ajustar o total, datas para mudar a viagem ou buscar para atualizar.')
         return messages['empty'] + '\nUse filtros para mudar a preferência ou cancelar para recomeçar.'
     stamp = result.get('checked_at', datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M UTC'))
     order = {'1': 'menor preço', '2': 'menor duração total', '3': 'sem paradas', '4': 'maior preço'}[values['priority']]
     lines = [f"{values['origin']} → {values['destination']} | ida e volta | {values.get('adults', '1')} adulto(s) | econômica",
              f"Google Flights • {stamp}", f"Ordem: {order}, entre as opções retornadas."]
+    if values.get('budget') is not None:
+        lines.append(label(values['budget']) + '.')
     for i, offer in enumerate(selected, 1):
         price = f"{Decimal(offer['price']):,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
         lines.append(f"\n{i}. R$ {price} no total • até {offer['stops']} parada(s) por sentido")
@@ -107,5 +120,5 @@ def format_results(result, values):
             lines.append(f"{'Ida' if j == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']}")
         lines.append('Ver oferta: link ' + str(i) if offer.get('url') else 'Link indisponível para esta opção.')
     lines.append('\nHorários locais dos aeroportos. Bagagem e regras tarifárias não confirmadas. Preço sujeito a alteração no fornecedor.')
-    lines.append('Digite link 1 (ou 2, 3, 4), filtros, datas, passageiros, buscar ou cancelar.')
+    lines.append('Digite link 1 (ou 2, 3, 4), filtros, datas, passageiros, orçamento, buscar ou cancelar.')
     return '\n'.join(lines)

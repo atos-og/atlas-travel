@@ -6,7 +6,7 @@ Objetivo: consultar e refinar viagens pelo WhatsApp, comparar alternativas e abr
 
 1. **Conversa privada — implementada:** webhook, respostas, sessões, deduplicação e destinatário restrito.
 2. **Busca aérea — em validação:** fluxo, ranking, links e erros implementados. Consultas reais retornaram ofertas para um e dois adultos, com ranking e links. Ainda falta conferir disponibilidade e preço final no site do fornecedor; o usuário já concluiu uma busca real pelo WhatsApp.
-3. **Orçamento e refinamento:** teto de preço, datas flexíveis com limite de consultas e destinos sugeridos. Separar estimativas de tarifas verificadas.
+3. **Orçamento e refinamento — parcial:** teto total em BRL, ajuste após busca, mensagens para resultados acima do teto e seleção consistente implementados. Próximos: datas flexíveis com limite de consultas e destinos sugeridos. Separar estimativas de tarifas verificadas.
 4. **Avião e ônibus:** selecionar fonte rodoviária viável. Comparar total, duração, paradas, terminais e categoria informada; deslocamento terrestre quando houver dados.
 5. **Roteiro personalizado:** interesses, dias, ritmo e orçamento; passeios por proximidade. Horários/preços com fonte, data e confirmação quando necessária.
 6. **Preferências e alertas:** salvar escolhas com opção de apagar. Monitoramento exige fonte estável e avaliação do custo de mensagens proativas.

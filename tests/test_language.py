@@ -32,7 +32,7 @@ class LanguageTests(unittest.TestCase):
             requests.append(v)
             return {'status': 'empty', 'offers': []}
         bot = Conversation(search)
-        for text in ['oi', 'saio de Confins', 'quero ir para Guarulhos', 'dia 23 de outubro desse ano', '7 dias depois', 'duas pessoas', 'a mais barata']:
+        for text in ['oi', 'saio de Confins', 'quero ir para Guarulhos', 'dia 23 de outubro desse ano', '7 dias depois', 'duas pessoas', 'a mais barata', 'sem limite']:
             reply = bot.reply('user', text, today=date(2026, 9, 23))
         self.assertIn('23/10/2026', reply)
         self.assertIn('30/10/2026', reply)

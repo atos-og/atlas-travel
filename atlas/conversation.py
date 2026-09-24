@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from .language import local_today, parse_date, choice, clean
+from .budget import parse_budget, BUDGET_PROMPT, label
 
 
 @dataclass
@@ -88,15 +89,19 @@ class Conversation:
         values = session.values
         text = choice(text, session.step)
         if command == "ajuda":
-            return "Disponível: busca de voos de ida e volta, 1 a 6 adultos, comparação por preço/duração e filtro sem paradas. Após a busca: link 1, filtros, datas, passageiros ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, orçamento, roteiros e preferências."
+            return "Disponível: busca de voos de ida e volta, 1 a 6 adultos, limite total de orçamento, comparação por preço/duração e filtro sem paradas. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros, datas flexíveis e preferências."
         if session.step == "complete":
+            if command in {'orcamento', 'alterar orcamento', 'ta caro', 'esta caro', 'muito caro'}:
+                values['_budget_refine'] = True
+                session.step = 'budget'
+                return BUDGET_PROMPT
             if "adults" not in values:
                 session.step = "adults"
                 return "Atualizei o Atlas com busca de voos. Quantos adultos vão viajar? De 1 a 6."
             if command in {'ofertas', 'opcoes', 'ver ofertas'}:
                 return format_results(values.get('result', {'status': 'empty'}), values)
             if command.startswith("link "):
-                offers = rank(values.get("result", {}).get("offers", []), values["priority"])
+                offers = rank(values.get("result", {}).get("offers", []), values["priority"], values.get('budget'))
                 try:
                     index = int(command.split()[1]) - 1
                     if index < 0 or index >= len(offers):
@@ -113,7 +118,7 @@ class Conversation:
             if command == "buscar":
                 session.step = "confirm"
             else:
-                return "Use link 1 para ver uma oferta; filtros, datas ou passageiros para ajustar; buscar para atualizar; cancelar para outra viagem."
+                return "Use link 1 para ver uma oferta; filtros, datas, passageiros ou orçamento para ajustar; buscar para atualizar; cancelar para outra viagem."
         if session.step == "confirm":
             if command not in {"sim", "s", "buscar", "confirmar", "pode buscar", "pode sim", "isso", "isso mesmo", "ok"}:
                 return "Digite sim para consultar ou cancelar para recomeçar."
@@ -148,16 +153,26 @@ class Conversation:
             return "Nesta versão, informe de 1 a 6 adultos. Crianças e bebês ainda não são atendidos."
         if session.step == "priority" and text not in {"1", "2", "3", "4"}:
             return choices
+        if session.step == 'budget':
+            try:
+                text = parse_budget(text)
+            except ValueError:
+                return 'Não consegui interpretar o total. ' + BUDGET_PROMPT
+            if values.pop('_budget_refine', False):
+                values['budget'] = text
+                session.step = 'complete'
+                return 'Apliquei o orçamento às ofertas da consulta anterior. Use buscar para atualizar os preços.\n' + format_results(values.get('result', {'status': 'empty'}), values)
         transitions = {
             "origin": ("destination", f"Origem: {text}. Para qual cidade ou aeroporto você vai?"),
             "destination": ("departure", f'Destino: {text}. Qual é a data de ida? Pode escrever "dia 23 de outubro desse ano" ou DD/MM/AAAA.'),
             "departure": ("return", f"Entendi a ida em {text}. Qual é a data de volta? Pode usar uma data ou '7 dias depois'."),
             "return": ("adults", "Quantos adultos? De 1 a 6."),
             "adults": ("priority", choices),
-            "priority": ("confirm", ""),
+            "priority": ("budget", BUDGET_PROMPT),
+            "budget": ("confirm", ""),
         }
         values[session.step] = text
         session.step, answer = transitions[session.step]
         if session.step == "confirm":
-            return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}. Digite sim para consultar (pode levar até um minuto) ou cancelar.")
+            return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; {label(values.get('budget'))}. Digite sim para consultar (pode levar até um minuto) ou cancelar.")
         return answer

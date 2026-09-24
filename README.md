@@ -8,13 +8,14 @@ Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Pro
 - Datas em português: `dia 23 de outubro desse ano`, `amanhã`, `daqui a 3 dias` e volta `7 dias depois`.
 - Listas nativas de passageiros, preferências e ofertas; botões de confirmação e CTA `Abrir oferta`.
 - Menor preço, menor duração, sem paradas ou maior preço entre as ofertas retornadas.
+- Orçamento total em reais para ida e volta de todos os adultos, ajustável após a consulta.
 - Até quatro ofertas com total de ida e volta, horários, companhias, duração e links no Google Flights quando a fonte retorna dados válidos.
-- Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `link 1` e `cancelar`.
+- Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `orçamento`, `ofertas`, `link 1` e `cancelar`.
 - Webhook HMAC, destinatário permitido, fila SQLite, deduplicação e status de entrega.
 
 **Fonte aérea experimental:** consultas reais CNF–GRU foram executadas com sucesso para um e dois adultos em 23/09/2026 (horário de Brasília), com ranking e links gerados. A fonte havia retornado vazia anteriormente e continua sujeita a instabilidade. A compra e o preço final no site do fornecedor não foram validados. Veja [o registro da consulta](docs/LIVE_VALIDATION.md).
 
-Ônibus, roteiros, orçamento, alertas e preferências são próximos marcos. O fluxo atual é guiado com interpretação determinística de frases em português; não usa LLM nem exige API paga de IA. Datas ambíguas pedem esclarecimento.
+Ônibus, roteiros, datas flexíveis, alertas e preferências são próximos marcos. O fluxo atual é guiado com interpretação determinística de frases em português; não usa LLM nem exige API paga de IA. Datas ambíguas pedem esclarecimento.
 
 ## Executar
 

@@ -28,7 +28,7 @@ class PayloadTests(unittest.TestCase):
 
     def test_cta_only_uses_returned_provider_link(self):
         url = 'https://www.google.com/travel/flights/booking?test=synthetic'
-        offer = {'price': '1234', 'url': url, 'journeys': []}
+        offer = {'price': '1234', 'url': url, 'journeys': [], 'duration': 120, 'stops': 0}
         s = Session('complete', {'origin': 'CNF', 'destination': 'GRU', 'adults': '2', 'result': {'offers': [offer]}})
         p = payload_for(s, 'Confira:\n'+url)
         self.assertEqual(p['interactive']['type'], 'cta_url')

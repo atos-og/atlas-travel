@@ -23,7 +23,7 @@ Não é interpretação irrestrita por IA. Dias da semana isolados, pedidos cont
 - Oferta selecionada: resumo e botão nativo de URL `Abrir oferta`, direcionado ao link retornado pelo Google Flights. Ainda não é checkout próprio nem link direto garantido da companhia.
 - `ofertas` reapresenta as opções; os comandos digitados continuam funcionando.
 
-Listas usam no máximo nove itens, títulos de até 24 caracteres e descrições de até 72; confirmações usam dois botões com títulos curtos. O corpo interativo fica limitado conservadoramente a 1.024 caracteres. Links extensos não são transformados em CTA; permanecem como texto.
+Listas usam no máximo dez itens, títulos de até 24 caracteres e descrições de até 72; confirmações usam dois botões com títulos curtos. O corpo interativo fica limitado conservadoramente a 1.024 caracteres. Links extensos não são transformados em CTA; permanecem como texto.
 
 Respostas `list_reply` e `button_reply` são tratadas pelos IDs, nunca pelo título enviado no evento. IDs aleatórios são vinculados à última mensagem de escolhas da sessão. Uma escolha antiga ou desconhecida não altera a viagem; o bot oferece as opções atuais. A deduplicação por ID da mensagem também cobre cliques. Ao selecionar uma oferta, o menu anterior fica obsoleto; use `ofertas` para reabrir.
 
@@ -31,6 +31,16 @@ O envio usa a mesma Graph API oficial e a mesma conversa ativa. Nenhum template 
 
 ## Validação
 
-28 testes locais: datas, ambiguidades, confirmação, payloads nativos, IDs antigos/falsos, fila, persistência, assinatura e voos. A Meta aceitou em teste real `interactive.type=cta_url` e `interactive.type=list` para o destinatário privado.
+35 testes locais: datas, ambiguidades, confirmação, payloads nativos, IDs antigos/falsos, fila, persistência, assinatura e voos. A Meta aceitou em teste real `interactive.type=cta_url` e `interactive.type=list` para o destinatário privado.
 
 Referências: [exemplos oficiais de listas/botões da Meta](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (SDK arquivado; payloads de lista/botão), [documentação de CTA URL](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). A página de CTA retornou HTTP 429 durante a consulta; o formato foi validado também por envio real à API.
+
+## Orçamento total
+
+Depois da preferência, o bot pede o teto em BRL para todas as passagens de ida e volta de todos os adultos. Pode-se digitar `até R$ 1.500,50`, `2 mil`, `1500` ou usar o botão `Sem limite`. Não inclui hospedagem, passeios ou taxas não informadas pelo fornecedor. Valores por pessoa, múltiplos valores e moedas diferentes exigem esclarecimento.
+
+O orçamento aparece na confirmação. Filtro usa Decimal e é aplicado antes do ranking e do limite de quatro opções. Mensagem, lista e seleção do link usam o mesmo conjunto filtrado. Uma oferta acima do teto não recebe opção de compra. Se não houver resultado dentro do limite, informa-se a menor tarifa recebida para os critérios, explicitamente acima do teto; isso não garante inexistência de tarifas menores em outras fontes.
+
+Após consultar, `orçamento`, `alterar orçamento` ou `tá caro` abrem o ajuste. Esse ajuste filtra o resultado armazenado, preserva o horário da consulta e informa que não houve nova busca. `buscar` atualiza a fonte; `sem limite` remove o filtro. Alterar passageiros mantém o conceito de orçamento total, que é perguntado e confirmado novamente.
+
+Sessões antigas sem orçamento equivalem a sem limite. Datas flexíveis e destinos por orçamento continuam pendentes. A busca usa a amostra retornada pelo provedor; não faz consultas adicionais para garantir cobertura de todas as tarifas.
