@@ -12,7 +12,9 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 68 local tests. Integration health diagnostics also passed against the recovered Meta account.
+- [x] 90 local tests, including the sightseeing flow and native choices persisted through the queue.
+- [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
+- [x] Native capability menu and contextual itinerary suggestion.
 - [x] Live nearby-date provider check: three successful date pairs; see [the evidence](LIVE_VALIDATION.md).
 - [x] Approved brand reference and English identity guide committed.
 
@@ -24,7 +26,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Confirm the app remains subscribed to the test WhatsApp account.
 - [ ] Confirm a new authorized inbound message produces a delivered reply.
 
-The local server has been reloaded with the implemented features. On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. A single reconnection notice was accepted by Meta and a signed sent-status event reached the webhook. Recipient delivery and a new owner-driven feature test remain unconfirmed. The token and tunnel remain temporary.
+On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. The reconnection notice subsequently received a delivery confirmation. A new owner-driven feature test remains pending. The token and tunnel remain temporary; the owner is managing credential renewals while development continues.
 
 ## Owner-driven WhatsApp acceptance
 
@@ -40,6 +42,9 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 8. Delete preferences and inspect them again. Confirm that deletion does not claim to erase the current conversation.
 9. Click an older menu after a trip change. Verify it cannot change the current trip.
 10. Open a returned provider link and compare dates, passengers, total, baggage, and fare rules. A price difference is possible; record it rather than claiming a guaranteed fare.
+11. Send `menu`, choose the itinerary flow, and complete a 1–3-day draft. Verify its city, interests, pace, dates, and sources.
+12. Remove a place, confirm rebuilding, and verify that it does not return. Change the pace and confirm again.
+13. Use `voltar aos voos` and verify the previous flight question or results are preserved; reopen with `meu roteiro`.
 
 ## Remaining product work
 
@@ -49,7 +54,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 | Language coverage | Expand a regression corpus; evaluate a language model only against the zero-cost/private-use constraint. |
 | Brand production | Obtain or produce faithful separate avatar and cover exports; then apply them to the intended account surfaces. |
 | Bus travel | Select and validate a usable source before offering bus prices or cross-mode comparisons. |
-| Sightseeing | Build sourced destination content and itinerary rules for dates, interests, pace, and geographic proximity. |
+| Sightseeing | Validate the implemented flow on WhatsApp; expand coverage and verify calendars, costs, and travel times. |
 | Alerts | Establish stable execution, opt-in rules, source reliability, and messaging cost before promising monitoring. |
 | Broader flexible dates | Define query limits and user-approved date ranges before offering whole-month exploration. |
 | Operations | Replace fragile test credentials/tunnels with an appropriate stable setup when the project is ready. |

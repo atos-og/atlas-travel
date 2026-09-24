@@ -15,10 +15,12 @@ A conversational travel assistant built as a public portfolio project. The curre
 - An optional total budget in BRL for all adults and both directions, adjustable after a search.
 - Up to four displayed offers with round-trip totals, local times, airlines, durations, and Google Flights links when valid data is available.
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
+- Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
+- A native capability menu, opened with `menu`, that makes implemented features discoverable.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Bus travel, sightseeing itineraries, whole-month date searches, and alerts are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification.
+Bus travel, broader itinerary coverage, whole-month date searches, and alerts are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
 
 ## Run locally
 
@@ -45,6 +47,8 @@ Example conversation, one message per step: `oi` → `Confins` → `Bogotá` →
 
 For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test API access without sending messages.
 
+Sightseeing also works in the offline simulator: send `roteiro para São Paulo`, `sem data`, `3 dias`, `misto`, `equilibrado`, then `montar`. Use `fontes do roteiro` for the sources and `voltar aos voos` to resume the flight flow. See [itinerary behavior and coverage](docs/ITINERARIES.md).
+
 ## Scope and limitations
 
 The unofficial Google Flights provider may change or become unavailable. Atlas does not cover every source or guarantee the market's lowest price. Links open Google Flights, not an Atlas checkout. Baggage, refund rules, and comfort are not inferred from price. Only economy round trips for adults are supported.
@@ -61,6 +65,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [Private prototype acceptance and remaining work](docs/ACCEPTANCE_CHECKLIST.md)
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
+- [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
 - [Security](SECURITY.md)
 - [Contribution and language policy](CONTRIBUTING.md)
 

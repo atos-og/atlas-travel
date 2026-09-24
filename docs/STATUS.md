@@ -22,7 +22,7 @@ The budget is a total BRL cap for all adults and both directions. Confirmation s
 
 The latest implementation run passed 73 local unit tests, including token expiry diagnostics, cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
 
-Remaining work includes supplier-page price verification, source reliability, child passengers, whole-month searches, bus fares, sightseeing itineraries and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
+Remaining work includes supplier-page price verification, source reliability, child passengers, whole-month searches, bus fares, expanded sightseeing coverage and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 
 Runtime tokens and temporary tunnels can expire; this file records implementation evidence, not a live uptime guarantee.
 
@@ -36,8 +36,14 @@ Explicit save/view/reuse/delete commands persist origin, adults, and ranking def
 
 ## Integration recovery and diagnostics
 
+The owner is handling access configuration and token renewals while product development continues.
+
 Account confirmation was completed by the owner. A new token was saved locally after app/scopes validation; the callback and account subscription were verified. The reconnection notice subsequently received a delivery confirmation. This does not complete acceptance of the latest conversation features.
 
 The temporary token expired again and was renewed with the same WhatsApp permissions. Read-only checks passed after renewal, with expiry reported at 22:00 UTC on September 24, 2026. A durable credential strategy remains pending; this is not a claim of ongoing availability.
 
 `python -m atlas.check` checks local readiness; `--meta` adds a read-only API check and `--token` inspects expiry using the optional `META_APP_ID` setting. No messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline.
+
+## Sightseeing and capability discovery
+
+A native `menu` exposes implemented features. Sightseeing runs alongside the saved flight flow, with explicit city, start date or no date, 1–3 days, interest, pace, and confirmation. The catalog contains four sourced places each for São Paulo and Bogotá. Plans group by editorial region, avoid repetitions and known recorded closures, and can be edited or have a place excluded. Empty days disclose catalog limits. Sources are accessible in the chat; live opening hours, costs, availability, and route times are not verified. The flight link message suggests this feature. All of this is tested locally, including persistence through the message queue; live WhatsApp acceptance remains pending. The expanded suite passes 90 tests, superseding the earlier count above.

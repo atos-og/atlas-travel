@@ -20,6 +20,8 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
 - `language.py`: supported Portuguese dates and short phrases, interpreted locally.
 - `preferences.py`: explicit per-user defaults, stored separately from conversation sessions.
+- `itinerary.py`: bounded sightseeing planner and an independent session overlay; no external API calls.
+- `destinations.py`: an editorial catalog with primary-source links and selected closure rules.
 - `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
 - `flexible.py`: at most three concurrent nearby-date queries, actual-date attribution, and partial-failure reporting.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.

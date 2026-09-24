@@ -8,7 +8,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 2. **Flight search — in validation:** guided inputs, rankings, links, and failure handling are implemented. Live searches returned offers for one and two adults. The owner completed a search through WhatsApp. Supplier-page availability and checkout totals still need validation.
 3. **Budget and refinement — partially implemented:** a total BRL cap, post-search adjustments, explicit over-budget messages, and consistent offer selection are implemented. An opt-in ±1-day comparison now queries up to three date pairs while preserving stay length. Whole-month searches and destination suggestions remain planned. Estimates must be distinguished from verified fares.
 4. **Flights and buses:** select a viable bus data source before promising coverage. Compare total cost, duration, stops, terminals, and supplier-reported travel class. Include terminal transfers when reliable information is available.
-5. **Personalized sightseeing itineraries:** use travel dates, interests, pace, location, and spending preferences. Group activities by proximity. Opening hours, prices, and availability need sources, dates, and confirmation where appropriate.
+5. **Personalized sightseeing itineraries — partially implemented:** an independent flow builds sourced 1–3-day drafts for São Paulo and Bogotá, with an explicit start date, interest, pace, regional grouping, edits, and exclusions. Broader coverage, spending preferences, complete opening calendars, travel times, and verified availability remain planned. See [itinerary rules](ITINERARIES.md).
 6. **Preferences and alerts — partially implemented:** users can explicitly save, view, reuse, update, and delete origin/adult-count/ranking defaults. Monitoring requires a stable source and a cost assessment for proactive messaging.
 
 ## Conversation improvements — September 24, 2026
@@ -19,7 +19,7 @@ Next: broaden language coverage using concrete examples and regression tests; ev
 
 ## Intended differentiators
 
-Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. After choosing a flight, a future version could offer an itinerary. When prices are high, it could suggest alternative dates or transport.
+Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. The flight link message now suggests the implemented itinerary flow, and a native `menu` lists available capabilities. When prices are high, Atlas can refine the budget or compare nearby dates; alternative transport still needs a provider.
 
 Planned capabilities must never be presented as already available. The help response distinguishes current features from future work. No audited competitor feature comparison has been completed, so these are product directions rather than verified exclusivity claims.
 
