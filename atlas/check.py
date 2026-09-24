@@ -3,6 +3,9 @@
 import argparse
 import json
 import re
+import time
+from datetime import datetime, timezone
+from urllib.parse import urlencode
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from .webhook import settings
@@ -10,6 +13,46 @@ from .webhook import settings
 
 REQUIRED = ('WHATSAPP_VERIFY_TOKEN', 'META_APP_SECRET', 'WHATSAPP_ACCESS_TOKEN',
             'WHATSAPP_PHONE_NUMBER_ID', 'META_GRAPH_API_VERSION', 'ATLAS_ALLOWED_WHATSAPP_USER')
+
+
+def token_check(config, *, opener=urlopen, now=None):
+    """Inspect token metadata without returning identities, scopes, or credentials."""
+    app = config.get('META_APP_ID', '')
+    version = config.get('META_GRAPH_API_VERSION', '')
+    secret = config.get('META_APP_SECRET', '')
+    token = config.get('WHATSAPP_ACCESS_TOKEN', '')
+    if not app.isdigit() or not re.fullmatch(r'v\d+\.\d+', version) or not secret or not token:
+        return {'ok': False, 'reason': 'configuration'}
+    request = Request(f'https://graph.facebook.com/{version}/debug_token?' +
+                      urlencode({'input_token': token}),
+                      headers={'Authorization': 'Bearer ' + app + '|' + secret})
+    try:
+        with opener(request, timeout=15) as response:
+            data = json.load(response)['data']
+        if data.get('is_valid') is not True or str(data.get('app_id')) != app:
+            return {'ok': False, 'reason': 'invalid_or_wrong_app'}
+        result = {'ok': True}
+        instant = time.time() if now is None else now
+        for field in ('expires_at', 'data_access_expires_at'):
+            value = data.get(field)
+            if value is None:
+                result[field] = {'status': 'unknown'}
+            elif type(value) is not int or value < 0:
+                raise ValueError('Invalid expiry')
+            elif value == 0:
+                result[field] = {'status': 'no_scheduled_expiry'}
+            else:
+                remaining = int(value - instant)
+                result[field] = {
+                    'status': 'expired' if remaining <= 0 else 'expiring_soon' if remaining <= 86400 else 'valid',
+                    'utc': datetime.fromtimestamp(value, timezone.utc).isoformat(),
+                    'remaining_seconds': max(0, remaining),
+                }
+                if remaining <= 0:
+                    result['ok'] = False
+        return result
+    except Exception:
+        return {'ok': False, 'reason': 'network_or_response'}
 
 
 def check(config, *, meta=False, opener=urlopen):
@@ -54,12 +97,17 @@ def check(config, *, meta=False, opener=urlopen):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--meta', action='store_true', help='Also perform a read-only Meta API check; no messages are sent.')
+    parser.add_argument('--token', action='store_true', help='Inspect token expiry; requires META_APP_ID. Does not renew tokens.')
     args = parser.parse_args()
     result = check(settings(), meta=args.meta)
+    if args.token:
+        result['token'] = token_check(settings())
     print(json.dumps(result, indent=2))
     healthy = result['configuration']['ok'] and result['local_server']['ok']
     if args.meta:
         healthy = healthy and result['meta'].get('ok', False)
+    if args.token:
+        healthy = healthy and result['token']['ok']
     raise SystemExit(0 if healthy else 1)
 
 

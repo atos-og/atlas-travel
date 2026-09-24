@@ -2,7 +2,7 @@ import io
 import json
 import unittest
 from urllib.error import HTTPError
-from atlas.check import check, REQUIRED
+from atlas.check import check, token_check, REQUIRED
 
 
 class CheckTests(unittest.TestCase):
@@ -54,3 +54,42 @@ class CheckTests(unittest.TestCase):
         self.assertFalse(result['local_server']['ok'])
         self.assertEqual(result['meta']['reason'], 'network_or_response')
         self.assertNotIn('secret-sentinel', json.dumps(result))
+
+    def inspect_token(self, **metadata):
+        self.config['META_APP_ID'] = '456'
+        data = {'is_valid': True, 'app_id': '456', **metadata}
+        return token_check(self.config, now=100000,
+                           opener=lambda *a, **k: io.BytesIO(json.dumps({'data': data}).encode()))
+
+    def test_token_expiry_warning_and_data_access_deadline(self):
+        result = self.inspect_token(expires_at=103600, data_access_expires_at=99999)
+        self.assertEqual(result['expires_at']['status'], 'expiring_soon')
+        self.assertEqual(result['expires_at']['remaining_seconds'], 3600)
+        self.assertEqual(result['data_access_expires_at']['status'], 'expired')
+        self.assertFalse(result['ok'])
+        self.assertNotIn('secret-sentinel', json.dumps(result))
+        self.assertNotIn('456', json.dumps(result))
+
+    def test_unknown_and_unscheduled_expiry_are_distinct(self):
+        result = self.inspect_token(expires_at=0)
+        self.assertEqual(result['expires_at']['status'], 'no_scheduled_expiry')
+        self.assertEqual(result['data_access_expires_at']['status'], 'unknown')
+        self.assertTrue(result['ok'])
+
+    def test_token_rejects_wrong_app_invalid_token_and_bad_metadata(self):
+        self.assertFalse(self.inspect_token(app_id='789')['ok'])
+        self.assertFalse(self.inspect_token(is_valid=False)['ok'])
+        for value in (True, -1, 'secret-sentinel', 10**30):
+            self.assertEqual(self.inspect_token(expires_at=value)['reason'], 'network_or_response')
+
+    def test_token_network_failure_does_not_echo_request_secrets(self):
+        self.config['META_APP_ID'] = '456'
+        def failure(request, **kwargs):
+            raise RuntimeError(request.full_url)
+        result = token_check(self.config, opener=failure)
+        self.assertEqual(result, {'ok': False, 'reason': 'network_or_response'})
+
+    def test_token_requires_explicit_app_configuration(self):
+        def unexpected(*args, **kwargs):
+            self.fail('No network request should be made')
+        self.assertEqual(token_check(self.config, opener=unexpected)['reason'], 'configuration')

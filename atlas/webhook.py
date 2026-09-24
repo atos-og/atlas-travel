@@ -25,7 +25,7 @@ def settings():
             if "=" in line and not line.lstrip().startswith("#"):
                 key, value = line.split("=", 1)
                 values[key.strip()] = value.strip()
-    for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "WHATSAPP_ACCESS_TOKEN",
+    for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "META_APP_ID", "WHATSAPP_ACCESS_TOKEN",
                 "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
                 "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED"):
         if key in os.environ:
