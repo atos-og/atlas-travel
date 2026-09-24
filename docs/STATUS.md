@@ -20,7 +20,7 @@ The budget is a total BRL cap for all adults and both directions. Confirmation s
 
 ## Validation and remaining work
 
-The latest implementation run passed 63 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
+The latest implementation run passed 68 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
 
 Remaining work includes supplier-page price verification, source reliability, child passengers, whole-month searches, bus fares, sightseeing itineraries and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 
@@ -33,3 +33,7 @@ An opt-in ±1-day comparison preserves stay length and performs at most three pr
 ## Saved preferences
 
 Explicit save/view/reuse/delete commands persist origin, adults, and ranking defaults in a separate per-user SQLite table. They never automatically apply to a new trip. Local tests cover restart persistence, traveler isolation, deletion scope, incomplete saves, and invalidated old fares. Live WhatsApp acceptance remains pending.
+
+## Integration recovery and diagnostics
+
+Account confirmation was completed by the owner. A new token was saved locally after app/scopes validation; the current callback and account subscription were verified. Meta accepted a reconnection notice and the receiver processed its signed sent-status event. Delivery to the recipient and the latest feature acceptance remain unconfirmed. `python -m atlas.check` checks local readiness; `--meta` adds a read-only API check without sending messages or printing credentials. Both local and live diagnostics passed.

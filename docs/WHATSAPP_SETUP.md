@@ -25,3 +25,11 @@ Temporary tunnels can expire or change their URL after restart. Update the callb
 ## Local data
 
 `work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases and `.env` are excluded from Git. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.
+
+## Read-only readiness checks
+
+Run `python -m atlas.check` with the project environment to check required setting presence and the local server. Add `--meta` to verify API access to the configured phone-number resource. Neither command sends messages, rotates tokens, changes subscriptions, or prints credentials, phone numbers, account identifiers, or raw API errors. The command exits nonzero when a required check fails. Disabled reply/provider flags are reported separately from readiness.
+
+A successful check does not prove public tunnel reachability, callback configuration, message delivery, available fares, or a complete user journey. Check those independently. `token_expired` means a new token is needed; `access_or_permission_denied` calls for checking the Meta account and permissions; `network_or_response` does not by itself prove that a token is invalid. Do not infer the exact cause of a permission error without inspecting the account.
+
+Keep the existing app, scope, and recipient restriction when refreshing a development token. Complete any account confirmation in Meta itself. Temporary tunnels can expire independently of the token, so verify and update the callback after replacing one. Do not commit token values or operational tunnel URLs.

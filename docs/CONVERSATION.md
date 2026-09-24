@@ -76,7 +76,7 @@ Dates, destination, fares, and budget are not copied into preferences. Starting 
 
 ## Validation and references
 
-The implementation passed 63 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
+The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
 References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.
 

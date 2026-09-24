@@ -12,19 +12,19 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 63 local tests; GitHub Actions passed for commit `b2cea9c`.
+- [x] 68 local tests. Integration health diagnostics also passed against the recovered Meta account.
 - [x] Live nearby-date provider check: three successful date pairs; see [the evidence](LIVE_VALIDATION.md).
 - [x] Approved brand reference and English identity guide committed.
 
 ## Restore the WhatsApp test environment
 
-- [ ] Complete the account confirmation currently required by Meta for Developers.
-- [ ] Renew the expired WhatsApp access token and validate its app and scopes locally.
-- [ ] Update and verify the callback against the current tunnel. Temporary tunnel addresses can expire.
-- [ ] Confirm the app remains subscribed to the test WhatsApp account.
+- [x] Complete the account confirmation currently required by Meta for Developers.
+- [x] Renew the expired WhatsApp access token and validate its app and scopes locally.
+- [x] Update and verify the callback against the current tunnel. Temporary tunnel addresses can expire.
+- [x] Confirm the app remains subscribed to the test WhatsApp account.
 - [ ] Confirm a new authorized inbound message produces a delivered reply.
 
-The local server has been reloaded with the implemented features. As of the latest check on September 24, 2026, account confirmation and the expired token block external acceptance. The previous callback's tunnel expired; starting a replacement tunnel alone does not update Meta's callback.
+The local server has been reloaded with the implemented features. On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. A single reconnection notice was accepted by Meta and a signed sent-status event reached the webhook. Recipient delivery and a new owner-driven feature test remain unconfirmed. The token and tunnel remain temporary.
 
 ## Owner-driven WhatsApp acceptance
 

@@ -43,6 +43,8 @@ The server listens on `127.0.0.1:8787`. Meta needs a publicly reachable HTTPS ca
 
 Example conversation, one message per step: `oi` → `Confins` → `Bogotá` → departure date → return date → `1` adult → `1` for lowest price → `sem limite` for no budget limit → `sim` to confirm. Alternatively, send `Confins para Guarulhos, ida 23/10/2027, volta 30/10/2027, dois adultos, mais barata, sem limite` as one message. The bot still requires confirmation before searching. Use future dates. Ambiguous places such as São Paulo or Colombia require a specific airport. `python -m atlas` remains an offline demonstration and does not query fares.
 
+For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test API access without sending messages.
+
 ## Scope and limitations
 
 The unofficial Google Flights provider may change or become unavailable. Atlas does not cover every source or guarantee the market's lowest price. Links open Google Flights, not an Atlas checkout. Baggage, refund rules, and comfort are not inferred from price. Only economy round trips for adults are supported.
