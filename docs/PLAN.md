@@ -9,7 +9,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 3. **Budget and refinement — partially implemented:** a total BRL cap, post-search adjustments, explicit over-budget messages, and consistent offer selection are implemented. An opt-in ±1-day comparison now queries up to three date pairs while preserving stay length. Whole-month searches and destination suggestions remain planned. Estimates must be distinguished from verified fares.
 4. **Flights and buses:** select a viable bus data source before promising coverage. Compare total cost, duration, stops, terminals, and supplier-reported travel class. Include terminal transfers when reliable information is available.
 5. **Personalized sightseeing itineraries:** use travel dates, interests, pace, location, and spending preferences. Group activities by proximity. Opening hours, prices, and availability need sources, dates, and confirmation where appropriate.
-6. **Preferences and alerts:** remember useful choices with an option to delete them. Monitoring requires a stable source and a cost assessment for proactive messaging.
+6. **Preferences and alerts — partially implemented:** users can explicitly save, view, reuse, update, and delete origin/adult-count/ranking defaults. Monitoring requires a stable source and a cost assessment for proactive messaging.
 
 ## Conversation improvements — September 24, 2026
 

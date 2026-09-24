@@ -13,10 +13,12 @@ class Session:
 
 
 class Conversation:
-    def __init__(self, flight_search=None, on_search=None):
+    def __init__(self, flight_search=None, on_search=None, preferences=None):
         self.sessions: dict[str, Session] = {}
         self.flight_search = flight_search
         self.on_search = on_search
+        from .preferences import Preferences
+        self.preferences = preferences if preferences is not None else Preferences()
 
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
@@ -88,6 +90,24 @@ class Conversation:
             self.sessions[user_id] = Session()
         session = self.sessions[user_id]
         values = session.values
+        from .preferences import FIELDS, describe
+        if command == 'salvar preferencias':
+            if not all(key in values for key in FIELDS):
+                return 'Primeiro informe origem, quantidade de adultos e preferência de busca. Depois digite salvar preferências.'
+            self.preferences.save(user_id, values)
+            return 'Preferências salvas: ' + describe(values) + ' Para reutilizar, digite usar preferências. Para remover, apagar preferências. Destino, datas e orçamento não foram salvos como preferências.'
+        if command in {'preferencias', 'minhas preferencias'}:
+            saved = self.preferences.load(user_id)
+            return ('Preferências salvas: ' + describe(saved) + ' Digite usar preferências, salvar preferências para atualizar ou apagar preferências.'
+                    if saved else 'Você ainda não salvou preferências. Após informar origem, adultos e preferência de busca, digite salvar preferências.')
+        if command == 'apagar preferencias':
+            self.preferences.delete(user_id)
+            return 'Preferências removidas. Os dados da conversa e da viagem atual permanecem; essa ação apaga apenas as preferências salvas.'
+        if command == 'usar preferencias':
+            saved = self.preferences.load(user_id)
+            if not saved:
+                return 'Você ainda não salvou preferências. Podemos continuar com os dados da viagem atual.'
+            return 'Apliquei suas preferências salvas. ' + self.apply_trip_fields(session, saved, today)
         if command in {'datas flexiveis', 'datas proximas', 'flexibilidade'} and session.step != 'flexibility':
             session.step = 'flexibility'
             return 'Posso comparar as datas originais com um dia antes e um dia depois, movendo ida e volta juntas e mantendo a estadia. São até 3 consultas, não o mês inteiro. Escolha datas próximas ou datas exatas.'
@@ -117,10 +137,11 @@ class Conversation:
         if fields:
             return self.apply_trip_fields(session, fields, today)
         if fresh and command != 'ajuda':
-            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos."
+            saved_hint = ' Você tem preferências salvas; digite usar preferências para reutilizar.' if self.preferences.load(user_id) else ''
+            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos." + saved_hint
         text = choice(text, session.step)
         if command == "ajuda":
-            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros, busca por mês inteiro e preferências."
+            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Preferências: salvar preferências, minhas preferências, usar preferências ou apagar preferências. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros e busca por mês inteiro."
         if session.step == "complete":
             if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
                 values['_price_question'] = True

@@ -68,8 +68,14 @@ After searching, `orçamento`, `alterar orçamento`, or clear price complaints s
 
 The result identifies every attempted date pair, reports partial failures, and carries each offer's actual dates into its text, native row, and URL-button summary. Budget filtering and ranking still apply to all returned offers. This is a small nearby-date comparison, not a whole-month calendar or an exhaustive search across independent departure and return dates. Destination discovery by budget remains planned.
 
+## Saved preferences
+
+Preferences are opt-in. `salvar preferências` stores the current origin airport, adult count, and ranking preference only after all three are known. `minhas preferências` displays them, `usar preferências` explicitly applies them, and `apagar preferências` deletes the saved defaults for that traveler. Updating the profile requires another save command.
+
+Dates, destination, fares, and budget are not copied into preferences. Starting another trip keeps the defaults but does not silently apply them. Reusing defaults invalidates old offers and requires confirmation; conflicting origin/destination values require clarification. The worker stores preferences separately from sessions in the existing local SQLite database, so they survive a server restart. Deleting preferences does not delete message history or the current trip; the response explains that distinction.
+
 ## Validation and references
 
-The implementation passed 55 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
+The implementation passed 61 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
 References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.

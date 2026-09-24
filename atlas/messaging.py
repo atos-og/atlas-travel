@@ -148,8 +148,9 @@ def process_one(config, path, sender=None, now=None):
             db.execute('UPDATE progress SET state=?,outbound_id=?,error_code=? WHERE inbox_id=?',
                        (state, outbound, error, mid))
 
+    from .preferences import Preferences
     conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None,
-                                on_search=progress)
+                                on_search=progress, preferences=Preferences(path))
     if saved:
         conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
     try:
