@@ -14,13 +14,13 @@ Initial external searches returned no results. Later CNF–GRU queries for Octob
 
 ## Conversation and budget
 
-Supported Portuguese dates and preference/passenger phrases are parsed locally. Ambiguous inputs require clarification. Native choices have session-bound IDs; old choices cannot silently change the trip.
+Supported Portuguese dates and preference/passenger phrases are parsed locally. Explicit combined requests and later corrections retain unrelated details and require search confirmation. Incomplete month-only requests do not invent dates. Price objections can open budget refinement, with a short native clarification for ambiguous wording. Confirmed searches attempt a persisted, non-repeating progress notice before calling the provider. Ambiguous inputs require clarification. Native choices have session-bound IDs; old choices cannot silently change the trip.
 
 The budget is a total BRL cap for all adults and both directions. Confirmation states its scope. Ranking, native lists, and link selection share the filter. Over-budget fares are not presented as matching offers. Refining the stored results does not trigger a new external search and is labeled accordingly.
 
 ## Validation and remaining work
 
-The latest implementation run passed 35 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test.
+The latest implementation run passed 47 local unit tests, including cent boundaries, removing a cap, ambiguous amounts, confirmation, stale interactive IDs, signed events, and menus with up to ten rows. Unit tests do not replace external validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of this latest update remains pending.
 
 Remaining work includes supplier-page price verification, source reliability, child passengers, flexible dates, bus fares, sightseeing itineraries, saved preferences, and monitoring. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 

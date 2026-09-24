@@ -17,6 +17,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `webhook.py`: challenge verification, HMAC validation, request limits, and event acknowledgment after persistence.
 - `messaging.py`: sender and message-age checks, deduplication, queue processing, outbound delivery, and delivery-status updates.
 - `conversation.py`: channel-independent conversation states and an injectable search function.
+- `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
 - `language.py`: supported Portuguese dates and short phrases, interpreted locally.
 - `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
@@ -27,7 +28,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 
 The worker releases its SQLite transaction before querying the provider. On restart, `processing` items return to the queue; `sending` items become `uncertain` to avoid repeating possibly delivered messages. This is not an exactly-once delivery guarantee. The prototype has one worker, so cancellation waits for an ongoing query to finish.
 
-Choice IDs are stored before sending the response. The system sends one response message per processed event. An API acceptance and a delivery confirmation are separate states. Ambiguous sends are not automatically retried.
+Choice IDs are stored before sending the response. The system sends one final response per processed event. Confirmed flight searches also attempt a short progress message before querying. A separate `progress` table records the attempt before network I/O and tracks its outbound ID and delivery status. A recovered processing event skips an already attempted notice. Search and outbound sends run without holding a write transaction. An API acceptance and a delivery confirmation are separate states. Ambiguous sends are not automatically retried.
 
 ## Fare integrity
 

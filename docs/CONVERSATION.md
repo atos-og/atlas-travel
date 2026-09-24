@@ -21,12 +21,27 @@ The flow is still guided by conversation state, but users can use alternatives t
 
 Relative dates use Brasília time (UTC−3). Missing years mean the current year; past dates are rejected, never silently moved to the next year. Impossible dates, multiple alternatives, and incomplete phrases such as `dia 23` require clarification. Final confirmation always shows DD/MM/YYYY.
 
-This is not unrestricted AI understanding. Bare weekdays, multi-field requests, and arbitrary corrections are not yet interpreted. Parsing is local and does not require a paid AI service.
+This is not unrestricted AI understanding. Bare weekdays and arbitrary corrections are not yet interpreted. Supported combined requests use explicit route, departure, return, passenger, preference, and budget phrases. Parsing is local and does not require a paid AI service.
+
+## Combined requests and contextual changes
+
+The live flow accepts, including as its first message:
+
+`Confins para Guarulhos, ida 23/10/2027, volta 30/10/2027, dois adultos, mais barata, sem limite`
+
+Route separators include `para`, `pra`, `->`, and `→`. Explicit `ida` and `volta` markers accept the supported natural date expressions, including a return relative to departure. Missing fields are requested one at a time; valid later fields are retained and skipped when the flow reaches them. A country or ambiguous city is never silently replaced with a specific airport.
+
+Explicit corrections such as `somos três adultos`, `destino Bogotá`, or `ida 24/10/2027, volta 31/10/2027` preserve unrelated trip values. Trip changes invalidate previous fares and native choices and require confirmation before another search. Changing departure alone clears return so the traveler can choose the new duration. A month-only request asks for an exact date and clears the old dates; Atlas does not search the whole month or assume a seven-day stay.
+
+Recognized invalid fields are cleared and clarified while other valid fields remain. Negated or alternative multi-field requests and repeated fields require clarification. This conservative local grammar does not understand arbitrary prose, negotiate conflicting constraints, or infer comfort from a price. The offline simulator remains separate from these live-flow capabilities.
+
+Before a confirmed provider query, the worker sends a short progress notice. Its attempt is persisted separately from the final response. A duplicate or recovered event does not repeat the notice, and an uncertain notice send is not retried. This is not a guarantee of delivery or of a successful flight search.
 
 ## Native WhatsApp controls
 
 - Passengers: a list of six adult-count options.
 - Preferences: four ranking/filter choices; price is not treated as comfort.
+- Ambiguous price complaints: a short clarification with native buttons.
 - Budget: typed total or the `Sem limite` (No limit) button.
 - Confirmation: `Confirmar busca` (Confirm search) and `Recomeçar` (Start over).
 - Results: up to four offers plus refinement actions.
@@ -45,12 +60,12 @@ After the ranking preference, Atlas asks for a BRL cap covering round-trip ticke
 
 The cap appears in confirmation. Decimal filtering happens before ranking and the four-offer limit. Text, lists, and link selection share the filtered set. Offers above the cap have no matching-offer purchase choice. If none fit, Atlas names the lowest returned fare for the criteria and explicitly says it exceeds the cap. This is not evidence that no cheaper fare exists elsewhere.
 
-After searching, `orçamento`, `alterar orçamento`, or `tá caro` opens budget adjustment. This filters the stored result snapshot, keeps its query time, and states that no new search occurred. `buscar` refreshes the source; `sem limite` removes the filter. Changing passengers retains the total-budget concept and asks for confirmation again. Older sessions without a budget default to no cap.
+After searching, `orçamento`, `alterar orçamento`, or clear price complaints such as `tá caro` and `achei bem caro` open budget adjustment. The informal `carinho em` asks whether the traveler means the price is high before changing the budget step. This filters the stored result snapshot, keeps its query time, and states that no new search occurred. `buscar` refreshes the source; `sem limite` removes the filter. Changing passengers retains the total-budget concept and asks for confirmation again. Older sessions without a budget default to no cap.
 
 Flexible dates and destination discovery by budget are still planned. Atlas does not issue extra searches to guarantee exhaustive price coverage.
 
 ## Validation and references
 
-The implementation passed 35 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
+The implementation passed 47 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
 References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.

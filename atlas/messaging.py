@@ -24,6 +24,9 @@ def database(path):
               reply TEXT, outbound_id TEXT, delivery TEXT, error_code TEXT);
             CREATE TABLE IF NOT EXISTS sessions (
               sender TEXT PRIMARY KEY, step TEXT NOT NULL, data TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS progress (
+              inbox_id TEXT PRIMARY KEY, state TEXT NOT NULL,
+              outbound_id TEXT, delivery TEXT, error_code TEXT);
         """)
         yield connection
         connection.commit()
@@ -56,6 +59,8 @@ def ingest(payload, config, path, now=None):
                     errors = status.get("errors") or []
                     code = str(errors[0].get("code", "")) if errors else None
                     db.execute("UPDATE inbox SET delivery=?, error_code=? WHERE outbound_id=?",
+                               (status.get("status"), code, status.get("id")))
+                    db.execute("UPDATE progress SET delivery=?, error_code=? WHERE outbound_id=?",
                                (status.get("status"), code, status.get("id")))
                 for message in value.get("messages", []):
                     if message.get("from") != allowed:
@@ -128,7 +133,23 @@ def process_one(config, path, sender=None, now=None):
         saved = db.execute("SELECT step,data FROM sessions WHERE sender=?", (recipient,)).fetchone()
         db.execute("UPDATE inbox SET state='processing' WHERE id=?", (mid,))
     from .flights import search
-    conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None)
+    def progress(text):
+        # Persist the attempt before I/O so a crash cannot repeat the notice.
+        with database(path) as db:
+            fresh = db.execute('INSERT OR IGNORE INTO progress(inbox_id,state) VALUES (?,?)',
+                               (mid, 'attempted')).rowcount
+        if not fresh:
+            return
+        try:
+            state, outbound, error = sender(config, recipient, text) if sender else send_text(config, recipient, text)
+        except Exception:
+            state, outbound, error = 'uncertain', None, 'sender_exception'
+        with database(path) as db:
+            db.execute('UPDATE progress SET state=?,outbound_id=?,error_code=? WHERE inbox_id=?',
+                       (state, outbound, error, mid))
+
+    conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None,
+                                on_search=progress)
     if saved:
         conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
     try:

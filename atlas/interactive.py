@@ -34,7 +34,7 @@ def money(value):
 
 
 def payload_for(session, reply):
-    """One response per event. Persist choices before sending; stale clicks are rejected."""
+    """Final response payload. Search progress is sent separately without choices."""
     session.values.pop('_choices', None)
     urls = re.findall(r'https://\S+', reply)
     if urls:
@@ -46,8 +46,9 @@ def payload_for(session, reply):
             lines = [f"{session.values['origin']} → {session.values['destination']}",
                      f"R$ {money(offer['price'])} • ida e volta • {session.values['adults']} adulto(s)"]
             for index, journey in enumerate(offer['journeys']):
-                lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {journey['airlines']} | {journey['stops']} parada(s)")
-            lines.append('Confira preço final, bagagem e regras no fornecedor. Para outras opções, escreva ofertas.')
+                duration = journey['duration']
+                lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']} | {journey['stops']} parada(s)")
+            lines.append('Horários locais. Link para Google Flights; confira preço final, bagagem e regras. Para outras opções, escreva ofertas.')
             return {'type': 'interactive', 'interactive': {
                 'type': 'cta_url', 'body': {'text': '\n'.join(lines)[:1024]},
                 'action': {'name': 'cta_url', 'parameters': {'display_text': 'Abrir oferta', 'url': url}}}}
@@ -66,6 +67,15 @@ def payload_for(session, reply):
         options = [('sem limite', 'Sem limite', ''), ('cancelar', 'Recomeçar', '')]
     elif session.step == 'complete':
         values = session.values
+        if values.get('_price_question'):
+            nonce = uuid.uuid4().hex
+            actions = [(f'atlas:{nonce}:0', 'sim', 'Sim, ajustar'),
+                       (f'atlas:{nonce}:1', 'ofertas', 'Ver ofertas')]
+            values['_choices'] = {action: command for action, command, _ in actions}
+            return {'type': 'interactive', 'interactive': {
+                'type': 'button', 'body': {'text': reply},
+                'action': {'buttons': [{'type': 'reply', 'reply': {'id': action, 'title': title}}
+                                       for action, _, title in actions]}}}
         offers = rank(values.get('result', {}).get('offers', []), values.get('priority', '1'), values.get('budget'))
         for i, offer in enumerate(offers, 1):
             options.append((f'link {i}', f'Oferta {i} • R$ {money(offer["price"])}'[:24],
@@ -75,6 +85,8 @@ def payload_for(session, reply):
                     ('cancelar', 'Nova viagem', '')]
         if len(reply) > 1024:
             reply = (f"{values.get('origin')} → {values.get('destination')} | {values.get('adults')} adulto(s). "
+                     f"Ida {values.get('departure')}, volta {values.get('return')}. "
+                     f"Google Flights • consulta: {values.get('result', {}).get('checked_at', 'horário não disponível')}. "
                      f"{label(values.get('budget'))}. "
                      'Escolha uma oferta abaixo para ver os detalhes e abrir o link. Preços sujeitos a alteração; bagagem e regras precisam de confirmação no fornecedor.')
     if not options or len(reply) > 1024:

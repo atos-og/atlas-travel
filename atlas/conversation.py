@@ -13,9 +13,10 @@ class Session:
 
 
 class Conversation:
-    def __init__(self, flight_search=None):
+    def __init__(self, flight_search=None, on_search=None):
         self.sessions: dict[str, Session] = {}
         self.flight_search = flight_search
+        self.on_search = on_search
 
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
@@ -82,16 +83,38 @@ class Conversation:
         choices = "Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas."
         if command in {"cancelar", "/cancelar", "/start"}:
             self.sessions.pop(user_id, None)
-        if user_id not in self.sessions:
+        fresh = user_id not in self.sessions
+        if fresh:
             self.sessions[user_id] = Session()
-            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Digite ajuda para conhecer os recursos."
         session = self.sessions[user_id]
         values = session.values
+        from .trip_input import extract_trip
+        import re
+        if re.search(r'\b(?:criancas?|bebes?)\b', command) or re.search(r'-\s*\d+\s+adult', command):
+            return 'Nesta versão, a busca atende apenas de 1 a 6 adultos. Não alterei os dados da viagem.'
+        try:
+            fields = extract_trip(text)
+        except ValueError as error:
+            return str(error)
+        if set(fields) == {'budget'} and session.step in {'budget', 'complete'}:
+            text = fields['budget']
+            fields = {}
+            if session.step == 'complete':
+                values['_budget_refine'] = True
+                session.step = 'budget'
+        if fields:
+            return self.apply_trip_fields(session, fields, today)
+        if fresh and command != 'ajuda':
+            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos."
         text = choice(text, session.step)
         if command == "ajuda":
             return "Disponível: busca de voos de ida e volta, 1 a 6 adultos, limite total de orçamento, comparação por preço/duração e filtro sem paradas. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus, roteiros, datas flexíveis e preferências."
         if session.step == "complete":
-            if command in {'orcamento', 'alterar orcamento', 'ta caro', 'esta caro', 'muito caro'}:
+            if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
+                values['_price_question'] = True
+                return 'Você achou o preço alto? Responda sim para ajustar o orçamento ou diga o que gostaria de mudar.'
+            price_question = values.pop('_price_question', False)
+            if command in {'orcamento', 'alterar orcamento', 'ta caro', 'esta caro', 'muito caro', 'achei caro', 'achei bem caro', 'ficou caro', 'caro demais'} or (price_question and command in {'sim', 'isso', 'isso mesmo'}):
                 values['_budget_refine'] = True
                 session.step = 'budget'
                 return BUDGET_PROMPT
@@ -113,6 +136,9 @@ class Conversation:
             transitions = {"filtros": ("priority", choices), "datas": ("departure", "Qual é a nova data de ida? DD/MM/AAAA."), "passageiros": ("adults", "Quantos adultos? De 1 a 6.")}
             if command in transitions:
                 values.pop("result", None)
+                if command == 'datas':
+                    values.pop('departure', None)
+                    values.pop('return', None)
                 session.step, answer = transitions[command]
                 return answer
             if command == "buscar":
@@ -125,6 +151,8 @@ class Conversation:
             if datetime.strptime(values["departure"], "%d/%m/%Y").date() < today:
                 session.step = "departure"
                 return "A data de ida passou. Informe uma nova data em DD/MM/AAAA."
+            if self.on_search:
+                self.on_search('Estou consultando as opções para sua viagem. A busca pode levar até um minuto.')
             result = self.flight_search({k: v for k, v in values.items() if k != "result" and not k.startswith('_')})
             values["result"] = result
             session.step = "complete"
@@ -173,6 +201,82 @@ class Conversation:
         }
         values[session.step] = text
         session.step, answer = transitions[session.step]
+        # Explicit multi-field requests can already contain later answers.
+        if session.step in values:
+            return self.next_question(session)
         if session.step == "confirm":
             return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; {label(values.get('budget'))}. Digite sim para consultar (pode levar até um minuto) ou cancelar.")
         return answer
+
+    def next_question(self, session):
+        values = session.values
+        prompts = {
+            'origin': 'De qual cidade ou aeroporto você sai?',
+            'destination': 'Para qual cidade ou aeroporto você vai?',
+            'departure': 'Qual é a data de ida? Informe dia, mês e ano; a busca por mês inteiro ainda não está disponível.',
+            'return': "Qual é a data de volta? Pode usar uma data ou '7 dias depois'.",
+            'adults': 'Quantos adultos? De 1 a 6.',
+            'priority': 'Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas.',
+            'budget': BUDGET_PROMPT,
+        }
+        for key, prompt in prompts.items():
+            if key not in values:
+                session.step = key
+                return prompt
+        session.step = 'confirm'
+        return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, "
+                f"volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; "
+                f"{label(values.get('budget'))}. Digite sim para consultar ou informe o que deseja alterar.")
+
+    def apply_trip_fields(self, session, fields, today):
+        """Keep valid explicit fields, ask about invalid ones, and invalidate old fares."""
+        from .flights import resolve_airport
+        values = session.values
+        errors = []
+        # No previously quoted fare may be attached to a changed itinerary.
+        for key in ('result', '_choices', '_budget_refine', '_price_question'):
+            values.pop(key, None)
+        if 'departure' in fields and 'return' not in fields:
+            values.pop('return', None)
+        for key in ('origin', 'destination', 'departure', 'return', 'adults', 'priority', 'budget'):
+            if key not in fields:
+                continue
+            raw = fields[key]
+            error = None
+            parsed = raw
+            if key in {'origin', 'destination'}:
+                parsed, error = resolve_airport(raw)
+            elif key in {'departure', 'return'}:
+                try:
+                    departure = datetime.strptime(values['departure'], '%d/%m/%Y').date() if key == 'return' and 'departure' in values else None
+                    parsed_date = parse_date(raw, today, departure)
+                    if parsed_date < today:
+                        raise ValueError()
+                    parsed = parsed_date.strftime('%d/%m/%Y')
+                except ValueError:
+                    error = 'Informe uma data completa e futura para a ' + ('ida' if key == 'departure' else 'volta') + '. Não escolhi dias automaticamente; a busca por mês inteiro ainda não está disponível.'
+            elif key in {'adults', 'priority'}:
+                parsed = choice(raw, key)
+                if parsed not in ({str(i) for i in range(1, 7)} if key == 'adults' else {'1', '2', '3', '4'}):
+                    error = 'Informe de 1 a 6 adultos.' if key == 'adults' else 'Escolha menor preço, menor duração, sem paradas ou maior preço.'
+            elif key == 'budget':
+                try:
+                    parsed = parse_budget(raw)
+                except ValueError:
+                    error = BUDGET_PROMPT
+            if error:
+                values.pop(key, None)
+                errors.append((key, error))
+            else:
+                values[key] = parsed
+        if values.get('origin') and values.get('origin') == values.get('destination'):
+            values.pop('destination', None)
+            errors.append(('destination', 'Escolha um aeroporto diferente da origem.'))
+        if values.get('departure') and values.get('return'):
+            if datetime.strptime(values['return'], '%d/%m/%Y') < datetime.strptime(values['departure'], '%d/%m/%Y'):
+                values.pop('return', None)
+                errors.append(('return', 'A volta não pode ser anterior à ida. Qual é a nova data de volta?'))
+        if errors:
+            session.step = errors[0][0]
+            return errors[0][1] + ' Guardei os outros dados válidos da viagem.'
+        return self.next_question(session)
