@@ -42,6 +42,33 @@ class InteractiveQueueTests(unittest.TestCase):
     payload = messaging_tests.MessagingTests.payload
     send = messaging_tests.MessagingTests.send
 
+    def test_itinerary_native_selection_persists_without_flight_queries(self):
+        self.config['ATLAS_LIVE_FLIGHTS_ENABLED'] = 'true'
+        session = Session('adults', {'origin': 'CNF', 'destination': 'BOG'})
+        with database(self.path) as db:
+            db.execute('INSERT INTO sessions VALUES (?,?,?)', ('570000000000', session.step, json.dumps(session.values)))
+        p = self.payload()
+        message = p['entry'][0]['changes'][0]['value']['messages'][0]
+        message['text']['body'] = 'roteiro'
+        self.assertEqual(ingest(p, self.config, self.path, now=100), 1)
+        with patch('atlas.messaging.send_message', return_value=('sent', 'out', None)) as send:
+            process_one(self.config, self.path, now=100)
+        rows = send.call_args.args[2]['interactive']['action']['sections'][0]['rows']
+        selected = next(row['id'] for row in rows if row['title'] == 'Bogotá')
+        message.update(id='itinerary-second', type='interactive', interactive={
+            'type': 'list_reply', 'list_reply': {'id': selected, 'title': 'untrusted title'}})
+        message.pop('text')
+        self.assertEqual(ingest(p, self.config, self.path, now=100), 1)
+        with patch('atlas.flights.search', side_effect=AssertionError('Unexpected fare query')):
+            process_one(self.config, self.path, self.send, now=100)
+        with database(self.path) as db:
+            step, raw = db.execute('SELECT step,data FROM sessions').fetchone()
+        values = json.loads(raw)
+        self.assertEqual(step, 'adults')
+        self.assertEqual(values['destination'], 'BOG')
+        self.assertEqual(values['_itinerary']['city'], 'bogota')
+        self.assertEqual(values['_itinerary']['stage'], 'start')
+
     def test_native_click_advances_once_and_stale_click_does_not(self):
         self.config['ATLAS_LIVE_FLIGHTS_ENABLED'] = 'true'
         session = Session('adults', {'origin': 'CNF', 'destination': 'GRU', 'departure': '23/10/2027', 'return': '30/10/2027'})

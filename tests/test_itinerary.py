@@ -150,3 +150,26 @@ class ItineraryConversationTests(unittest.TestCase):
             self.send(text)
         self.today = date(2026, 9, 25)
         self.assertIn('data inicial passou', self.send('montar'))
+
+    def test_feature_menu_can_leave_itinerary_and_resume_pending_flight_question(self):
+        self.bot.sessions['a'] = Session('adults', {'origin': 'CNF', 'destination': 'BOG'})
+        self.complete()
+        answer = self.send('o que você faz?')
+        session = self.bot.sessions['a']
+        payload = payload_for(session, answer)
+        self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 5)
+        self.assertFalse(session.values['_itinerary']['active'])
+        self.assertIn('Quantos adultos', self.send('voos'))
+        self.assertEqual(session.step, 'adults')
+        self.assertIn('Seu roteiro sugerido', self.send('meu roteiro'))
+
+    def test_leaving_itinerary_repeats_pending_flight_question(self):
+        self.bot.sessions['a'] = Session('return', {'origin': 'CNF', 'destination': 'BOG'})
+        self.complete()
+        self.assertIn('data de volta', self.send('voltar aos voos'))
+
+    def test_menu_marker_does_not_leak_into_following_response(self):
+        self.send('menu')
+        answer = self.send('roteiro')
+        payload = payload_for(self.bot.sessions['a'], answer)
+        self.assertEqual(payload['interactive']['action']['button'], 'Opções do roteiro')

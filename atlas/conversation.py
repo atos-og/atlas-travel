@@ -23,6 +23,26 @@ class Conversation:
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
         today = today or local_today()
+        command = clean(text)
+        current = self.sessions.get(user_id)
+        if current:
+            current.values.pop('_capabilities', None)
+        if command in {'menu', 'recursos', 'o que voce faz', 'o que voce pode fazer'}:
+            session = self.sessions.setdefault(user_id, Session())
+            if session.values.get('_itinerary'):
+                session.values['_itinerary']['active'] = False
+            session.values['_capabilities'] = True
+            return ('Como posso ajudar na sua viagem?\n'
+                    '• Voos: ida e volta, preço, duração, paradas e orçamento.\n'
+                    '• Datas próximas: comparar até 3 combinações em ±1 dia.\n'
+                    '• Roteiro: 1 a 3 dias de passeios em São Paulo ou Bogotá.\n'
+                    '• Preferências: salvar e reutilizar suas escolhas.\n'
+                    'Escolha no menu ou escreva voos, roteiro, datas flexíveis ou minhas preferências.')
+        if command in {'voos', 'consultar voos', 'voltar aos voos', 'sair do roteiro'}:
+            session = self.sessions.setdefault(user_id, Session())
+            if session.values.get('_itinerary'):
+                session.values['_itinerary']['active'] = False
+            return self.resume_flights(session)
         if clean(text) not in {'cancelar', '/cancelar', '/start'}:
             from .itinerary import handle
             session = self.sessions.get(user_id, Session())
@@ -147,7 +167,7 @@ class Conversation:
             return self.apply_trip_fields(session, fields, today)
         if fresh and command != 'ajuda':
             saved_hint = ' Você tem preferências salvas; digite usar preferências para reutilizar.' if self.preferences.load(user_id) else ''
-            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite ajuda para conhecer os recursos." + saved_hint
+            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. Também monto roteiros de passeios em São Paulo e Bogotá. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite menu para explorar os recursos." + saved_hint
         text = choice(text, session.step)
         if command == "ajuda":
             return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Digite roteiro para planejar de 1 a 3 dias de passeios em São Paulo ou Bogotá, com fontes. Preferências: salvar preferências, minhas preferências, usar preferências ou apagar preferências. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus e busca por mês inteiro."
@@ -275,6 +295,27 @@ class Conversation:
         return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, "
                 f"volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; "
                 f"{label(values.get('budget'))}. {flexibility_label(values)} Digite sim para consultar ou informe o que deseja alterar.")
+
+    def resume_flights(self, session):
+        """Resume the pending question without querying or changing flight criteria."""
+        if session.step == 'complete':
+            if self.flight_search is None:
+                return 'Você está no simulador de voos. Digite cancelar para uma nova viagem ou roteiro para passeios.'
+            from .flights import format_results
+            return format_results(session.values.get('result', {'status': 'empty'}), session.values)
+        prompts = {
+            'origin': 'De qual cidade ou aeroporto você sai?',
+            'destination': 'Para qual cidade ou aeroporto você vai?',
+            'departure': 'Qual é a data de ida?',
+            'return': 'Qual é a data de volta?',
+            'adults': 'Quantos adultos? De 1 a 6.',
+            'priority': 'Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas.',
+            'budget': BUDGET_PROMPT,
+            'flexibility': 'Escolha comparar 1 dia para variar ida e volta juntas, ou manter datas para datas exatas.',
+        }
+        if session.step == 'confirm':
+            return self.next_question(session)
+        return 'Vamos continuar sua busca de passagens. ' + prompts.get(session.step, 'Digite cancelar para recomeçar.')
 
     def apply_trip_fields(self, session, fields, today):
         """Keep valid explicit fields, ask about invalid ones, and invalidate old fares."""

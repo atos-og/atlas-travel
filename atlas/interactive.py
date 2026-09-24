@@ -37,6 +37,15 @@ def money(value):
 def payload_for(session, reply):
     """Final response payload. Search progress is sent separately without choices."""
     session.values.pop('_choices', None)
+    if session.values.pop('_capabilities', False):
+        options = [('voos', 'Consultar voos'), ('roteiro', 'Montar roteiro'),
+                   ('datas flexiveis', 'Comparar datas'), ('minhas preferencias', 'Minhas preferências'),
+                   ('ajuda', 'Todos os comandos')]
+        nonce = uuid.uuid4().hex
+        rows = [{'id': f'atlas:{nonce}:{i}', 'title': title} for i, (_, title) in enumerate(options)]
+        session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
+        return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
+                'action': {'button': 'Explorar recursos', 'sections': [{'title': 'Atlas', 'rows': rows}]}}}
     itinerary = session.values.get('_itinerary', {})
     if itinerary.get('active'):
         from .itinerary import choices
