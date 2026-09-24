@@ -49,6 +49,7 @@ The initial setup is a private test without purchased services. This does not gu
 
 ## Documentation
 
+- [Approved visual identity](docs/VISUAL_IDENTITY.md)
 - [Brand and product brief — nontechnical](docs/BRAND_BRIEF.md)
 - [Product plan and differentiators](docs/PLAN.md)
 - [Architecture](docs/ARCHITECTURE.md)

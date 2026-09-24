@@ -2,7 +2,7 @@
 
 **A plain-language foundation for the visual identity.**
 
-Prepared September 24, 2026. The name **Atlas** and the product direction are established. Colors, symbols, typography, taglines, and visual concepts below are creative proposals, not approved brand decisions.
+Updated September 24, 2026. The owner approved the supplied Atlas identity board: the A-shaped route symbol, Atlas wordmark, Midnight/Mint/Sand palette, and the shown light, dark, and avatar directions. See [the approved visual identity](VISUAL_IDENTITY.md). Taglines and unspecified production details remain proposals; an editable font or vector master has not been supplied.
 
 ## 1. Atlas in one sentence
 
@@ -134,41 +134,29 @@ Future-only example: “Would you like help planning what to do when you arrive?
 
 The brief and brand materials use English. The current traveler conversation uses Portuguese; these English examples communicate tone rather than promise English-language conversation support.
 
-## 10. Recommended visual direction
+## 10. Approved visual direction
 
-**Creative direction: clear orientation, open possibilities.**
+The approved mark combines a rounded A silhouette, a winding route in negative space, and a mint circular accent. The wordmark is bold and rounded. Use the supplied artwork as the visual source of truth; do not substitute a plane, compass, map, robot, or newly generated interpretation.
 
-The identity should combine the composure of a useful guide with the curiosity of travel. Think of a clear route, an open horizon, or a distinctive letter A that hints at direction.
+The light composition places the Midnight symbol and wordmark on Sand. The dark composition reverses the main artwork to a light color on Midnight, retaining Mint. The avatar uses the standalone light symbol and Mint accent inside a dark circle.
 
-The recommended starting point is a simple **A-shaped symbol with a subtle route or directional detail**, paired with a clean Atlas wordmark. It can suggest movement without depending on an airplane, which would make future bus travel and sightseeing feel less natural.
+## 11. Approved color and lettering approach
 
-Alternative explorations may use a folded-map gesture or an abstract horizon. Choose one main idea rather than combining a plane, globe, compass, pin, and chat bubble into the same mark.
-
-Aim for distinctive and practical, with a little warmth. Avoid the look of a luxury-only concierge, a noisy discount marketplace, or a cartoon robot. A talking robot is not necessary to communicate helpful conversation.
-
-## 11. Proposed color and lettering approach
-
-The following is a starting palette for exploration, not a final specification:
-
-| Color | Suggested value | Intended role |
+| Color | Approved value | Intended role |
 | --- | --- | --- |
-| Deep navy | `#102A43` | Primary identity, confidence, clear dark backgrounds |
-| Ocean teal | `#168F8A` | Main accent, movement, discovery |
-| Warm ivory | `#F5F1E8` | Welcoming light backgrounds |
-| Soft coral | `#EF8B6D` | Small highlights and moments of warmth |
-| White | `#FFFFFF` | Clean contrast and breathing room |
+| Midnight | `#0B1F3B` | Main artwork, strong text, dark backgrounds |
+| Mint | `#2EE6B6` | Distinctive circular accent and restrained highlights |
+| Sand | `#FAF8F3` | Light backgrounds and reversed artwork |
 
-Start with navy, ivory, and one accent; the full palette need not appear in every asset. Check readability in the actual compositions, especially small text. Do not assume every pair is suitable for text on a background.
+This palette replaces the earlier navy/teal/ivory/coral proposal. Color labels in the supplied board define the values; shading in the raster artwork is not an additional color specification. Use Midnight for text on light surfaces and a light foreground on Midnight. Keep Mint primarily as an accent and verify text contrast before using it for labels.
 
-Use clear, contemporary lettering with open shapes and comfortable spacing. A modest custom detail in the A may help connect the wordmark to the icon. Avoid very thin strokes, overly futuristic lettering, and decorative scripts that become difficult to read at small sizes.
-
-Do not copy WhatsApp's identity or make Atlas look officially owned by WhatsApp, Meta, Google, or an airline.
+Preserve the supplied wordmark rather than guessing its font. The reference does not identify a font family or provide editable lettering. Supporting typography remains to be selected and should be readable and visually compatible.
 
 ## 12. WhatsApp profile image
 
 This is the first-priority asset. It must work when seen very small and cropped into a circle.
 
-Recommended composition:
+Approved avatar direction and production guidance:
 
 - One recognizable Atlas symbol, centered.
 - A solid background with strong contrast.
@@ -220,7 +208,7 @@ These are draft creative lines. They have not undergone naming, trademark, or au
 
 ## 15. Assets to create
 
-The first identity package should include:
+The approved reference board is archived in `assets/brand/atlas-identity-reference.png`. It contains several compositions in one raster image, not separate upload-ready exports. The production package still needs:
 
 1. A standalone Atlas symbol.
 2. An Atlas wordmark and a combined symbol/wordmark version.
@@ -249,4 +237,4 @@ The immediate goal is not to make Atlas look enormous or fully finished. It is t
 
 ## 17. Copy-ready creative assignment
 
-> Create a visual identity for Atlas, a personal travel assistant that helps people find, compare, and plan trips through conversation. It currently helps with round-trip flight searches, price and duration comparisons, total ticket budgets, and links to view offers. Its future direction includes bus comparisons, personalized sightseeing plans, flexible dates, and remembered preferences. Make the identity calm, capable, approachable, and curious. Explore a simple A-shaped symbol with a subtle sense of direction or a route, supported by a clean wordmark. Prioritize a highly legible circular WhatsApp profile image and a flexible horizontal cover. A proposed palette combines deep navy, ocean teal, warm ivory, and a restrained coral accent. Avoid a crowded travel-icon collage, a cartoon robot, luxury-only cues, discount-sale styling, or visual imitation of WhatsApp, Google, airlines, or other assistants. The tagline “Your next journey, made clear” is optional and provisional. Do not present planned features as already available.
+> Apply the approved Atlas visual identity to a personal travel assistant. Preserve the supplied A-shaped route symbol, mint dot, and Atlas wordmark. Use Midnight #0B1F3B, Mint #2EE6B6, and Sand #FAF8F3. Adapt the approved light, dark, and circular-avatar compositions with generous space and readable supporting text. The current product helps with round-trip flights, fare comparisons, total ticket budgets, and provider links; buses, sightseeing plans, flexible dates, and saved preferences remain planned. Do not redraw the mark into a different concept, infer an exact font, imitate another assistant, or present planned capabilities as available. The optional tagline remains provisional.
