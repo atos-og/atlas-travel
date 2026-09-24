@@ -10,7 +10,7 @@ Assistente de viagens por conversa, desenvolvido como projeto de portfólio. Pro
 - Comandos `ajuda`, `filtros`, `datas`, `passageiros`, `buscar`, `link 1` e `cancelar`.
 - Webhook HMAC, destinatário permitido, fila SQLite, deduplicação e status de entrega.
 
-**Fonte aérea em validação:** consultas reais em 23/09/2026 retornaram vazias. Ainda não foi validada uma tarifa real nesta integração. O bot informa o resultado sem inventar preços. Testes automatizados usam dados sintéticos e não comprovam disponibilidade externa.
+**Fonte aérea experimental:** consultas reais CNF–GRU foram executadas com sucesso para um e dois adultos em 23/09/2026 (horário de Brasília), com ranking e links gerados. A fonte havia retornado vazia anteriormente e continua sujeita a instabilidade. A compra e o preço final no site do fornecedor não foram validados. Veja [o registro da consulta](docs/LIVE_VALIDATION.md).
 
 Ônibus, roteiros, orçamento, alertas e preferências são próximos marcos. O fluxo atual é guiado e não usa IA.
 

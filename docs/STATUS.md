@@ -4,8 +4,8 @@ O usuário confirmou respostas reais no WhatsApp de teste. A aplicação e a con
 
 Fluxo experimental implementado: confirmação, aeroportos, datas, adultos, preferências, normalização de ida/volta, até quatro resultados e seleção de links. Consulta em subprocesso limitado a 55 segundos, sem manter transação SQLite aberta durante a busca.
 
-Consultas externas CNF–GRU e GRU–BOG com datas futuras retornaram `empty`. Nenhuma tarifa real foi validada nesta etapa. Isso não comprova ausência de voos e não é substituído por resultados fictícios.
+As consultas iniciais retornaram vazias. Uma nova execução real de CNF–GRU, ida 23/10/2026 e volta 30/10/2026, retornou ofertas para um e dois adultos pelo mesmo subprocesso usado pelo bot. Ranking e formatação exibiram quatro opções com links em ambos os casos. Detalhes e limites em [LIVE_VALIDATION.md](LIVE_VALIDATION.md). Não houve compra nem confirmação de preço no checkout.
 
 Testes automatizados cobrem conversa, assinatura, duplicatas, acesso, datas, total de ida/volta, ranking, links, timeout e persistência. Não substituem validação externa.
 
-Pendências: tarifas reais e links; estabilidade da fonte; crianças; orçamento; ônibus; roteiros; preferências; monitoramento. Sem pagamento, emissão, reserva ou implantação pública do bot.
+Pendências: validação de preços e disponibilidade no site do fornecedor; estabilidade da fonte; crianças; orçamento; ônibus; roteiros; preferências; monitoramento. Sem pagamento, emissão, reserva ou implantação pública do bot.
