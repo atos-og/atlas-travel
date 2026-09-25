@@ -18,7 +18,7 @@ class FlightTests(unittest.TestCase):
                       arrival_datetime=datetime(2026, 10, day, 11), airline='AD', flight_number=123)
             return Obj(price=price, currency='BRL', duration=60, stops=0, legs=[leg])
         self.raw = (journey('CNF', 'GRU', 23, 900), journey('GRU', 'CNF', 30, 700))
-        self.client = Obj(build_flight_booking_url=lambda *a, **k: 'https://www.google.com/travel/flights')
+        self.client = Obj(build_flight_booking_url=lambda *a, **k: 'https://www.google.com/travel/flights/booking?tfs=synthetic')
 
     def test_round_trip_price_is_not_sum_or_last_journey(self):
         offer = normalize(self.raw, self.client, self.values)
@@ -38,6 +38,15 @@ class FlightTests(unittest.TestCase):
     def test_untrusted_link_does_not_reach_user(self):
         self.client.build_flight_booking_url = lambda *a, **k: 'https://www.google.com.attacker.test/x'
         self.assertIsNone(normalize(self.raw, self.client, self.values)['url'])
+
+    def test_generic_provider_fallback_is_not_presented_as_an_offer_link(self):
+        self.client.build_flight_booking_url = lambda *a, **k: 'https://www.google.com/travel/flights'
+        offer = normalize(self.raw, self.client, self.values)
+        self.assertIsNone(offer['url'])
+        self.assertEqual(offer['price'], '900')
+
+    def test_multiple_adults_require_explicit_link_passenger_check(self):
+        self.assertTrue(normalize(self.raw, self.client, self.values)['link_requires_passenger_check'])
 
     def test_rank_deduplicates_filters_and_sorts(self):
         a = normalize(self.raw, self.client, self.values)

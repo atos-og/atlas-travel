@@ -82,6 +82,8 @@ def payload_for(session, reply):
                      f"R$ {money(offer['price'])} • ida e volta • {session.values['adults']} adulto(s)"]
             if offer.get('travel_dates'):
                 lines.append(f"Ida {offer['travel_dates']['departure']} • volta {offer['travel_dates']['return']}")
+            if offer.get('link_requires_passenger_check') or int(session.values['adults']) > 1:
+                lines.append(f"Ao abrir, ajuste e confirme {session.values['adults']} adultos: o link da fonte não garante manter a quantidade. O preço mostrado aqui é para todos.")
             for index, journey in enumerate(offer['journeys']):
                 duration = journey['duration']
                 lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']} | {journey['stops']} parada(s)")

@@ -7,7 +7,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 from decimal import Decimal
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 
 def normalize(raw, client, values):
@@ -42,13 +42,16 @@ def normalize(raw, client, values):
     try:
         candidate = client.build_flight_booking_url(raw, currency='BRL', language='pt-BR', country='BR')
         parsed = urlsplit(candidate)
-        if parsed.scheme == 'https' and parsed.hostname in {'www.google.com', 'www.google.com.br', 'google.com'} and not parsed.username:
+        if (parsed.scheme == 'https' and parsed.hostname in {'www.google.com', 'www.google.com.br', 'google.com'}
+                and not parsed.username and parsed.path == '/travel/flights/booking'
+                and parse_qs(parsed.query).get('tfs')):
             url = candidate if len(candidate) <= 3500 else None
     except Exception:
         pass
     return {'price': str(price), 'currency': 'BRL', 'journeys': parts,
             'stops': max(p['stops'] for p in parts),
-            'duration': sum(p['duration'] for p in parts), 'url': url}
+            'duration': sum(p['duration'] for p in parts), 'url': url,
+            'link_requires_passenger_check': int(values['adults']) > 1}
 
 
 def search(values):

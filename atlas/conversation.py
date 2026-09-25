@@ -208,7 +208,9 @@ class Conversation:
                     if index < 0 or index >= len(offers):
                         raise ValueError
                     url = offers[index].get("url")
-                    return ("Confira disponibilidade e valor final no Google Flights:\n" + url) if url else "O fornecedor não retornou um link para essa oferta. Digite buscar para atualizar."
+                    warning = (f"Ao abrir, ajuste e confirme {values['adults']} adultos: o link da fonte não garante manter a quantidade. "
+                               if int(values['adults']) > 1 else '')
+                    return (warning + "Confira disponibilidade e valor final no Google Flights:\n" + url) if url else "O fornecedor não retornou um link para essa oferta. Digite buscar para atualizar."
                 except (ValueError, IndexError):
                     return "Use link seguido do número de uma oferta exibida, por exemplo: link 1."
             transitions = {"filtros": ("priority", choices), "datas": ("departure", "Qual é a nova data de ida? DD/MM/AAAA."), "passageiros": ("adults", "Quantos adultos? De 1 a 6.")}
