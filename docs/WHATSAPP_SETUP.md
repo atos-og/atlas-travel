@@ -9,7 +9,7 @@
 7. Set `ATLAS_WHATSAPP_REPLIES_ENABLED=true`. For flight search, install `requirements.txt` and set `ATLAS_LIVE_FLIGHTS_ENABLED=true`.
 8. From the allowlisted recipient, send `cancelar` (the current Portuguese restart command) to begin a new session.
 
-Meta screens and requirements vary by account. This guide describes Atlas configuration, not a guarantee of free service or production eligibility. This stage uses the test number without registering a production phone number.
+Meta screens and requirements vary by account. This guide describes Atlas configuration, not a guarantee of free service or production eligibility. This stage uses the test number without registering a production phone number. Meta labels that number `Test Number` and does not allow its WhatsApp profile, display name, or photo to be edited. A branded Atlas profile requires a production WhatsApp Business Account and a phone number registered there.
 
 ## Diagnosis
 
