@@ -21,3 +21,10 @@ A one-adult CNF–GRU round-trip test queried October 23–30, October 22–29, 
 # Destination comparison — September 24, 2026
 
 At 22:42 UTC, the production provider boundary was queried concurrently for CNF–GRU and CNF–REC, departing October 23 and returning October 30, 2026, one adult, with a BRL 2,500 total round-trip budget. Both destination queries returned matching offers. The lowest returned totals were BRL 786 for GRU and BRL 947 for REC. These are historical observations, not current fare promises. No WhatsApp delivery, supplier checkout, reservation, or purchase was performed during this validation.
+# Browser fare-link validation — September 25, 2026
+
+A fresh CNF–GRU round trip for October 23–30, 2026, one adult, returned BRL 772 at 10:09 UTC. The generated booking link opened Google Flights with the same airports, dates, one adult, and flights G3 1497 outbound (06:15–07:40) and G3 1482 returning (09:20–10:35). Google displayed the same BRL 772 total.
+
+Following the airline option opened Gol's passenger-details flow with matching route, dates, and flight times. Its displayed Light fare total was BRL 771.18, BRL 0.82 below the whole-real Google/Atlas quote. This is one observed rounding difference, not exact checkout-total parity or a guarantee for other offers. The inspection stopped before entering passenger data, selecting upgrades, payment, or purchasing. The temporary browsing tabs were closed.
+
+The owner also confirmed that the WhatsApp capability menu opened the itinerary list with São Paulo, Bogotá, and the return-to-flights option. The complete itinerary acceptance sequence is still being checked.

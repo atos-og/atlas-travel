@@ -20,7 +20,7 @@ Use the allowed WhatsApp recipient. Record what actually happened; do not mark a
 
 | Scenario | Messages/actions | Expected outcome | Status |
 | --- | --- | --- | --- |
-| Discovery | Send `menu` | Native capability list opens | Pending |
+| Discovery | Send `menu` | Native capability list opens | Owner confirmed September 25; itinerary city list also opened |
 | Flight request | Send `cancelar`, then `Confins para Guarulhos, ida 23/10/2026, volta 30/10/2026, dois adultos, mais barata, sem limite` | Explicit summary with correct airports, dates, and two adults before searching | Pending |
 | Fare selection | Confirm, select an offer, open its link | Correct route/dates; verify or adjust two adults; compare checkout total without buying | Pending |
 | Refinement | Send `tá caro`, enter `R$ 500` | Cached-result filter; no over-budget fare offered as matching | Pending |
@@ -34,6 +34,8 @@ Use the allowed WhatsApp recipient. Record what actually happened; do not mark a
 Use future dates if repeating this script after the example dates have passed. No reservation or payment is part of acceptance.
 
 ## Remaining release gates
+
+One one-adult fare-link inspection reached the airline passenger-details page with matching itinerary and a documented BRL 0.82 price difference. See [browser evidence](LIVE_VALIDATION.md). This does not complete multi-adult acceptance or establish parity across all sources.
 
 Finish the owner script, record source-link/checkout discrepancies, resolve blocking defects, prepare a sanitized demonstration, and apply final standalone brand assets. The existing composite brand board is approved; it is not a finished avatar/cover export. Stable unattended operation is still limited by the local process, tunnel, and token lifetime.
 
