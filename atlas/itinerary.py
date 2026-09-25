@@ -40,41 +40,45 @@ def build_plan(city, days, interest, pace, start=None, excluded=()):
 
 def prompt(state):
     return {
-        'city': 'Vamos montar um roteiro de passeios. A cobertura inicial é São Paulo e Bogotá. Qual cidade? Sua busca de voos fica preservada. Digite voltar aos voos para sair.',
+        'city': '*Vamos montar seu roteiro.*\n\nPor enquanto, tenho passeios em São Paulo e Bogotá. Sua busca de voos fica preservada.\n\n*Qual cidade você quer conhecer?*',
         'start': 'Qual será o primeiro dia disponível para passeios? Pode escrever uma data natural ou sem data. Não vou usar automaticamente o dia do voo.',
         'days': 'Quantos dias de passeios? Nesta versão, de 1 a 3 dias.',
         'interest': 'O que você prefere: cultura, natureza ou misto?',
-        'pace': 'Qual ritmo? Tranquilo: até 1 local por dia. Equilibrado: até 2 na mesma região. O tempo de deslocamento ainda precisa ser conferido.',
+        'pace': '*Qual ritmo combina com você?*\n\n• *Tranquilo:* até 1 local por dia.\n• *Equilibrado:* até 2 na mesma região.\n\nO tempo de deslocamento ainda precisa ser conferido.',
     }[state['stage']]
 
 
 def summary(state):
     start = date.fromisoformat(state['start']).strftime('%d/%m/%Y') if state.get('start') else 'sem data definida'
-    return (f"Montar roteiro: {CITIES[state['city']]}, {state['days']} dia(s), início {start}, "
-            f"interesse {state['interest']}, ritmo {state['pace']}. É uma proposta com fontes, sem reserva "
-            'ou preços confirmados. Digite montar para gerar ou novo roteiro para alterar.')
+    return (f"*Montar roteiro: {CITIES[state['city']]}*\n\n"
+            f"• Duração: {state['days']} dia(s)\n• Início: {start}\n"
+            f"• Interesses: {state['interest']}\n• Ritmo: {state['pace']}\n\n"
+            'É uma proposta com fontes, sem reservas ou preços confirmados.\n\n'
+            '*Posso montar?* Escolha abaixo ou digite montar.')
 
 
 def render(state):
-    lines = [f"Seu roteiro sugerido — {CITIES[state['city']]}",
+    lines = [f"*Seu roteiro sugerido — {CITIES[state['city']]}*",
              f"{state['interest'].capitalize()} • ritmo {state['pace']}"]
     for i, day in enumerate(state['plan'], 1):
         stamp = ' — ' + date.fromisoformat(day['date']).strftime('%d/%m/%Y') if day['date'] else ''
-        lines.append(f'\nDia {i}{stamp}')
+        lines.append(f'\n*Dia {i}{stamp}*')
         if not day['places']:
             lines.append('Livre: não há outro local no catálogo que atenda a esse dia e aos seus filtros.')
         for pid in day['places']:
             p = get_place(pid)
             lines.append(f"• {p['name']} ({p['region']})")
-    lines.append('\nReserve tempo para refeições e deslocamentos. Confira abertura, ingressos e acessibilidade nas fontes; não verifiquei disponibilidade para suas datas.')
-    lines.append(f'Catálogo revisado em {REVIEWED}. Digite fontes do roteiro para os links, ajustar roteiro para mudar ou voltar aos voos.')
+    lines.append('\n*Antes de sair*\nConfira abertura, ingressos e acessibilidade nas fontes. A disponibilidade nas suas datas não foi verificada. Reserve tempo para refeições e deslocamentos.')
+    lines.append(f'\nCatálogo revisado em {REVIEWED}.')
+    lines.append('\n*Quer ajustar alguma coisa?*\nUse as opções abaixo ou digite ajustar roteiro. Para os links, fontes do roteiro.')
     return '\n'.join(lines)
 
 
 def sources(state):
     ids = dict.fromkeys(pid for day in state.get('plan', []) for pid in day['places'])
-    return '\n\n'.join([f'Fontes do roteiro • revisão editorial {REVIEWED}'] +
-                       [f"{get_place(pid)['name']}\n{get_place(pid)['source']}" for pid in ids])
+    return '\n\n'.join([f'*Fontes do roteiro*\nRevisão editorial: {REVIEWED}'] +
+                       [f"*{get_place(pid)['name']}*\n{get_place(pid)['source']}" for pid in ids] +
+                       ['Para continuar, digite *meu roteiro* ou *voltar aos voos*.'])
 
 
 def choices(state):

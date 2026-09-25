@@ -183,10 +183,16 @@ class Conversation:
             return self.apply_trip_fields(session, fields, today)
         if fresh and command != 'ajuda':
             saved_hint = ' Você tem preferências salvas; digite usar preferências para reutilizar.' if self.preferences.load(user_id) else ''
-            return "Olá! Sou o Atlas. Posso consultar voos de ida e volta em classe econômica e comparar preço, duração e paradas. Também monto roteiros de passeios em São Paulo e Bogotá. De qual cidade ou aeroporto você sai? Pode enviar origem, destino, datas e adultos juntos. Digite menu para explorar os recursos." + saved_hint
+            return "Olá! Sou o *Atlas*. ✈️\n\nPosso comparar voos de ida e volta e ajudar a planejar seus passeios.\n\n*De qual cidade ou aeroporto você sai?*\nPode enviar origem, destino, datas e adultos juntos.\n\nDigite *menu* para explorar os recursos." + saved_hint
         text = choice(text, session.step)
         if command == "ajuda":
-            return "Disponível: voos de ida e volta, 1 a 6 adultos, orçamento total, comparação por preço/duração e filtro sem paradas. Digite datas flexíveis para comparar até 3 combinações, variando ida e volta juntas em 1 dia. Digite roteiro para planejar de 1 a 3 dias de passeios em São Paulo ou Bogotá, com fontes. Preferências: salvar preferências, minhas preferências, usar preferências ou apagar preferências. Após a busca: link 1, filtros, datas, passageiros, orçamento ou buscar. Cancelar inicia outra viagem. Em desenvolvimento: ônibus e busca por mês inteiro."
+            return ("*Como posso ajudar*\n\n"
+                    "✈️ *Passagens*\nIda e volta para 1 a 6 adultos. Compare preço, duração e paradas.\n\n"
+                    "*Quer gastar menos?*\nUse orçamento, datas flexíveis (±1 dia) ou explorar destinos (até 3 aeroportos).\n\n"
+                    "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo ou Bogotá.\n\n"
+                    "*Suas preferências*\nSalvar preferências, minhas preferências, usar preferências ou apagar preferências.\n\n"
+                    "*Depois da busca*\nUse link 1, filtros, datas, passageiros, orçamento ou buscar.\n\n"
+                    "Digite menu para ver as opções ou cancelar para outra viagem. Ônibus e busca por mês inteiro ainda não estão disponíveis.")
         if session.step == "complete":
             if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
                 values['_price_question'] = True
@@ -310,9 +316,12 @@ class Conversation:
                 return prompt
         session.step = 'confirm'
         from .flexible import label as flexibility_label
-        return (f"Confirmar busca: {values['origin']} → {values['destination']}, ida {values['departure']}, "
-                f"volta {values['return']}, {values['adults']} adulto(s), econômica. Opção {values['priority']}; "
-                f"{label(values.get('budget'))}. {flexibility_label(values)} Digite sim para consultar ou informe o que deseja alterar.")
+        priority = {'1': 'Menor preço', '2': 'Menor duração', '3': 'Sem paradas', '4': 'Maior preço entre as ofertas encontradas'}[values['priority']]
+        return (f"*Confirmar busca: {values['origin']} → {values['destination']}*\n\n"
+                f"• Ida: {values['departure']}\n• Volta: {values['return']}\n"
+                f"• Passageiros: {values['adults']} adulto(s)\n• Classe: econômica\n"
+                f"• Preferência: {priority}\n\n{label(values.get('budget'))}.\n"
+                f"{flexibility_label(values)}\n\n*Posso buscar?*\nEscolha confirmar ou informe o que deseja alterar.")
 
     def resume_flights(self, session):
         """Resume the pending question without querying or changing flight criteria."""

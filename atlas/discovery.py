@@ -73,11 +73,11 @@ def next_prompt(state):
             return PROMPTS[key]
     state['stage'] = 'confirm'
     stops = 'sem paradas nos dois sentidos' if state.get('priority') == '3' else 'com ou sem paradas'
-    return (f"Comparar {', '.join(state['candidates'])}, saindo de {state['origin']}. "
-            f"Ida {state['departure']}, volta {state['return']}; {state['adults']} adulto(s). "
-            f"Até R$ {money(state['budget'])} no total de ida e volta, {stops}. "
+    return (f"*Comparar destinos*\n\nOrigem: {state['origin']}\nDestinos: {', '.join(state['candidates'])}\n"
+            f"Ida: {state['departure']}\nVolta: {state['return']}\nPassageiros: {state['adults']} adulto(s)\n\n"
+            f"*Até R$ {money(state['budget'])} no total*\nIda e volta, {stops}.\n\n"
             'Vou buscar a menor tarifa retornada por destino, em datas exatas, com até 3 consultas. '
-            'Hospedagem e passeios não estão incluídos. Confirmar?')
+            'Hospedagem e passeios não estão incluídos.\n\n*Posso comparar?*')
 
 
 def render(state):
@@ -86,13 +86,13 @@ def render(state):
              f"{state['origin']} • {state['adults']} adulto(s) • {state['departure']}–{state['return']}",
              'Google Flights • ' + report['checked_at']]
     for i, result in enumerate(report['matches'], 1):
-        lines.append(f"{i}. {result['destination']}: a partir de R$ {money(result['price'])} entre as ofertas retornadas.")
+        lines.append(f"\n*{i}. {result['destination']} — R$ {money(result['price'])}*\nMenor total entre as ofertas retornadas.")
     for result in report['queries']:
         if result['status'] != 'match':
             reason = 'consulta falhou' if result['status'] == 'unavailable' else 'nenhuma oferta retornada dentro dos critérios'
             lines.append(f"{result['destination']}: {reason}.")
-    lines.append('A comparação cobre apenas os destinos informados. Não encontrar uma oferta não prova que ela não exista. Preços podem mudar.')
-    lines.append('Escolha destino 1 (ou outro número) para ver as ofertas; explorar destinos para refazer ou voltar aos voos para sair.')
+    lines.append('\nA comparação cobre apenas os destinos informados. Não encontrar uma oferta não prova que ela não exista. Preços podem mudar.')
+    lines.append('\n*Qual destino você prefere?*\nEscolha abaixo ou digite destino 1 (ou outro número).')
     return '\n'.join(lines)
 
 
