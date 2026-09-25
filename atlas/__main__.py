@@ -3,7 +3,7 @@ from .conversation import Conversation
 
 def main():
     conversation = Conversation()
-    print("Atlas — simulador local. Digite oi para começar ou sair para encerrar.")
+    print("Atlas — assistente pessoal de viagens. Digite oi para começar ou sair para encerrar.")
     while True:
         try:
             message = input("Você: ")

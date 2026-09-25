@@ -1,1 +1,1 @@
-"""Atlas: independent travel conversation core."""
+"""Atlas: a personal travel assistant and conversation core."""
