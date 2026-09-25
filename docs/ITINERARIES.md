@@ -49,6 +49,6 @@ The sources below were reviewed on **September 24, 2026**. `atlas/destinations.p
 
 ## Tests and next work
 
-Tests cover every supported city/day/interest/pace combination, no duplicates, region grouping, exclusions, known closures, year boundaries, message limits, explicit confirmation, past dates, preserved flights, separate users, JSON persistence, and native selections through the SQLite message queue. Live WhatsApp acceptance of the new itinerary flow remains pending.
+Tests cover every supported city/day/interest/pace combination, no duplicates, region grouping, exclusions, known closures, year boundaries, message limits, explicit confirmation, past dates, preserved flights, separate users, JSON persistence, and native selections through the SQLite message queue. The owner confirmed the São Paulo flow, source response, place removal, regeneration, and return to flights on September 25, 2026. External source-page opening, pace changes, and the revised paragraph layout still need separate visual acceptance. See V1_RELEASE.md for the remaining scenarios.
 
 Next work includes more destinations and interests, complete and maintained opening calendars, independently verified visit costs, travel-time estimates, arrival/departure constraints, and user-specific accessibility requirements. Bus fare comparison remains a separate data-source milestone.

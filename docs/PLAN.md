@@ -19,7 +19,7 @@ Next: broaden language coverage using concrete examples and regression tests; ev
 
 ## Intended differentiators
 
-Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. The flight link message now suggests the implemented itinerary flow, and a native `menu` lists available capabilities. When prices are high, Atlas can refine the budget or compare nearby dates; alternative transport still needs a provider.
+Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. A native `menu` lists available capabilities, including the implemented itinerary flow. Fare-link messages focus on the selected offer and its next action to keep them readable. When prices are high, Atlas can refine the budget or compare nearby dates; alternative transport still needs a provider.
 
 Planned capabilities must never be presented as already available. The help response distinguishes current features from future work. No audited competitor feature comparison has been completed, so these are product directions rather than verified exclusivity claims.
 
