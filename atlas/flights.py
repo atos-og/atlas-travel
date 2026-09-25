@@ -123,13 +123,13 @@ def _format_results(result, values):
         lines.append(label(values['budget']) + '.')
     for i, offer in enumerate(selected, 1):
         price = f"{Decimal(offer['price']):,.2f}".replace(',', '_').replace('.', ',').replace('_', '.')
-        lines.append(f"\n{i}. R$ {price} no total • até {offer['stops']} parada(s) por sentido")
+        lines.append(f"\n*{i}. R$ {price} no total*\nAté {offer['stops']} parada(s) por sentido")
         if offer.get('travel_dates'):
             lines.append(f"Datas: {offer['travel_dates']['departure']} → {offer['travel_dates']['return']}")
         for j, journey in enumerate(offer['journeys']):
             duration = journey['duration']
-            lines.append(f"{'Ida' if j == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']}")
+            lines.append(f"{'Ida' if j == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']}\n{journey['airlines']} • {duration//60}h{duration%60:02}")
         lines.append('Ver oferta: link ' + str(i) if offer.get('url') else 'Link indisponível para esta opção.')
     lines.append('\nHorários locais dos aeroportos. Bagagem e regras tarifárias não confirmadas. Preço sujeito a alteração no fornecedor.')
-    lines.append('Digite link 1 (ou 2, 3, 4), filtros, datas, passageiros, orçamento, buscar ou cancelar.')
+    lines.append('\n*Alguma opção atende à sua viagem?*\nEscolha uma oferta ou digite link 1. Para ajustar, use filtros, datas ou orçamento.')
     return '\n'.join(lines)

@@ -78,18 +78,22 @@ def payload_for(session, reply):
         offers = rank(session.values.get('result', {}).get('offers', []), session.values.get('priority', '1'), session.values.get('budget'))
         offer = next((o for o in offers if o.get('url') == url), None)
         if offer and len(url) <= 2048 and parsed.hostname in {'www.google.com', 'www.google.com.br', 'google.com'} and not parsed.username:
-            lines = [f"{session.values['origin']} → {session.values['destination']}",
-                     f"R$ {money(offer['price'])} • ida e volta • {session.values['adults']} adulto(s)"]
+            lines = [f"*{session.values['origin']} → {session.values['destination']}*",
+                     f"*R$ {money(offer['price'])} no total*\nIda e volta • {session.values['adults']} adulto(s)"]
             if offer.get('travel_dates'):
                 lines.append(f"Ida {offer['travel_dates']['departure']} • volta {offer['travel_dates']['return']}")
             if offer.get('link_requires_passenger_check') or int(session.values['adults']) > 1:
                 lines.append(f"Ao abrir, ajuste e confirme {session.values['adults']} adultos: o link da fonte não garante manter a quantidade. O preço mostrado aqui é para todos.")
             for index, journey in enumerate(offer['journeys']):
                 duration = journey['duration']
-                lines.append(f"{'Ida' if index == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']} | {duration//60}h{duration%60:02} | {journey['airlines']} | {journey['stops']} parada(s)")
-            lines.append('Horários locais. Link para Google Flights; confira preço final, bagagem e regras. Para outras opções, escreva ofertas. Dica: digite roteiro para passeios em São Paulo ou Bogotá.')
+                lines.append(f"*{'Ida' if index == 0 else 'Volta'}*\n{journey['departure']} → {journey['arrival']}\n{journey['airlines']} • {duration//60}h{duration%60:02} • {journey['stops']} parada(s)")
+            lines.append('Horários locais. Confira preço final, bagagem e regras no Google Flights.')
+            lines.append('*Gostou desta opção?*\nAbra a oferta abaixo ou digite ofertas para voltar.')
+            body = '\n\n'.join(lines)
+            if len(body) > 1024:
+                return text_payload(body + '\n\n' + url)
             return {'type': 'interactive', 'interactive': {
-                'type': 'cta_url', 'body': {'text': '\n'.join(lines)[:1024]},
+                'type': 'cta_url', 'body': {'text': body},
                 'action': {'name': 'cta_url', 'parameters': {'display_text': 'Abrir oferta', 'url': url}}}}
         return text_payload(reply)
     options = []
@@ -127,13 +131,14 @@ def payload_for(session, reply):
                     ('passageiros', 'Alterar passageiros', ''), ('orcamento', 'Alterar orçamento', ''), ('buscar', 'Atualizar busca', ''),
                     ('cancelar', 'Nova viagem', '')]
         if len(reply) > 1024:
-            reply = (f"{values.get('origin')} → {values.get('destination')} | {values.get('adults')} adulto(s). "
-                     f"Ida {values.get('departure')}, volta {values.get('return')}. "
-                     f"Google Flights • consulta: {values.get('result', {}).get('checked_at', 'horário não disponível')}. "
-                     f"{label(values.get('budget'))}. "
-                     'Escolha uma oferta abaixo para ver os detalhes e abrir o link. Preços sujeitos a alteração; bagagem e regras precisam de confirmação no fornecedor.')
-            reply += '\n' + (coverage(values.get('result', {})) or 'Dica: digite datas flexíveis para comparar ±1 dia.')
-            reply += '\nDigite salvar preferências para reutilizar origem, adultos e ordenação.'
+            reply = (f"*{values.get('origin')} → {values.get('destination')}*\n\n"
+                     f"Ida: {values.get('departure')}\nVolta: {values.get('return')}\n"
+                     f"Passageiros: {values.get('adults')} adulto(s)\n\n"
+                     f"{label(values.get('budget'))}.\n\n"
+                     f"Google Flights • consulta: {values.get('result', {}).get('checked_at', 'horário não disponível')}\n"
+                     'Preços sujeitos a alteração. Confira bagagem e regras no fornecedor.')
+            reply += '\n\n' + (coverage(values.get('result', {})) or 'Dica: digite datas flexíveis para comparar ±1 dia.')
+            reply += '\n\n*Qual opção você prefere?*\nAbra a lista abaixo para ver as ofertas.'
     if not options or len(reply) > 1024:
         return text_payload(reply)
     nonce = uuid.uuid4().hex
