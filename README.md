@@ -58,6 +58,9 @@ The initial setup is a private test without purchased services. This does not gu
 
 ## Documentation
 
+- [Version 1 acceptance and release gates](docs/V1_RELEASE.md)
+- [Portfolio demonstration guide](docs/DEMO.md)
+
 - [Approved visual identity](docs/VISUAL_IDENTITY.md)
 - [Brand and product brief — nontechnical](docs/BRAND_BRIEF.md)
 - [Product plan and differentiators](docs/PLAN.md)
