@@ -26,7 +26,7 @@ Use the allowed WhatsApp recipient. Record what actually happened; do not mark a
 | Refinement | Send `tá caro`, enter `R$ 500` | Cached-result filter; no over-budget fare offered as matching | Pending |
 | Nearby dates | Choose `datas flexíveis`, ±1 day, confirm | At most three date pairs; actual dates and partial failures shown | Pending |
 | Destination comparison | Send `refazer comparação`, complete criteria and choose `GRU, REC` | Confirmation, independent outcomes, and explicit adoption of one destination | Pending |
-| Itinerary | Send `roteiro para São Paulo`, `sem data`, `3 dias`, `misto`, `equilibrado`, `montar` | Bounded plan and working source links | Pending |
+| Itinerary | São Paulo → no date → 3 days → mixed interests → relaxed pace → generate → view sources | Plan and source response appear | Owner reported success September 25; external source-page opening not separately confirmed |
 | Itinerary edits | Remove a place, rebuild, change pace, then `voltar aos voos` | Exclusion respected and previous flight state preserved | Pending |
 | Preferences | Save, restart, inspect, explicitly reuse, then delete preferences | No implicit reuse; deletion scope accurately explained | Pending |
 | Old menus | Click an older native menu after a change | Stale choice cannot change the trip | Pending |

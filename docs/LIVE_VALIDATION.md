@@ -28,3 +28,6 @@ A fresh CNF–GRU round trip for October 23–30, 2026, one adult, returned BRL 
 Following the airline option opened Gol's passenger-details flow with matching route, dates, and flight times. Its displayed Light fare total was BRL 771.18, BRL 0.82 below the whole-real Google/Atlas quote. This is one observed rounding difference, not exact checkout-total parity or a guarantee for other offers. The inspection stopped before entering passenger data, selecting upgrades, payment, or purchasing. The temporary browsing tabs were closed.
 
 The owner also confirmed that the WhatsApp capability menu opened the itinerary list with São Paulo, Bogotá, and the return-to-flights option. The complete itinerary acceptance sequence is still being checked.
+# Owner itinerary acceptance — September 25, 2026
+
+The owner reported that the WhatsApp sequence São Paulo → no date yet → three days → mixed interests → relaxed pace → generate itinerary → view sources appeared to work correctly. This confirms the reported conversation path and source response, not an independent audit of each source page. Editing, exclusions, returning to flights, and the balanced pace remain separate acceptance checks.
