@@ -107,3 +107,26 @@ class DiscoveryTests(unittest.TestCase):
     def test_disabled_provider_does_not_claim_search(self):
         bot = Conversation()
         self.assertIn('não consulta tarifas reais', bot.reply('u', 'explorar destinos'))
+
+    def test_help_does_not_become_a_destination_or_trigger_a_search(self):
+        bot = Conversation(self.provider)
+        bot.sessions['u'] = Session('complete', dict(self.values, destination='GRU'))
+        bot.reply('u', 'explorar destinos')
+        stage = bot.sessions['u'].values['_discovery']['stage']
+        self.assertIn('Nenhuma busca', bot.reply('u', 'ajuda'))
+        self.assertEqual(bot.sessions['u'].values['_discovery']['stage'], stage)
+        self.assertEqual(self.calls, [])
+
+    def test_switch_between_itinerary_and_discovery_without_resetting_flights(self):
+        bot = Conversation(self.provider)
+        bot.sessions['u'] = Session('adults', {'origin': 'CNF', 'destination': 'GRU'})
+        bot.reply('u', 'explorar destinos')
+        self.assertIn('primeiro dia', bot.reply('u', 'roteiro para Bogotá'))
+        session = bot.sessions['u']
+        self.assertFalse(session.values['_discovery']['active'])
+        self.assertTrue(session.values['_itinerary']['active'])
+        bot.reply('u', 'explorar destinos')
+        self.assertFalse(session.values['_itinerary']['active'])
+        self.assertTrue(session.values['_discovery']['active'])
+        self.assertEqual(session.step, 'adults')
+        self.assertEqual(session.values['destination'], 'GRU')

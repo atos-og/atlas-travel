@@ -125,6 +125,8 @@ def handle(session, text, today, provider, on_search=None):
         return 'Vamos comparar destinos. Confira os critérios antes de confirmar; refazer comparação permite preencher tudo novamente. ' + next_prompt(state)
     if not state or not state.get('active'):
         return None
+    if command == 'ajuda':
+        return 'Na comparação de destinos, informe os critérios pedidos e confirme antes de buscar. Use refazer comparação para alterar todos os critérios, voltar aos voos para retomar a viagem ou roteiro para planejar passeios. Nenhuma busca foi feita por este pedido de ajuda.'
     stage = state['stage']
     if stage == 'confirm':
         if command not in {'sim', 'confirmar', 'pode buscar', 'comparar'}:

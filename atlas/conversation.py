@@ -49,6 +49,11 @@ class Conversation:
                 session.values['_itinerary']['active'] = False
             return self.resume_flights(session)
         if clean(text) not in {'cancelar', '/cancelar', '/start'}:
+            from .itinerary import START as ITINERARY_START
+            import re
+            itinerary_command = command in ITINERARY_START | {'meu roteiro', 'fontes do roteiro', 'ajustar roteiro', 'apagar roteiro'} or re.fullmatch(r'(?:quero (?:um |montar um )?)?roteiro (?:para|em|pra) .+', command)
+            if itinerary_command and current and current.values.get('_discovery'):
+                current.values['_discovery']['active'] = False
             from .discovery import handle as discover
             session = self.sessions.get(user_id, Session())
             discovery_reply = discover(session, text, today, self.flight_search, self.on_search)
