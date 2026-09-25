@@ -22,8 +22,13 @@ class LanguageTests(unittest.TestCase):
 
     def test_natural_choices(self):
         self.assertEqual(choice('prefiro a mais barata', 'priority'), '1')
+        self.assertEqual(choice('quero a mais em conta', 'priority'), '1')
+        self.assertEqual(choice('menos tempo', 'priority'), '2')
         self.assertEqual(choice('sem escalas', 'priority'), '3')
+        self.assertEqual(choice('sem conexão', 'priority'), '3')
         self.assertEqual(choice('somos duas pessoas', 'adults'), '2')
+        self.assertEqual(choice('somos um casal', 'adults'), '2')
+        self.assertEqual(choice('vou sozinho', 'adults'), '1')
         self.assertEqual(choice('mais confortável', 'priority'), 'mais confortável')
 
     def test_full_flow_confirms_interpreted_dates(self):

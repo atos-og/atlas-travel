@@ -45,6 +45,19 @@ class TripInputTests(unittest.TestCase):
         self.assertEqual(self.bot.sessions['u'].values['departure'], '23/10/2026')
         self.assertEqual(self.bot.sessions['u'].values['return'], '30/10/2026')
 
+    def test_greeting_and_common_fare_words_in_combined_request(self):
+        answer = self.send('Bom dia, pode procurar uma passagem de Confins pra Bogotá, ida 23/10/2026, volta 30/10/2026, somos um casal, quero a mais em conta, sem limite')
+        self.assertIn('Confirmar busca', answer)
+        self.assertEqual(self.bot.sessions['u'].values['origin'], 'CNF')
+        self.assertEqual(self.bot.sessions['u'].values['destination'], 'BOG')
+        self.assertEqual(self.bot.sessions['u'].values['adults'], '2')
+        self.assertEqual(self.bot.sessions['u'].values['priority'], '1')
+
+    def test_colloquial_confirmation_runs_the_confirmed_search(self):
+        self.prepare()
+        self.send('bora')
+        self.assertEqual(len(self.calls), 1)
+
     def test_month_request_does_not_invent_dates_or_keep_old_offers(self):
         self.prepare()
         self.send('sim')

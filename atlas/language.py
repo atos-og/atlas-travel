@@ -49,12 +49,17 @@ def choice(text, step):
     if step == 'priority':
         value = re.sub(r'^(?:quero |prefiro |a |o )+', '', value)
         return {'mais barata': '1', 'mais barato': '1', 'menor preco': '1', 'barata': '1',
+                'mais em conta': '1', 'menor valor': '1', 'mais economica': '1', 'mais economico': '1',
                 'mais rapida': '2', 'mais rapido': '2', 'menor duracao': '2',
+                'menos tempo': '2', 'mais curta': '2', 'mais curto': '2',
                 'sem escala': '3', 'sem escalas': '3', 'sem parada': '3', 'sem paradas': '3',
-                'direto': '3', 'voo direto': '3', 'mais cara': '4', 'mais caro': '4', 'maior preco': '4'}.get(value, text)
+                'sem conexao': '3', 'sem conexoes': '3', 'direta': '3', 'direto': '3',
+                'voo direto': '3', 'mais cara': '4', 'mais caro': '4', 'maior preco': '4'}.get(value, text)
     if step == 'adults':
         value = re.sub(r'^(?:somos|vai ser|serao) ', '', value)
         value = re.sub(r' (?:adultos?|pessoas?|passageiros?)$', '', value)
-        return {'um': '1', 'uma': '1', 'so eu': '1', 'dois': '2', 'duas': '2', 'tres': '3',
+        return {'um': '1', 'uma': '1', 'so eu': '1', 'sozinho': '1', 'sozinha': '1',
+                'vou sozinho': '1', 'vou sozinha': '1', 'um adulto': '1', 'uma adulta': '1',
+                'casal': '2', 'um casal': '2', 'dois': '2', 'duas': '2', 'tres': '3',
                 'quatro': '4', 'cinco': '5', 'seis': '6'}.get(value, value)
     return text

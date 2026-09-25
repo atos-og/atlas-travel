@@ -10,8 +10,8 @@ from .language import clean
 
 MARKERS = re.compile(
     r'\b(?:ida(?: (?:em|no dia|dia))?|(?:e )?(?:volta|voltar|voltando)(?: (?:em|no dia|dia))?'
-    r'|(?:para |somos |seremos )?(?:\d+|um|uma|dois|duas|tres|quatro|cinco|seis) (?:adultos?|pessoas?)'
-    r'|(?:prefiro |quero )?(?:a )?(?:mais barata|mais barato|mais rapida|mais rapido|sem escalas?|sem paradas?|voo direto|mais cara|mais caro)'
+    r'|(?:para |somos |seremos )?(?:(?:\d+|um|uma|dois|duas|tres|quatro|cinco|seis) (?:adultos?|pessoas?)|um casal|casal)'
+    r'|(?:prefiro |quero )?(?:a )?(?:mais barata|mais barato|mais em conta|menor valor|mais economica|mais economico|mais rapida|mais rapido|menos tempo|mais curta|mais curto|sem escalas?|sem paradas?|sem conex(?:ao|oes)|voo direto|direta|direto|mais cara|mais caro)'
     r'|(?:orcamento(?: de)?|ate r\$|ate (?=\d)|sem limite)'
     r'|(?:em |para )?(?:janeiro|fevereiro|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b)'
 )
@@ -32,8 +32,12 @@ def extract_trip(text):
         raise ValueError('Há alternativas ou uma negação na mensagem. Informe uma escolha por vez para eu não interpretar errado.')
     prefix = value[:matches[0].start()] if matches else value
     prefix = prefix.strip(' ,;')
+    prefix = re.sub(r'^(?:(?:oi|ola|bom dia|boa tarde|boa noite)(?: atlas)?\s*[,;:-]?\s*)+', '', prefix)
     prefix = re.sub(r'\s*,?\s*(?:de aviao|encontre .*|busque .*)$', '', prefix)
-    route = re.fullmatch(r'(?:(?:eu )?(?:quero ir|vou|quero viajar) de |de )?(.+?)\s*(?:->|→| para | pra )\s*(.+)', prefix)
+    route = re.fullmatch(
+        r'(?:(?:eu )?(?:quero ir|vou|quero viajar) de |'
+        r'(?:(?:eu )?(?:quero|preciso de)|procure|busque|pode procurar|pode buscar) '
+        r'(?:uma passagem|um voo)(?: de)? |de )?(.+?)\s*(?:->|→| para | pra )\s*(.+)', prefix)
     if route and not re.match(r'(?:(?:eu )?quero ir|mudar|trocar|alterar|eu gostaria)', route[1]):
         fields.update(origin=route[1], destination=route[2])
     else:
@@ -52,7 +56,7 @@ def extract_trip(text):
             assign('departure', tail)
         elif re.match(r'(?:e )?(?:volta|voltar|voltando)\b', marker):
             assign('return', tail)
-        elif re.search(r'\b(?:adultos?|pessoas?)$', marker):
+        elif re.search(r'\b(?:adultos?|pessoas?|casal)$', marker):
             assign('adults', re.sub(r'^(?:para |somos |seremos )', '', marker))
         elif marker.startswith(('orcamento', 'ate ', 'sem limite')):
             assign('budget', 'sem limite' if marker == 'sem limite' else re.sub(r'^orcamento(?: de)?', '', marker + ' ' + tail).strip())

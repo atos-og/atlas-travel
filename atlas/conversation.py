@@ -232,7 +232,7 @@ class Conversation:
             else:
                 return "Use link 1 para ver uma oferta; filtros, datas, passageiros ou orçamento para ajustar; buscar para atualizar; cancelar para outra viagem."
         if session.step == "confirm":
-            if command not in {"sim", "s", "buscar", "confirmar", "pode buscar", "pode sim", "isso", "isso mesmo", "ok"}:
+            if command not in {"sim", "s", "buscar", "confirmar", "pode buscar", "pode sim", "isso", "isso mesmo", "ok", "bora", "pode", "fechado"}:
                 return "Digite sim para consultar ou cancelar para recomeçar."
             if datetime.strptime(values["departure"], "%d/%m/%Y").date() < today:
                 session.step = "departure"
