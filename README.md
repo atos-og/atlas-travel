@@ -60,6 +60,7 @@ The initial setup is a private test without purchased services. This does not gu
 
 - [Version 1 acceptance and release gates](docs/V1_RELEASE.md)
 - [Portfolio demonstration guide](docs/DEMO.md)
+- [WhatsApp message formatting](docs/MESSAGE_STYLE.md)
 
 - [Approved visual identity](docs/VISUAL_IDENTITY.md)
 - [Brand and product brief — nontechnical](docs/BRAND_BRIEF.md)
