@@ -117,6 +117,16 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(bot.sessions['u'].values['_discovery']['stage'], stage)
         self.assertEqual(self.calls, [])
 
+    def test_greeting_repeats_current_prompt_without_changing_state_or_searching(self):
+        bot = Conversation(self.provider)
+        bot.reply('u', 'explorar destinos')
+        state = bot.sessions['u'].values['_discovery']
+        before = copy.deepcopy(state)
+        answer = bot.reply('u', 'Bom dia, Atlas')
+        self.assertIn('De qual cidade', answer)
+        self.assertEqual(state, before)
+        self.assertEqual(self.calls, [])
+
     def test_switch_between_itinerary_and_discovery_without_resetting_flights(self):
         bot = Conversation(self.provider)
         bot.sessions['u'] = Session('adults', {'origin': 'CNF', 'destination': 'GRU'})

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, field
 from datetime import date, datetime
-from .language import local_today, parse_date, choice, clean
+from .language import local_today, parse_date, choice, clean, is_greeting
 from .budget import parse_budget, BUDGET_PROMPT, label
 
 
@@ -133,6 +133,8 @@ class Conversation:
             self.sessions[user_id] = Session()
         session = self.sessions[user_id]
         values = session.values
+        if is_greeting(text) and not fresh:
+            return 'Olá! Continuamos de onde paramos.\n\n' + self.resume_flights(session)
         from .preferences import FIELDS, describe
         if command == 'salvar preferencias':
             if not all(key in values for key in FIELDS):

@@ -53,6 +53,15 @@ class TripInputTests(unittest.TestCase):
         self.assertEqual(self.bot.sessions['u'].values['adults'], '2')
         self.assertEqual(self.bot.sessions['u'].values['priority'], '1')
 
+    def test_standalone_greeting_preserves_pending_flight_question(self):
+        self.send('oi')
+        self.send('Confins')
+        before = self.bot.sessions['u'].values.copy()
+        answer = self.send('Oi, Atlas!')
+        self.assertIn('Para qual cidade', answer)
+        self.assertEqual(self.bot.sessions['u'].values, before)
+        self.assertEqual(self.calls, [])
+
     def test_colloquial_confirmation_runs_the_confirmed_search(self):
         self.prepare()
         self.send('bora')

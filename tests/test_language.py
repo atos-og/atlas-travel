@@ -1,10 +1,15 @@
 import unittest
 from datetime import date
-from atlas.language import parse_date, choice
+from atlas.language import parse_date, choice, is_greeting
 from atlas.conversation import Conversation
 
 
 class LanguageTests(unittest.TestCase):
+    def test_only_standalone_greetings_are_recognized(self):
+        for text in ('oi', 'Olá!', 'bom dia Atlas', 'boa noite'):
+            self.assertTrue(is_greeting(text))
+        self.assertFalse(is_greeting('Bom dia, quero ir de Confins para Bogotá'))
+
     def test_dates_and_relative_year(self):
         today = date(2026, 9, 23)
         for text in ['dia 23 de outubro desse ano', '23 de outubro de 2026', 'quero ir no dia 23 de outubro deste ano', '23/10', '23-10-2026']:

@@ -2,7 +2,7 @@
 
 import re
 from datetime import date, timedelta
-from .language import clean, parse_date
+from .language import clean, parse_date, is_greeting
 from .destinations import ALIASES, CITIES, PLACES, REVIEWED, get_place
 
 START = {'roteiro', 'montar roteiro', 'quero montar um roteiro', 'passeios'}
@@ -101,6 +101,20 @@ def choices(state):
     return options + [('voltar aos voos', 'Voltar aos voos')]
 
 
+def resume(state):
+    """Repeat the current itinerary context without advancing it."""
+    stage = state['stage']
+    if stage == 'done':
+        return render(state)
+    if stage == 'confirm':
+        return summary(state)
+    if stage == 'edit':
+        return 'O que deseja ajustar no roteiro? Dias, início, interesses, ritmo ou cidade?'
+    if stage == 'remove':
+        return 'Escolha um passeio para remover. Vou reorganizar usando apenas os outros locais do catálogo.'
+    return prompt(state)
+
+
 def handle(session, text, today):
     """Return None when this message belongs to the existing flight flow."""
     command = clean(text)
@@ -130,6 +144,8 @@ def handle(session, text, today):
         return prompt(state)
     if not state or not state.get('active'):
         return None
+    if is_greeting(text):
+        return 'Olá! Continuamos de onde paramos.\n\n' + resume(state)
     if command == 'ajuda':
         return 'No roteiro: meu roteiro, fontes do roteiro, ajustar roteiro, remover passeio, novo roteiro, apagar roteiro ou voltar aos voos. Cancelar reinicia toda a viagem.'
     if command == 'fontes do roteiro':

@@ -93,6 +93,15 @@ class ItineraryConversationTests(unittest.TestCase):
         self.send('natureza')
         self.assertIn('Qual ritmo', self.send('correndo'))
 
+    def test_greeting_repeats_current_prompt_without_changing_itinerary(self):
+        self.send('roteiro para Bogotá')
+        state = self.bot.sessions['a'].values['_itinerary']
+        before = json.loads(json.dumps(state))
+        answer = self.send('boa tarde')
+        self.assertIn('primeiro dia', answer)
+        self.assertEqual(state, before)
+        self.search.assert_not_called()
+
     def test_unsupported_city_is_not_substituted(self):
         self.assertIn('Ainda não tenho', self.send('roteiro para Paris'))
         self.assertNotIn('city', self.bot.sessions['a'].values['_itinerary'])

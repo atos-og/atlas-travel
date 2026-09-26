@@ -10,6 +10,16 @@ def clean(text):
                            if unicodedata.category(c) != 'Mn').strip(' .!?').split())
 
 
+def is_greeting(text):
+    """Recognize a standalone greeting without swallowing a travel request."""
+    value = re.sub(r'[,;:]+', ' ', clean(text))
+    value = ' '.join(value.split())
+    return value in {
+        'oi', 'ola', 'opa', 'e ai', 'bom dia', 'boa tarde', 'boa noite',
+        'oi atlas', 'ola atlas', 'bom dia atlas', 'boa tarde atlas', 'boa noite atlas',
+    }
+
+
 def local_today():
     return datetime.now(timezone(timedelta(hours=-3))).date()
 
