@@ -190,3 +190,10 @@ class ItineraryConversationTests(unittest.TestCase):
         answer = self.send('roteiro')
         payload = payload_for(self.bot.sessions['a'], answer)
         self.assertEqual(payload['interactive']['action']['button'], 'Opções do roteiro')
+
+    def test_natural_capability_questions_open_the_native_menu(self):
+        for text in ('como você pode me ajudar?', 'o que dá pra fazer?', 'quais recursos'):
+            answer = self.send(text)
+            payload = payload_for(self.bot.sessions['a'], answer)
+            self.assertEqual(payload['interactive']['action']['button'], 'Explorar recursos')
+            self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 6)

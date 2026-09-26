@@ -28,7 +28,11 @@ class Conversation:
         if current:
             current.values.pop('_capabilities', None)
             current.values.pop('_preference_actions', None)
-        if command in {'menu', 'recursos', 'o que voce faz', 'o que voce pode fazer'}:
+        if command in {
+            'menu', 'recursos', 'quais recursos', 'me mostre o menu',
+            'o que voce faz', 'o que voce pode fazer', 'o que da pra fazer',
+            'como voce pode me ajudar', 'como pode me ajudar',
+        }:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):
                 session.values['_discovery']['active'] = False
