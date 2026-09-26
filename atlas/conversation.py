@@ -34,13 +34,16 @@ class Conversation:
             if session.values.get('_itinerary'):
                 session.values['_itinerary']['active'] = False
             session.values['_capabilities'] = True
-            return ('Como posso ajudar na sua viagem?\n'
-                    '• Voos: ida e volta, preço, duração, paradas e orçamento.\n'
-                    '• Datas próximas: comparar até 3 combinações em ±1 dia.\n'
-                    '• Destinos por orçamento: comparar até 3 aeroportos escolhidos por você.\n'
-                    '• Roteiro: 1 a 3 dias de passeios em São Paulo ou Bogotá.\n'
-                    '• Preferências: salvar e reutilizar suas escolhas.\n'
-                    'Escolha no menu ou escreva voos, roteiro, datas flexíveis ou minhas preferências.')
+            return ('*O que você quer planejar?* ✈️\n\n'
+                    '*Passagens*\n'
+                    'Compare voos de ida e volta por preço, duração, paradas e orçamento.\n\n'
+                    '*Mais possibilidades*\n'
+                    'Veja datas próximas ou compare até 3 destinos escolhidos por você.\n\n'
+                    '*Passeios*\n'
+                    'Monte de 1 a 3 dias em São Paulo ou Bogotá.\n\n'
+                    '*Suas preferências*\n'
+                    'Salve origem, passageiros e o tipo de oferta que prefere.\n\n'
+                    'Abra o menu abaixo para escolher por onde começar.')
         if command in {'voos', 'consultar voos', 'voltar aos voos', 'sair do roteiro'}:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):

@@ -167,6 +167,9 @@ class ItineraryConversationTests(unittest.TestCase):
         session = self.bot.sessions['a']
         payload = payload_for(session, answer)
         self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 6)
+        self.assertIn('\n\n*Passagens*\n', answer)
+        self.assertIn('\n\n*Passeios*\n', answer)
+        self.assertLess(len(answer), 1024)
         self.assertFalse(session.values['_itinerary']['active'])
         self.assertIn('Quantos adultos', self.send('voos'))
         self.assertEqual(session.step, 'adults')
