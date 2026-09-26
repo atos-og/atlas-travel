@@ -42,6 +42,8 @@ Account confirmation was completed by the owner. A new token was saved locally a
 
 The temporary token expired again and was renewed with the same WhatsApp permissions. Read-only checks passed after renewal, with expiry reported at 22:00 UTC on September 24, 2026. A durable credential strategy remains pending; this is not a claim of ongoing availability.
 
+On September 25, the owner renewed the test token again. Atlas verified the token's app identity and WhatsApp scopes, replaced the expired quick-tunnel callback, subscribed the app to the test account, and passed independent local, public-tunnel, phone-number, and token checks. Meta reports this token expiring at 02:00 UTC on September 26, so another authorized inbound/outbound round trip is still required before the short-lived credential expires.
+
 `python -m atlas.check` checks local readiness; `--meta` adds a read-only API check and `--token` inspects expiry using the optional `META_APP_ID` setting. No messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline.
 
 ## Sightseeing and capability discovery
