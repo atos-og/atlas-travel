@@ -15,7 +15,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 
 Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, persisted search progress notices, context-preserving greetings, shared colloquial confirmations, and explicit relative weekdays. Offer details include duration in the URL-button message; long result summaries retain travel dates and query time. The newest conversation changes still need live WhatsApp acceptance.
 
-Next: broaden language coverage using concrete examples and regression tests; evaluate offer artwork and carousel feasibility against the test account and cost constraint; extend the bounded nearby-date strategy only after validating source reliability and query limits. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
+An optional hosted NLU layer now translates varied wording into a strict, allowlisted intent. Deterministic parsing remains the fallback. Next: validate natural phrases through WhatsApp, broaden coverage using concrete regression examples, evaluate offer artwork and carousel feasibility against the test account and cost constraint, and extend nearby dates only after validating source reliability and query limits. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
 
 ## Intended differentiators
 
@@ -25,7 +25,7 @@ Planned capabilities must never be presented as already available. The help resp
 
 ## Portfolio value
 
-The project demonstrates real integrations, conversation state, fare normalization, webhook security, testing, and honest failure handling. Source reliability takes priority over adding an LLM or additional transport providers. A future LLM may translate requests into validated criteria; prices and links must still come from travel sources.
+The project demonstrates real integrations, conversation state, fare normalization, webhook security, bounded language-model use, testing, and honest failure handling. The hosted model translates requests into validated criteria only. Prices and links still come from travel sources, and final product copy remains controlled by the application.
 
 ## Language
 

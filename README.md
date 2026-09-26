@@ -20,10 +20,11 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu, opened with `menu`, that makes implemented features discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
+- Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Bus travel, broader itinerary coverage, whole-month date searches, and alerts are future milestones. The current conversation uses deterministic Portuguese phrase parsing, not an LLM or paid AI service. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
+Bus travel, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent; it does not generate fares, links, itineraries, or final replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
 
 ## Run locally
 
@@ -45,6 +46,8 @@ Copy-Item .env.example .env
 ```
 
 The server listens on `127.0.0.1:8787`. Meta needs a publicly reachable HTTPS callback. Outbound replies and external searches are disabled by default. Follow the [WhatsApp setup guide](docs/WHATSAPP_SETUP.md).
+
+Natural-language interpretation is also disabled by default. Set `ATLAS_NLU_ENABLED=true`, provide `GROQ_API_KEY`, and optionally select `GROQ_MODEL`. See the [bounded interpretation design](docs/NATURAL_LANGUAGE.md). The provider's free tier has quotas and is not an uptime or permanent-pricing guarantee.
 
 Example conversation, one message per step: `oi` → `Confins` → `Bogotá` → departure date → return date → `1` adult → `1` for lowest price → `sem limite` for no budget limit → `sim` to confirm. Alternatively, send `Confins para Guarulhos, ida 23/10/2027, volta 30/10/2027, dois adultos, mais barata, sem limite` as one message. The bot still requires confirmation before searching. Use future dates. Ambiguous places such as São Paulo or Colombia require a specific airport. `python -m atlas` remains an offline demonstration and does not query fares.
 
@@ -72,6 +75,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [Private prototype acceptance and remaining work](docs/ACCEPTANCE_CHECKLIST.md)
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
+- [Bounded natural-language interpretation](docs/NATURAL_LANGUAGE.md)
 - [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
 - [Destination comparison by budget](docs/DESTINATION_DISCOVERY.md)
 - [Security](SECURITY.md)
