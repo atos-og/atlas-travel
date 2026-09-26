@@ -28,7 +28,7 @@ Temporary tunnels can expire or change their URL after restart. Update the callb
 
 ## Read-only readiness checks
 
-Run `python -m atlas.check` with the project environment to check required setting presence and the local server. Add `--meta` to verify API access to the configured phone-number resource. Neither command sends messages, rotates tokens, changes subscriptions, or prints credentials, phone numbers, account identifiers, or raw API errors. The command exits nonzero when a required check fails. Disabled reply/provider flags are reported separately from readiness.
+Run `python -m atlas.check` with the project environment to check required setting presence and the local server. Add `--meta` to verify API access to the configured phone-number resource, `--token` to inspect Meta token expiry, or `--groq` to send one synthetic intent request that validates the configured Groq key and model. These checks do not send WhatsApp messages, rotate tokens, change subscriptions, or print credentials, phone numbers, account identifiers, traveler text, or raw API errors. The command exits nonzero when a requested check fails. Disabled reply/provider/NLU flags are reported separately from readiness.
 
 A successful check does not prove public tunnel reachability, callback configuration, message delivery, available fares, or a complete user journey. Check those independently. `token_expired` means a new token is needed; `access_or_permission_denied` calls for checking the Meta account and permissions; `network_or_response` does not by itself prove that a token is invalid. Do not infer the exact cause of a permission error without inspecting the account.
 

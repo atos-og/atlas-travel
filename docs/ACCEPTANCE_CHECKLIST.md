@@ -12,7 +12,8 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 115 local tests, including the sightseeing flow, natural language safeguards, readable option formatting, and native choices persisted through the queue.
+- [x] 127 local tests, including hosted-language diagnostics, the sightseeing flow, natural-language safeguards, readable option formatting, and native choices persisted through the queue.
+- [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
 - [x] Budget-led comparison of up to three explicit destinations, preserving the original trip until selection.
@@ -53,7 +54,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 | Area | Next concrete outcome |
 | --- | --- |
 | Source reliability | Verify supplier links and totals; establish acceptable failure and query rates. |
-| Language coverage | Expand a regression corpus; evaluate a language model only against the zero-cost/private-use constraint. |
+| Language coverage | Validate hosted interpretation on WhatsApp and expand the regression corpus from real, sanitized phrasing while preserving the free-tier fallback. |
 | Brand production | Obtain or produce faithful separate avatar and cover exports; then apply them to the intended account surfaces. |
 | Bus travel | Select and validate a usable source before offering bus prices or cross-mode comparisons. |
 | Sightseeing | Validate the implemented flow on WhatsApp; expand coverage and verify calendars, costs, and travel times. |

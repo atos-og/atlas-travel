@@ -6,7 +6,8 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 115 unit/integration tests pass locally, without paid services.
+- 127 unit/integration tests pass locally, without paid services.
+- A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
 - Flow navigation preserves flight criteria and allows switching between destination comparison and sightseeing.

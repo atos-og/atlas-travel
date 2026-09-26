@@ -42,3 +42,13 @@ GROQ_MODEL=openai/gpt-oss-20b
 ```
 
 The free Groq tier is suitable for private development but has request and token quotas. It is not a guarantee of permanent free pricing, production capacity, latency, or availability. Public deployment requires a privacy notice, provider-term review, quota monitoring, and a deliberate data-retention decision.
+
+## Safe diagnostics
+
+Run the following command to make one synthetic intent request:
+
+```powershell
+python -m atlas.check --groq
+```
+
+The check does not use a traveler message and never prints the API key or provider response body. It reports whether hosted interpretation is enabled and configured, the public model ID, and a bounded reason for invalid credentials, denied access, quota/rate limits, request/model rejection, unexpected output, or network failure. Without `--groq`, the normal health command makes no Groq request.

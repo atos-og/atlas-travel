@@ -67,7 +67,7 @@ Natural-language interpretation is also disabled by default. Set `ATLAS_NLU_ENAB
 
 Example conversation, one message per step: `oi` → `Confins` → `Bogotá` → departure date → return date → `1` adult → `1` for lowest price → `sem limite` for no budget limit → `sim` to confirm. Alternatively, send `Confins para Guarulhos, ida 23/10/2027, volta 30/10/2027, dois adultos, mais barata, sem limite` as one message. The bot still requires confirmation before searching. Use future dates. Ambiguous places such as São Paulo or Colombia require a specific airport. `python -m atlas` remains an offline demonstration and does not query fares.
 
-For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test API access without sending messages.
+For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test Meta access without sending messages, `--token` to inspect the Meta token lifetime, or `--groq` to send one synthetic intent request that validates the configured Groq key and model without using traveler data.
 
 Sightseeing also works in the offline simulator: send `roteiro para São Paulo`, `sem data`, `3 dias`, `misto`, `equilibrado`, then `montar`. Use `fontes do roteiro` for the sources and `voltar aos voos` to resume the flight flow. See [itinerary behavior and coverage](docs/ITINERARIES.md).
 
