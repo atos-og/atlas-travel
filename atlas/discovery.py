@@ -15,8 +15,11 @@ PROMPTS = {
     'departure': 'Qual é a data de ida para comparar os destinos?',
     'return': 'Qual é a data de volta? Pode escrever 7 dias depois.',
     'adults': 'Quantos adultos vão viajar? De 1 a 6.',
-    'budget': 'Qual é o orçamento total em reais para as passagens de todos os adultos, ida e volta? Informe um limite, como R$ 2.000.',
-    'candidates': 'Quais destinos quer comparar? Informe de 1 a 3 cidades ou aeroportos, separados por vírgula. Exemplo: GRU, BOG, REC. Não é uma busca de todos os destinos do mundo.',
+    'budget': '*Qual é o orçamento total?*\n\nInforme o limite em reais para ida e volta de todos os adultos. Exemplo: R$ 2.000.',
+    'candidates': ('*Quais destinos você quer comparar?*\n\n'
+                   'Informe de 1 a 3 cidades ou aeroportos separados por vírgula.\n\n'
+                   'Exemplo: GRU, BOG, REC.\n'
+                   'A busca cobre somente os destinos informados.'),
 }
 
 
@@ -73,8 +76,8 @@ def next_prompt(state):
             return PROMPTS[key]
     state['stage'] = 'confirm'
     stops = 'sem paradas nos dois sentidos' if state.get('priority') == '3' else 'com ou sem paradas'
-    return (f"*Comparar destinos*\n\nOrigem: {state['origin']}\nDestinos: {', '.join(state['candidates'])}\n"
-            f"Ida: {state['departure']}\nVolta: {state['return']}\nPassageiros: {state['adults']} adulto(s)\n\n"
+    return (f"*Comparar destinos*\n\n• Origem: {state['origin']}\n• Destinos: {', '.join(state['candidates'])}\n"
+            f"• Ida: {state['departure']}\n• Volta: {state['return']}\n• Passageiros: {state['adults']} adulto(s)\n\n"
             f"*Até R$ {money(state['budget'])} no total*\nIda e volta, {stops}.\n\n"
             'Vou buscar a menor tarifa retornada por destino, em datas exatas, com até 3 consultas. '
             'Hospedagem e passeios não estão incluídos.\n\n*Posso comparar?*')
@@ -82,7 +85,8 @@ def next_prompt(state):
 
 def render(state):
     report = state['report']
-    lines = [f"Destinos dentro de R$ {money(state['budget'])} • total das passagens",
+    lines = [f"*Destinos dentro de R$ {money(state['budget'])}*",
+             'Total das passagens de ida e volta',
              f"{state['origin']} • {state['adults']} adulto(s) • {state['departure']}–{state['return']}",
              'Google Flights • ' + report['checked_at']]
     for i, result in enumerate(report['matches'], 1):
@@ -122,7 +126,9 @@ def handle(session, text, today, provider, on_search=None):
         session.values['_discovery'] = state
         if session.values.get('_itinerary'):
             session.values['_itinerary']['active'] = False
-        return 'Vamos comparar destinos. Confira os critérios antes de confirmar; refazer comparação permite preencher tudo novamente. ' + next_prompt(state)
+        return ('*Vamos comparar destinos.*\n\n'
+                'Vou pedir os critérios e mostrar um resumo antes de consultar as tarifas.\n'
+                'Para começar de novo, use refazer comparação.\n\n' + next_prompt(state))
     if not state or not state.get('active'):
         return None
     if is_greeting(text):
@@ -161,7 +167,8 @@ def handle(session, text, today, provider, on_search=None):
             session.values.pop(key, None)
         state['active'] = False
         session.step = 'complete'
-        return 'Selecionei esse destino usando a consulta anterior, sem buscar novamente.\n' + format_results(selected['result'], session.values)
+        return ('Selecionei esse destino usando a consulta anterior, sem buscar novamente.\n\n' +
+                format_results(selected['result'], session.values))
     try:
         if stage == 'origin':
             value, error = resolve_airport(text)

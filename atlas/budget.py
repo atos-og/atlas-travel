@@ -4,8 +4,13 @@ import re
 from decimal import Decimal
 from .language import clean
 
-BUDGET_PROMPT = ('Qual é o limite total em reais para as passagens de ida e volta de todos os adultos? '
-                 'Ex.: até R$ 1.500, 2 mil ou sem limite. Não inclui hotel e passeios.')
+BUDGET_PROMPT = ('*Qual é o limite para as passagens?*\n\n'
+                 'Informe o total em reais para ida e volta de todos os adultos.\n\n'
+                 '*Exemplos*\n'
+                 '• R$ 1.500\n'
+                 '• 2 mil\n'
+                 '• sem limite\n\n'
+                 'Hotel e passeios não estão incluídos.')
 
 
 def parse_budget(text):

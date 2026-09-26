@@ -90,7 +90,8 @@ def format_results(result, values):
     note = coverage(result)
     message = _format_results(result, values)
     if note:
-        return note + '\n' + message + '\nDigite salvar preferências para reutilizar origem, adultos e ordenação em outra viagem.'
+        return (note + '\n\n' + message +
+                '\n\nDigite *salvar preferências* para reutilizar origem, adultos e ordenação.')
     return (message + '\n\n*Você também pode*\n'
             '• Digitar *datas flexíveis* para comparar ±1 dia.\n'
             '• Digitar *salvar preferências* para guardar origem, adultos e ordenação.')
@@ -105,22 +106,30 @@ def _format_results(result, values):
         'unavailable': 'A fonte de voos está indisponível no momento. Não consegui consultar tarifas.',
     }
     if result.get('status') != 'success':
-        return messages.get(result.get('status'), messages['unavailable']) + '\nUse buscar para tentar novamente, datas para ajustar ou cancelar para recomeçar.'
+        return ('*Não tenho tarifas confirmadas*\n\n' +
+                messages.get(result.get('status'), messages['unavailable']) +
+                '\n\n*O que você pode fazer*\n'
+                '• Digite *buscar* para tentar novamente.\n'
+                '• Use *datas* para ajustar a viagem.\n'
+                '• Digite *cancelar* para recomeçar.')
     selected = rank(result['offers'], values['priority'], values.get('budget'))
     if not selected:
         eligible = rank(result['offers'], '3' if values['priority'] == '3' else '1')
         if values.get('budget') is not None and eligible:
             cheapest = eligible[0]['price']
-            return (f"Nenhuma das ofertas retornadas cabe no {label(values['budget'])}. "
-                    f"A menor tarifa encontrada para os critérios foi R$ {money(cheapest)}, acima do limite. "
-                    f"Consulta: {result.get('checked_at', 'horário não disponível')}. "
-                    'Isso não prova ausência de tarifas mais baratas em outras fontes. '
-                    'Use orçamento para ajustar o total, datas para mudar a viagem ou buscar para atualizar.')
-        return messages['empty'] + '\nUse filtros para mudar a preferência ou cancelar para recomeçar.'
+            return (f"*Nenhuma oferta dentro de R$ {money(values['budget'])}*\n\n"
+                    f"A menor tarifa retornada foi *R$ {money(cheapest)}*, acima do limite definido.\n\n"
+                    f"Consulta: {result.get('checked_at', 'horário não disponível')}.\n"
+                    'Isso não prova ausência de tarifas mais baratas em outras fontes.\n\n'
+                    '*Quer ajustar a busca?*\n'
+                    'Use orçamento para mudar o total, datas para alterar a viagem ou buscar para atualizar.')
+        return (messages['empty'] + '\n\n'
+                '*Quer tentar de outro jeito?*\nUse filtros para mudar a preferência ou cancelar para recomeçar.')
     stamp = result.get('checked_at', datetime.now(timezone.utc).strftime('%d/%m/%Y %H:%M UTC'))
     order = {'1': 'menor preço', '2': 'menor duração total', '3': 'sem paradas', '4': 'maior preço'}[values['priority']]
-    lines = [f"{values['origin']} → {values['destination']} | ida e volta | {values.get('adults', '1')} adulto(s) | econômica",
-             f"Google Flights • {stamp}", f"Ordem: {order}, entre as opções retornadas."]
+    lines = [f"*{values['origin']} → {values['destination']}*",
+             f"Ida e volta • {values.get('adults', '1')} adulto(s) • Econômica",
+             f"Google Flights • {stamp}", f"Ordenado por {order} entre as opções retornadas."]
     if values.get('budget') is not None:
         lines.append(label(values['budget']) + '.')
     for i, offer in enumerate(selected, 1):
@@ -133,5 +142,5 @@ def _format_results(result, values):
             lines.append(f"{'Ida' if j == 0 else 'Volta'}: {journey['departure']} → {journey['arrival']}\n{journey['airlines']} • {duration//60}h{duration%60:02}")
         lines.append('Ver oferta: link ' + str(i) if offer.get('url') else 'Link indisponível para esta opção.')
     lines.append('\nHorários locais dos aeroportos. Bagagem e regras tarifárias não confirmadas. Preço sujeito a alteração no fornecedor.')
-    lines.append('\n*Alguma opção atende à sua viagem?*\nEscolha uma oferta ou digite link 1. Para ajustar, use filtros, datas ou orçamento.')
+    lines.append('\n*Alguma opção atende à sua viagem?*\nAbra a lista abaixo para escolher uma oferta ou ajustar a busca.')
     return '\n'.join(lines)

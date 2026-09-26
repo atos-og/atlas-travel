@@ -1,6 +1,6 @@
 import unittest
 from datetime import date
-from atlas.budget import parse_budget
+from atlas.budget import parse_budget, BUDGET_PROMPT
 from atlas.flights import rank, format_results
 from atlas.conversation import Conversation, Session
 from atlas.interactive import payload_for
@@ -14,6 +14,10 @@ def offer(price, key):
 
 
 class BudgetTests(unittest.TestCase):
+    def test_budget_prompt_is_scannable(self):
+        self.assertIn('*Qual é o limite para as passagens?*\n\n', BUDGET_PROMPT)
+        self.assertIn('• R$ 1.500\n• 2 mil\n• sem limite', BUDGET_PROMPT)
+
     def test_brl_formats_and_no_limit(self):
         for text in ['até R$ 1.500,50', '1500,50', '1500.50']:
             self.assertEqual(parse_budget(text), '1500.50')
@@ -41,6 +45,7 @@ class BudgetTests(unittest.TestCase):
         values = dict(self.values,budget='500')
         message = format_results(values['result'],values)
         self.assertIn('acima do limite',message)
+        self.assertIn('*Nenhuma oferta dentro de R$ 500,00*\n\n', message)
         session = Session('complete',values)
         payload_for(session,message)
         self.assertFalse(any(v.startswith('link ') for v in session.values['_choices'].values()))

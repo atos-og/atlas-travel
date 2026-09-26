@@ -68,6 +68,7 @@ class DiscoveryTests(unittest.TestCase):
             answer = send(text)
         self.assertEqual(self.calls, [])
         self.assertIn('datas exatas', answer)
+        self.assertIn('\n\n• Origem: CNF\n• Destinos:', answer)
         self.assertEqual(bot.sessions['u'].step, 'departure')
         send('sim')
         self.assertEqual(len(self.calls), 3)
