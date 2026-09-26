@@ -17,7 +17,7 @@ The change preserves one final response per incoming message. It does not introd
 
 ## Implemented coverage
 
-Greeting, help, flight confirmation, itinerary confirmation and day-by-day plans, itinerary sources, destination-comparison confirmation/results, flight-result text, compact offer menus, and URL-button fare details.
+Greeting, help, the capability menu, saved-preference summaries and actions, flight confirmation, itinerary confirmation and day-by-day plans, itinerary sources, destination-comparison confirmation/results, flight-result text, compact offer menus, and URL-button fare details.
 
 ## Visual acceptance
 

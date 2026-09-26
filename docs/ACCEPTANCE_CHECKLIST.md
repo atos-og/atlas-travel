@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 112 local tests, including the sightseeing flow, natural language safeguards, and native choices persisted through the queue.
+- [x] 113 local tests, including the sightseeing flow, natural language safeguards, and native choices persisted through the queue.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
 - [x] Budget-led comparison of up to three explicit destinations, preserving the original trip until selection.
