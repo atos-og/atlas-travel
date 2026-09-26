@@ -27,6 +27,7 @@ class Conversation:
         current = self.sessions.get(user_id)
         if current:
             current.values.pop('_capabilities', None)
+            current.values.pop('_preference_actions', None)
         if command in {'menu', 'recursos', 'o que voce faz', 'o que voce pode fazer'}:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):
@@ -143,10 +144,16 @@ class Conversation:
             if not all(key in values for key in FIELDS):
                 return 'Primeiro informe origem, quantidade de adultos e preferência de busca. Depois digite salvar preferências.'
             self.preferences.save(user_id, values)
-            return 'Preferências salvas: ' + describe(values) + ' Para reutilizar, digite usar preferências. Para remover, apagar preferências. Destino, datas e orçamento não foram salvos como preferências.'
+            values['_preference_actions'] = True
+            return ('*Preferências salvas*\n\n' + describe(values) +
+                    '\n\nDestino, datas e orçamento não fazem parte desse perfil.\n\n'
+                    '*O que você quer fazer?*\nAbra as opções abaixo ou digite usar preferências para aplicar.')
         if command in {'preferencias', 'minhas preferencias'}:
             saved = self.preferences.load(user_id)
-            return ('Preferências salvas: ' + describe(saved) + ' Digite usar preferências, salvar preferências para atualizar ou apagar preferências.'
+            if saved:
+                values['_preference_actions'] = True
+            return ('*Suas preferências*\n\n' + describe(saved) +
+                    '\n\nAbra as opções abaixo para aplicar, atualizar ou remover esse perfil.'
                     if saved else 'Você ainda não salvou preferências. Após informar origem, adultos e preferência de busca, digite salvar preferências.')
         if command == 'apagar preferencias':
             self.preferences.delete(user_id)
@@ -155,7 +162,7 @@ class Conversation:
             saved = self.preferences.load(user_id)
             if not saved:
                 return 'Você ainda não salvou preferências. Podemos continuar com os dados da viagem atual.'
-            return 'Apliquei suas preferências salvas. ' + self.apply_trip_fields(session, saved, today)
+            return '*Preferências aplicadas*\n\n' + describe(saved) + '\n\n' + self.apply_trip_fields(session, saved, today)
         if command in {'datas flexiveis', 'datas proximas', 'flexibilidade'} and session.step != 'flexibility':
             session.step = 'flexibility'
             return 'Posso comparar as datas originais com um dia antes e um dia depois, movendo ida e volta juntas e mantendo a estadia. São até 3 consultas, não o mês inteiro. Escolha datas próximas ou datas exatas.'

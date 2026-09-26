@@ -4,6 +4,7 @@ from datetime import date
 from pathlib import Path
 from atlas.preferences import Preferences
 from atlas.conversation import Conversation, Session
+from atlas.interactive import payload_for
 
 
 class PreferenceTests(unittest.TestCase):
@@ -22,7 +23,14 @@ class PreferenceTests(unittest.TestCase):
 
     def test_only_explicit_save_persists_selected_fields(self):
         self.assertEqual(Preferences(self.path).load('u'), {})
-        self.send('salvar preferências')
+        answer = self.send('salvar preferências')
+        self.assertIn('*Preferências salvas*\n\n• Origem: CNF\n', answer)
+        self.assertIn('\n\n*O que você quer fazer?*\n', answer)
+        payload = payload_for(self.bot.sessions['u'], answer)
+        self.assertEqual(payload['interactive']['type'], 'list')
+        self.assertEqual(payload['interactive']['action']['button'], 'Preferências')
+        self.assertEqual(set(self.bot.sessions['u'].values['_choices'].values()),
+                         {'usar preferencias', 'salvar preferencias', 'apagar preferencias', 'voos'})
         self.assertEqual(Preferences(self.path).load('u'), {'origin': 'CNF', 'adults': '2', 'priority': '1'})
         self.assertEqual(Preferences(self.path).load('other'), {})
 

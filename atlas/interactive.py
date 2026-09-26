@@ -47,6 +47,16 @@ def payload_for(session, reply):
         session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
         return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
                 'action': {'button': 'Explorar recursos', 'sections': [{'title': 'Atlas', 'rows': rows}]}}}
+    if session.values.pop('_preference_actions', False):
+        options = [('usar preferencias', 'Aplicar preferências'),
+                   ('salvar preferencias', 'Atualizar preferências'),
+                   ('apagar preferencias', 'Apagar preferências'),
+                   ('voos', 'Voltar aos voos')]
+        nonce = uuid.uuid4().hex
+        rows = [{'id': f'atlas:{nonce}:{i}', 'title': title} for i, (_, title) in enumerate(options)]
+        session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
+        return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
+                'action': {'button': 'Preferências', 'sections': [{'title': 'Seu perfil', 'rows': rows}]}}}
     discovery = session.values.get('_discovery', {})
     if discovery.get('active'):
         from .discovery import choices

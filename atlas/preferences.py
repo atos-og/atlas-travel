@@ -45,4 +45,6 @@ class Preferences:
 
 def describe(values):
     priorities = {'1': 'menor preço', '2': 'menor duração', '3': 'sem paradas', '4': 'maior preço'}
-    return f"Origem: {values['origin']}; {values['adults']} adulto(s); preferência: {priorities[values['priority']]}."
+    return (f"• Origem: {values['origin']}\n"
+            f"• Passageiros: {values['adults']} adulto(s)\n"
+            f"• Preferência: {priorities[values['priority']]}")
