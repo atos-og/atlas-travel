@@ -20,6 +20,14 @@ def is_greeting(text):
     }
 
 
+def is_confirmation(text):
+    """Recognize short affirmative answers shared by confirmation steps."""
+    return clean(text) in {
+        'sim', 's', 'confirmar', 'pode buscar', 'pode sim', 'isso', 'isso mesmo',
+        'ok', 'bora', 'pode', 'fechado',
+    }
+
+
 def local_today():
     return datetime.now(timezone(timedelta(hours=-3))).date()
 

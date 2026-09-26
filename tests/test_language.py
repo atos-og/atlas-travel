@@ -1,6 +1,6 @@
 import unittest
 from datetime import date
-from atlas.language import parse_date, choice, is_greeting
+from atlas.language import parse_date, choice, is_greeting, is_confirmation
 from atlas.conversation import Conversation
 
 
@@ -9,6 +9,11 @@ class LanguageTests(unittest.TestCase):
         for text in ('oi', 'Olá!', 'bom dia Atlas', 'boa noite'):
             self.assertTrue(is_greeting(text))
         self.assertFalse(is_greeting('Bom dia, quero ir de Confins para Bogotá'))
+
+    def test_short_confirmations_are_shared_across_flows(self):
+        for text in ('sim', 'bora', 'pode', 'fechado'):
+            self.assertTrue(is_confirmation(text))
+        self.assertFalse(is_confirmation('talvez'))
 
     def test_dates_and_relative_year(self):
         today = date(2026, 9, 23)

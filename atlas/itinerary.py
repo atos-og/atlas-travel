@@ -2,7 +2,7 @@
 
 import re
 from datetime import date, timedelta
-from .language import clean, parse_date, is_greeting
+from .language import clean, parse_date, is_greeting, is_confirmation
 from .destinations import ALIASES, CITIES, PLACES, REVIEWED, get_place
 
 START = {'roteiro', 'montar roteiro', 'quero montar um roteiro', 'passeios'}
@@ -203,7 +203,7 @@ def handle(session, text, today):
             return prompt(state)
         state['pace'] = PACES[command]
     elif stage == 'confirm':
-        if command not in {'montar', 'sim', 'confirmar', 'pode montar'}:
+        if not is_confirmation(text) and command not in {'montar', 'pode montar'}:
             return summary(state)
         start = date.fromisoformat(state['start']) if state.get('start') else None
         if start and start < today:

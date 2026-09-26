@@ -117,6 +117,11 @@ class ItineraryConversationTests(unittest.TestCase):
         self.send('montar')
         self.assertTrue(all(len(d['places']) <= 1 for d in state['plan']))
 
+    def test_colloquial_confirmation_builds_itinerary(self):
+        for text in ('roteiro para São Paulo', 'sem data', '1 dia', 'misto', 'tranquilo'):
+            self.send(text)
+        self.assertIn('Seu roteiro sugerido', self.send('fechado'))
+
     def test_removal_and_sources_only_reference_remaining_places(self):
         self.complete()
         self.send('remover passeio')

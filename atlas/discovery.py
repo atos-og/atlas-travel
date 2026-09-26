@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from .budget import parse_budget, money
 from .flights import resolve_airport, rank, format_results
-from .language import clean, parse_date, choice, is_greeting
+from .language import clean, parse_date, choice, is_greeting, is_confirmation
 
 START = {'explorar destinos', 'destinos por orcamento', 'comparar destinos', 'refazer comparacao'}
 FIELDS = ('origin', 'departure', 'return', 'adults', 'budget', 'candidates')
@@ -137,7 +137,7 @@ def handle(session, text, today, provider, on_search=None):
         return 'Na comparação de destinos, informe os critérios pedidos e confirme antes de buscar. Use refazer comparação para alterar todos os critérios, voltar aos voos para retomar a viagem ou roteiro para planejar passeios. Nenhuma busca foi feita por este pedido de ajuda.'
     stage = state['stage']
     if stage == 'confirm':
-        if command not in {'sim', 'confirmar', 'pode buscar', 'comparar'}:
+        if not is_confirmation(text) and command != 'comparar':
             return next_prompt(state)
         if datetime.strptime(state['departure'], '%d/%m/%Y').date() < today:
             state.pop('departure', None)

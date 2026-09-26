@@ -84,6 +84,14 @@ class DiscoveryTests(unittest.TestCase):
         self.assertEqual(bot.sessions['u'].step, 'complete')
         self.assertEqual(len(self.calls), 3)
 
+    def test_colloquial_confirmation_starts_destination_comparison(self):
+        bot = Conversation(self.provider)
+        bot.sessions['u'] = Session('complete', dict(self.values, destination='MDE'))
+        bot.reply('u', 'explorar destinos')
+        bot.reply('u', 'GRU, BOG, REC')
+        bot.reply('u', 'bora')
+        self.assertEqual(len(self.calls), 3)
+
     def test_back_and_menu_suspend_without_overwriting_criteria(self):
         bot = Conversation(self.provider)
         bot.sessions['u'] = Session('adults', {'origin': 'CNF'})
