@@ -22,4 +22,4 @@ Greeting, help, the capability menu, vertical flight-preference choices, saved-p
 
 ## Visual acceptance
 
-After deploying, inspect `meu roteiro`, `fontes do roteiro`, a flight confirmation, a long offer list, and a selected offer on WhatsApp. Confirm readable paragraphs, balanced emphasis, intact source URLs, and visible controls. Automated size checks do not replace phone-client visual review.
+The owner confirmed the revised capability experience and abbreviated `como vc pode me ajudar` request on WhatsApp on September 25. Continue visual acceptance with `meu roteiro`, `fontes do roteiro`, a budget prompt, a flight confirmation, a long offer list, and a selected offer. Confirm readable paragraphs, balanced emphasis, intact source URLs, and visible controls. Automated size checks do not replace phone-client visual review.

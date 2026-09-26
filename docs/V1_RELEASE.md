@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 114 unit/integration tests pass locally, without paid services.
+- 115 unit/integration tests pass locally, without paid services.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
 - Flow navigation preserves flight criteria and allows switching between destination comparison and sightseeing.
@@ -20,7 +20,7 @@ Use the allowed WhatsApp recipient. Record what actually happened; do not mark a
 
 | Scenario | Messages/actions | Expected outcome | Status |
 | --- | --- | --- | --- |
-| Discovery | Send `menu` | Native capability list opens | Owner confirmed September 25; itinerary city list also opened |
+| Discovery | Send `menu` or `como vc pode me ajudar` | Readable native capability list opens | Owner confirmed September 25; revised vertical copy and abbreviated request also accepted live |
 | Flight request | Send `cancelar`, then `Confins para Guarulhos, ida 23/10/2026, volta 30/10/2026, dois adultos, mais barata, sem limite` | Explicit summary with correct airports, dates, and two adults before searching | Pending |
 | Fare selection | Confirm, select an offer, open its link | Correct route/dates; verify or adjust two adults; compare checkout total without buying | Pending |
 | Refinement | Send `tá caro`, enter `R$ 500` | Cached-result filter; no over-budget fare offered as matching | Pending |
