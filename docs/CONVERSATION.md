@@ -83,7 +83,7 @@ Dates, destination, fares, and budget are not copied into preferences. Starting 
 
 ## Validation and references
 
-The latest suite contains 113 passing tests; the earlier integration evidence below remains historical.
+The latest suite contains 114 passing tests; the earlier integration evidence below remains historical.
 
 The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
@@ -95,4 +95,4 @@ A request explicitly mentioning bus travel receives an unsupported-mode explanat
 
 ## Capability menu and sightseeing
 
-`menu`, `recursos`, `o que você faz?`, `como você pode me ajudar?`, and `o que dá pra fazer?` present a spaced native feature list. `voos` resumes the pending flight question or results without querying fares. `roteiro` starts an independent sightseeing flow; `voltar aos voos` preserves its data and returns to flights. Fare-link messages stay focused on the selected offer; sightseeing remains discoverable from the capability menu and help. See [itinerary behavior](ITINERARIES.md) for the supported cities, source freshness, editing, deletion, and confirmation rules.
+`menu`, `recursos`, `o que você faz?`, `como você pode me ajudar?`, and `o que dá pra fazer?` present a spaced native feature list. Common abbreviations such as `como vc pode me ajudar` and `oq da pra fazer` are also recognized. `voos` resumes the pending flight question or results without querying fares. `roteiro` starts an independent sightseeing flow; `voltar aos voos` preserves its data and returns to flights. Fare-link messages stay focused on the selected offer; sightseeing remains discoverable from the capability menu and help. See [itinerary behavior](ITINERARIES.md) for the supported cities, source freshness, editing, deletion, and confirmation rules.

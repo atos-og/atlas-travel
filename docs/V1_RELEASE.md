@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 113 unit/integration tests pass locally, without paid services.
+- 114 unit/integration tests pass locally, without paid services.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
 - Flow navigation preserves flight criteria and allows switching between destination comparison and sightseeing.

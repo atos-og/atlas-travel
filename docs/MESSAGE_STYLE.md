@@ -4,6 +4,7 @@ Atlas messages should be easy to scan on a narrow phone screen. The reference co
 
 - Use blank lines between ideas, not only single line breaks.
 - Use WhatsApp single-asterisk bold for short headings, prices, and the next question.
+- Present parallel choices vertically as numbered items or bullets; do not join menu-like options with semicolons.
 - Put route, dates, passenger count, and preferences on separate lines.
 - Keep each sightseeing day and each flight direction visually separate.
 - End with one clear next action. Put secondary actions in the native menu or help response.
@@ -17,7 +18,7 @@ The change preserves one final response per incoming message. It does not introd
 
 ## Implemented coverage
 
-Greeting, help, the capability menu, saved-preference summaries and actions, flight confirmation, itinerary confirmation and day-by-day plans, itinerary sources, destination-comparison confirmation/results, flight-result text, compact offer menus, and URL-button fare details.
+Greeting, help, the capability menu, vertical flight-preference choices, saved-preference summaries and actions, flight confirmation, itinerary confirmation and day-by-day plans, itinerary sources, destination-comparison confirmation/results, flight-result text, compact offer menus, and URL-button fare details.
 
 ## Visual acceptance
 
