@@ -25,6 +25,13 @@ class LanguageTests(unittest.TestCase):
         self.assertEqual(parse_date('em 3 dias', today), date(2026, 9, 26))
         self.assertEqual(parse_date('uma semana depois', today, date(2026, 10, 23)), date(2026, 10, 30))
 
+    def test_explicit_relative_weekdays(self):
+        today = date(2026, 9, 25)  # Friday
+        self.assertEqual(parse_date('próxima sexta-feira', today), date(2026, 10, 2))
+        self.assertEqual(parse_date('sábado que vem', today), date(2026, 9, 26))
+        departure = date(2026, 10, 20)  # Tuesday
+        self.assertEqual(parse_date('sexta seguinte', today, departure), date(2026, 10, 23))
+
     def test_invalid_or_ambiguous_dates_are_not_guessed(self):
         for text in ['dia 23', 'outubro', '23 ou 24 de outubro', '31 de fevereiro de 2026', '29/02/2026', 'sexta-feira', '7 dias depois']:
             with self.subTest(text=text), self.assertRaises(ValueError):

@@ -34,6 +34,8 @@ def local_today():
 
 MONTHS = {name: i for i, name in enumerate(
     'janeiro fevereiro marco abril maio junho julho agosto setembro outubro novembro dezembro'.split(), 1)}
+WEEKDAYS = {name: i for i, name in enumerate(
+    'segunda terca quarta quinta sexta sabado domingo'.split())}
 
 
 def parse_date(text, today, departure=None):
@@ -51,6 +53,14 @@ def parse_date(text, today, departure=None):
     match = re.fullmatch(r'(\d{1,3}) dias? depois|(?:uma semana|7 dias) depois', value)
     if match and departure:
         return departure + timedelta(days=int(match[1]) if match[1] else 7)
+    match = re.fullmatch(
+        r'(?:(?:na|no) )?(?:(proxima|proximo) )?'
+        r'(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?'
+        r'(?: (que vem|seguinte))?', value)
+    if match and (match[1] or match[3]):
+        base = departure if match[3] == 'seguinte' and departure else today
+        distance = (WEEKDAYS[match[2]] - base.weekday()) % 7 or 7
+        return base + timedelta(days=distance)
     match = re.fullmatch(r'(\d{1,2})[/.-](\d{1,2})(?:[/.-](\d{4}))?', value)
     if match:
         return date(int(match[3] or today.year), int(match[2]), int(match[1]))
