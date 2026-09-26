@@ -62,23 +62,23 @@ The current flight experience covers economy round trips for adults. The budget 
 
 Supported natural phrases make the conversation easier, but Atlas does not yet understand every possible request. If something is unclear, it should ask rather than guess.
 
-## 6. Where the product is going
+## 6. Current and future product directions
 
-The identity should leave room for these planned capabilities:
+The identity should support both the current private prototype and its future scope:
 
 | Direction | Traveler benefit | Current position |
 | --- | --- | --- |
 | Flights and buses in one comparison | Choose the transport that fits the journey | Flights available experimentally; buses planned |
-| Budget-led travel | Find options that respect what the person wants to spend | Total flight-price limit available; destination discovery planned |
-| Flexible dates | See whether another day improves the trip | Planned |
-| Personalized sightseeing plans | Know what to do, in an order that makes sense | Planned |
-| Remembered preferences | Avoid repeating the same choices each time | Planned |
+| Budget-led travel | Find options that respect what the person wants to spend | Total flight-price limit and comparison of up to three chosen destinations implemented |
+| Flexible dates | See whether another day improves the trip | Bounded ±1-day comparison implemented |
+| Personalized sightseeing plans | Know what to do, in an order that makes sense | Sourced 1–3-day drafts implemented for São Paulo and Bogotá |
+| Remembered preferences | Avoid repeating the same choices each time | Explicit save, reuse, update, and deletion implemented |
 | Useful travel alerts | Learn when a relevant option changes | Planned |
-| Contextual suggestions | Discover what Atlas can help with next | Basic help available; richer suggestions planned |
+| Contextual suggestions | Discover what Atlas can help with next | Native capability menu and contextual refinement choices implemented |
 
-For example, a future conversation might move from selecting flights to planning three days of sightseeing. If the journey is too expensive, Atlas could suggest different dates or another way to travel.
+The current conversation can move between selecting flights and planning three days of sightseeing. If a fare is too expensive, Atlas can adjust the total budget or compare nearby dates. Comparing another transport mode remains future work.
 
-These are intentions for the product, not features to advertise as available today. They should guide a flexible identity rather than a list of launch promises.
+Only capabilities marked as implemented may be presented as available. The rest should guide a flexible identity rather than become launch promises.
 
 ## 7. What should make Atlas distinctive
 
@@ -230,11 +230,11 @@ A successful direction should answer yes to these questions:
 - Does it suggest travel without restricting Atlas to flights alone?
 - Can it work in one color and on both light and dark backgrounds?
 - Is it clearly Atlas rather than a variation of a familiar travel brand?
-- Can the identity support future sightseeing and bus features naturally?
+- Can the identity support broader sightseeing coverage and future bus features naturally?
 - Does the wording describe the current product honestly?
 
 The immediate goal is not to make Atlas look enormous or fully finished. It is to give a useful, growing travel product an identity people can recognize and feel comfortable approaching.
 
 ## 17. Copy-ready creative assignment
 
-> Apply the approved Atlas visual identity to a personal travel assistant. Preserve the supplied A-shaped route symbol, mint dot, and Atlas wordmark. Use Midnight #0B1F3B, Mint #2EE6B6, and Sand #FAF8F3. Adapt the approved light, dark, and circular-avatar compositions with generous space and readable supporting text. The current product helps with round-trip flights, fare comparisons, total ticket budgets, and provider links; buses, sightseeing plans, flexible dates, and saved preferences remain planned. Do not redraw the mark into a different concept, infer an exact font, imitate another assistant, or present planned capabilities as available. The optional tagline remains provisional.
+> Apply the approved Atlas visual identity to a personal travel assistant. Preserve the supplied A-shaped route symbol, mint dot, and Atlas wordmark. Use Midnight #0B1F3B, Mint #2EE6B6, and Sand #FAF8F3. Adapt the approved light, dark, and circular-avatar compositions with generous space and readable supporting text. The current private prototype supports round-trip flight comparisons, total ticket budgets, bounded nearby dates, comparison of chosen destinations, saved preferences, sourced sightseeing drafts for São Paulo and Bogotá, and provider links. Buses, alerts, broader sightseeing coverage, and whole-month searches remain planned. Do not redraw the mark into a different concept, infer an exact font, imitate another assistant, or present planned capabilities as available. The optional tagline remains provisional.

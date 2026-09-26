@@ -11,9 +11,9 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 5. **Personalized sightseeing itineraries — partially implemented:** an independent flow builds sourced 1–3-day drafts for São Paulo and Bogotá, with an explicit start date, interest, pace, regional grouping, edits, and exclusions. Broader coverage, spending preferences, complete opening calendars, travel times, and verified availability remain planned. See [itinerary rules](ITINERARIES.md).
 6. **Preferences and alerts — partially implemented:** users can explicitly save, view, reuse, update, and delete origin/adult-count/ranking defaults. Monitoring requires a stable source and a cost assessment for proactive messaging.
 
-## Conversation improvements — September 24, 2026
+## Conversation improvements — September 25, 2026
 
-Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, and persisted search progress notices. Offer details now include duration in the URL-button message; long result summaries retain travel dates and query time. These changes still need live WhatsApp acceptance.
+Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, persisted search progress notices, context-preserving greetings, shared colloquial confirmations, and explicit relative weekdays. Offer details include duration in the URL-button message; long result summaries retain travel dates and query time. The newest conversation changes still need live WhatsApp acceptance.
 
 Next: broaden language coverage using concrete examples and regression tests; evaluate offer artwork and carousel feasibility against the test account and cost constraint; extend the bounded nearby-date strategy only after validating source reliability and query limits. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
 
