@@ -43,18 +43,28 @@ class Session:
 
 
 class Conversation:
-    def __init__(self, flight_search=None, on_search=None, preferences=None):
+    def __init__(self, flight_search=None, on_search=None, preferences=None, interpreter=None):
         self.sessions: dict[str, Session] = {}
         self.flight_search = flight_search
         self.on_search = on_search
         from .preferences import Preferences
         self.preferences = preferences if preferences is not None else Preferences()
+        self.interpreter = interpreter
 
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
         today = today or local_today()
-        command = clean(text)
         current = self.sessions.get(user_id)
+        overlays_active = current and (current.values.get('_itinerary', {}).get('active') or
+                                       current.values.get('_discovery', {}).get('active'))
+        if self.interpreter and not overlays_active:
+            try:
+                text = self.interpreter(text, current.step if current else 'origin', today,
+                                        current.values if current else {})
+            except Exception:
+                # Natural-language interpretation is optional; deterministic parsing remains available.
+                pass
+        command = clean(text)
         if current:
             current.values.pop('_capabilities', None)
             current.values.pop('_preference_actions', None)

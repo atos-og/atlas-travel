@@ -149,8 +149,10 @@ def process_one(config, path, sender=None, now=None):
                        (state, outbound, error, mid))
 
     from .preferences import Preferences
+    from .nlu import interpret
+    interpreter = lambda text, step, today, values: interpret(text, step, today, values, config)
     conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None,
-                                on_search=progress, preferences=Preferences(path))
+                                on_search=progress, preferences=Preferences(path), interpreter=interpreter)
     if saved:
         conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
     try:
