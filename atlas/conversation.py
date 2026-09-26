@@ -23,6 +23,18 @@ OFFLINE_PRIORITY_PROMPT = (
     'Responda com o número da opção.'
 )
 
+FLEXIBILITY_PROMPT = (
+    '*Quer comparar datas próximas?*\n\n'
+    'Posso consultar até 3 combinações:\n'
+    '• As datas que você informou\n'
+    '• Um dia antes\n'
+    '• Um dia depois\n\n'
+    'A ida e a volta mudam juntas, mantendo a duração da viagem.\n'
+    'Não é uma busca do mês inteiro.\n\n'
+    '*O que você prefere?*\n'
+    'Escolha comparar ±1 dia ou manter as datas exatas.'
+)
+
 
 @dataclass
 class Session:
@@ -190,12 +202,12 @@ class Conversation:
             return '*Preferências aplicadas*\n\n' + describe(saved) + '\n\n' + self.apply_trip_fields(session, saved, today)
         if command in {'datas flexiveis', 'datas proximas', 'flexibilidade'} and session.step != 'flexibility':
             session.step = 'flexibility'
-            return 'Posso comparar as datas originais com um dia antes e um dia depois, movendo ida e volta juntas e mantendo a estadia. São até 3 consultas, não o mês inteiro. Escolha datas próximas ou datas exatas.'
+            return FLEXIBILITY_PROMPT
         if session.step == 'flexibility':
             options = {'datas proximas': 'nearby', '1': 'nearby', 'datas exatas': 'exact', '2': 'exact'}
             options.update({'comparar 1 dia': 'nearby', 'manter datas': 'exact'})
             if command not in options:
-                return 'Escolha comparar 1 dia para variar ida e volta juntas, ou manter datas para datas exatas.'
+                return FLEXIBILITY_PROMPT
             values['flexibility'] = options[command]
             for key in ('result', '_choices', '_budget_refine', '_price_question'):
                 values.pop(key, None)
@@ -379,7 +391,7 @@ class Conversation:
             'adults': 'Quantos adultos? De 1 a 6.',
             'priority': PRIORITY_PROMPT,
             'budget': BUDGET_PROMPT,
-            'flexibility': 'Escolha comparar 1 dia para variar ida e volta juntas, ou manter datas para datas exatas.',
+            'flexibility': FLEXIBILITY_PROMPT,
         }
         if session.step == 'confirm':
             return self.next_question(session)

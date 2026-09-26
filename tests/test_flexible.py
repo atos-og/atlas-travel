@@ -62,8 +62,10 @@ class FlexibleTests(unittest.TestCase):
         bot.sessions['u'] = Session('complete', dict(self.values))
         def send(text):
             return bot.reply('u', text, today=date(2026, 9, 24))
-        send('datas flexíveis')
-        self.assertEqual(payload_for(bot.sessions['u'], 'Escolha')['interactive']['type'], 'button')
+        prompt = send('datas flexíveis')
+        self.assertIn('• As datas que você informou\n• Um dia antes\n• Um dia depois', prompt)
+        self.assertIn('\n\n*O que você prefere?*\n', prompt)
+        self.assertEqual(payload_for(bot.sessions['u'], prompt)['interactive']['type'], 'button')
         confirmation = send('datas próximas')
         self.assertIn('até 3 consultas', confirmation)
         self.assertEqual(calls, [])
