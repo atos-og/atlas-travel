@@ -79,6 +79,16 @@ class FlightTests(unittest.TestCase):
         self.assertIn('data de ida', say('datas'))
         self.assertEqual(bot.sessions['test'].step, 'departure')
 
+    def test_priority_prompt_uses_readable_vertical_options(self):
+        bot = Conversation(lambda _: self.fail('Prompt must not search'))
+        def say(text):
+            return bot.reply('test', text, today=date(2026, 9, 23))
+        for message in ['oi', 'CNF', 'GRU', '23/10/2026', '30/10/2026']:
+            say(message)
+        answer = say('2')
+        self.assertIn('1. *Menor preço*\n2. *Menor duração*\n3. *Sem paradas*', answer)
+        self.assertNotIn(';', answer)
+
     def test_live_links_follow_display_order(self):
         offer = normalize(self.raw, self.client, self.values)
         bot = Conversation(lambda _: {'status': 'success', 'offers': [offer]})

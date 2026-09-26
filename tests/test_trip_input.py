@@ -36,12 +36,12 @@ class TripInputTests(unittest.TestCase):
         self.send('San Andrés')
         self.send('23/10/2026')
         answer = self.send('7 dias depois')
-        self.assertIn('menor preço', answer)
+        self.assertIn('menor preço', answer.casefold())
         self.assertEqual(self.bot.sessions['u'].values['destination'], 'ADZ')
 
     def test_natural_dates_in_combined_request(self):
         answer = self.send('de Confins para Bogotá, ida dia 23 de outubro desse ano, volta 7 dias depois, 2 adultos')
-        self.assertIn('menor preço', answer)
+        self.assertIn('menor preço', answer.casefold())
         self.assertEqual(self.bot.sessions['u'].values['departure'], '23/10/2026')
         self.assertEqual(self.bot.sessions['u'].values['return'], '30/10/2026')
 

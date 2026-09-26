@@ -6,6 +6,24 @@ from .language import local_today, parse_date, choice, clean, is_greeting, is_co
 from .budget import parse_budget, BUDGET_PROMPT, label
 
 
+PRIORITY_PROMPT = (
+    '*Como você quer comparar as ofertas?*\n\n'
+    '1. *Menor preço*\n'
+    '2. *Menor duração*\n'
+    '3. *Sem paradas*\n'
+    '4. *Maior preço* entre as ofertas encontradas\n\n'
+    'Abra a lista abaixo ou responda com o número da opção.'
+)
+
+OFFLINE_PRIORITY_PROMPT = (
+    '*Como você quer comparar as opções?*\n\n'
+    '1. *Menor preço*\n'
+    '2. *Menor duração*\n'
+    '3. *Sem paradas*\n\n'
+    'Responda com o número da opção.'
+)
+
+
 @dataclass
 class Session:
     step: str = "origin"
@@ -30,8 +48,11 @@ class Conversation:
             current.values.pop('_preference_actions', None)
         if command in {
             'menu', 'recursos', 'quais recursos', 'me mostre o menu',
-            'o que voce faz', 'o que voce pode fazer', 'o que da pra fazer',
-            'como voce pode me ajudar', 'como pode me ajudar',
+            'o que voce faz', 'o que vc faz', 'oq vc faz',
+            'o que voce pode fazer', 'o que vc pode fazer',
+            'o que da pra fazer', 'oq da pra fazer',
+            'como voce pode me ajudar', 'como vc pode me ajudar',
+            'como pode me ajudar', 'como vc me ajuda',
         }:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):
@@ -124,7 +145,7 @@ class Conversation:
             "origin": ("destination", "Para onde você quer ir?"),
             "destination": ("departure", "Qual é a data de ida? Use DD/MM/AAAA."),
             "departure": ("return", "Qual é a data de volta? Use DD/MM/AAAA."),
-            "return": ("priority", "Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas."),
+            "return": ("priority", OFFLINE_PRIORITY_PROMPT),
         }
         session.values[session.step] = text
         session.step, response = transitions[session.step]
@@ -133,7 +154,7 @@ class Conversation:
     def live_reply(self, user_id, text, today):
         from .flights import resolve_airport, format_results, rank
         command = clean(text)
-        choices = "Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas."
+        choices = PRIORITY_PROMPT
         if command in {"cancelar", "/cancelar", "/start"}:
             self.sessions.pop(user_id, None)
         fresh = user_id not in self.sessions
@@ -246,7 +267,11 @@ class Conversation:
             if command == "buscar":
                 session.step = "confirm"
             else:
-                return "Use link 1 para ver uma oferta; filtros, datas, passageiros ou orçamento para ajustar; buscar para atualizar; cancelar para outra viagem."
+                return ("*O que você quer fazer?*\n\n"
+                        "• Digite *link 1* para abrir uma oferta.\n"
+                        "• Use *filtros*, *datas*, *passageiros* ou *orçamento* para ajustar.\n"
+                        "• Digite *buscar* para atualizar os preços.\n"
+                        "• Digite *cancelar* para começar outra viagem.")
         if session.step == "confirm":
             if not is_confirmation(text) and command != "buscar":
                 return "Digite sim para consultar ou cancelar para recomeçar."
@@ -323,7 +348,7 @@ class Conversation:
             'departure': 'Qual é a data de ida? Informe dia, mês e ano; a busca por mês inteiro ainda não está disponível.',
             'return': "Qual é a data de volta? Pode usar uma data ou '7 dias depois'.",
             'adults': 'Quantos adultos? De 1 a 6.',
-            'priority': 'Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas.',
+            'priority': PRIORITY_PROMPT,
             'budget': BUDGET_PROMPT,
         }
         for key, prompt in prompts.items():
@@ -352,7 +377,7 @@ class Conversation:
             'departure': 'Qual é a data de ida?',
             'return': 'Qual é a data de volta?',
             'adults': 'Quantos adultos? De 1 a 6.',
-            'priority': 'Escolha: 1 — menor preço; 2 — menor duração; 3 — sem paradas; 4 — maior preço entre as ofertas encontradas.',
+            'priority': PRIORITY_PROMPT,
             'budget': BUDGET_PROMPT,
             'flexibility': 'Escolha comparar 1 dia para variar ida e volta juntas, ou manter datas para datas exatas.',
         }

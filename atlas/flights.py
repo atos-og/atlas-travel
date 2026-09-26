@@ -91,7 +91,9 @@ def format_results(result, values):
     message = _format_results(result, values)
     if note:
         return note + '\n' + message + '\nDigite salvar preferências para reutilizar origem, adultos e ordenação em outra viagem.'
-    return message + '\nDicas: datas flexíveis compara ±1 dia; salvar preferências guarda origem, adultos e ordenação para outra viagem.'
+    return (message + '\n\n*Você também pode*\n'
+            '• Digitar *datas flexíveis* para comparar ±1 dia.\n'
+            '• Digitar *salvar preferências* para guardar origem, adultos e ordenação.')
 
 
 def _format_results(result, values):
