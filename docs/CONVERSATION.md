@@ -15,13 +15,17 @@ The flow is still guided by conversation state, but users can use alternatives t
 | `daqui a 3 dias`, `em uma semana` | In three days, in one week |
 | `7 dias depois`, `uma semana depois` | On the return step: seven days after departure |
 | `somos duas pessoas`, `só eu` | Two adults, one adult |
+| `somos um casal`, `vou sozinho` | Two adults, one adult |
 | `prefiro a mais barata`, `sem escalas` | Lowest price, nonstop |
+| `mais em conta`, `menos tempo`, `sem conexão` | Lowest price, shortest duration, nonstop |
 | `saio de Confins`, `quero ir para Bogotá` | Origin/destination phrases at the relevant step |
-| `pode buscar` | Confirm the search |
+| `pode buscar`, `bora`, `fechado` | Confirm the search |
 
 Relative dates use Brasília time (UTC−3). Missing years mean the current year; past dates are rejected, never silently moved to the next year. Impossible dates, multiple alternatives, and incomplete phrases such as `dia 23` require clarification. Final confirmation always shows DD/MM/YYYY.
 
 This is not unrestricted AI understanding. Bare weekdays and arbitrary corrections are not yet interpreted. Supported combined requests use explicit route, departure, return, passenger, preference, and budget phrases. Parsing is local and does not require a paid AI service.
+
+A standalone greeting such as `oi`, `bom dia Atlas`, or `boa tarde` never becomes a city, date, budget, or itinerary choice. Atlas greets the traveler and repeats the current flight, destination-comparison, or itinerary step without changing saved answers or querying the provider. A longer message that starts with a greeting is still parsed as a travel request.
 
 ## Combined requests and contextual changes
 
@@ -76,7 +80,7 @@ Dates, destination, fares, and budget are not copied into preferences. Starting 
 
 ## Validation and references
 
-The latest suite contains 98 passing tests; the earlier integration evidence below remains historical.
+The latest suite contains 108 passing tests; the earlier integration evidence below remains historical.
 
 The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
@@ -88,4 +92,4 @@ A request explicitly mentioning bus travel receives an unsupported-mode explanat
 
 ## Capability menu and sightseeing
 
-`menu`, `recursos`, or `o que você faz?` presents a native feature list. `voos` resumes the pending flight question or results without querying fares. `roteiro` starts an independent sightseeing flow; `voltar aos voos` preserves its data and returns to flights. The flight link message also suggests sightseeing with its actual two-city coverage. See [itinerary behavior](ITINERARIES.md) for the supported cities, source freshness, editing, deletion, and confirmation rules.
+`menu`, `recursos`, or `o que você faz?` presents a spaced native feature list. `voos` resumes the pending flight question or results without querying fares. `roteiro` starts an independent sightseeing flow; `voltar aos voos` preserves its data and returns to flights. Fare-link messages stay focused on the selected offer; sightseeing remains discoverable from the capability menu and help. See [itinerary behavior](ITINERARIES.md) for the supported cities, source freshness, editing, deletion, and confirmation rules.
