@@ -2,6 +2,19 @@
 
 Atlas can optionally use Groq-hosted `openai/gpt-oss-20b` to understand varied Portuguese wording. GPT-OSS is an open-weight model published by OpenAI; this integration calls Groq's infrastructure and API, not OpenAI's hosted API or a ChatGPT subscription.
 
+## Model and inference environment
+
+| Item | Selection |
+| --- | --- |
+| Model | OpenAI GPT-OSS 20B |
+| API model ID | `openai/gpt-oss-20b` |
+| Inference environment | GroqCloud |
+| API provider and credential | Groq |
+| Current prototype plan | Groq Free Tier |
+| Product role | Intent classification and current-step answer normalization only |
+
+The model name identifies its publisher and weights. Groq runs those weights and serves the request. No request is sent to OpenAI by this integration.
+
 ## What the model does
 
 For each authorized inbound text, Atlas may send the current message, current conversation step, São Paulo date, and an already supplied departure date to Groq. The model must return one strict JSON object containing:

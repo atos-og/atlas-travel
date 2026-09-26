@@ -3,7 +3,7 @@
 ```text
 WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
                                                        ↓ single worker
-                                      optional Groq intent translation
+                              optional GroqCloud / GPT-OSS 20B translation
                                                        ↓ validation/fallback
                                               conversation + session
                                                        ↓ confirmation
@@ -31,6 +31,12 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
 - `providers/google_flights.py`: the unofficial provider boundary.
 - `interactive.py`: text/list/button/URL payloads, session-bound choice IDs, and inbound click normalization.
+
+## Hosted model boundary
+
+Atlas uses `openai/gpt-oss-20b`, an open-weight model published by OpenAI, through the GroqCloud API. Groq supplies the hosted inference environment and API key. This is separate from OpenAI's hosted API and from ChatGPT subscriptions.
+
+The model is an optional interpreter inside the application boundary. It returns a strict intent object; Python code enforces the allowlist, confidence threshold, conversation state, value bounds, and deterministic fallback before any product action occurs.
 
 ## Persistence and delivery
 

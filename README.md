@@ -26,6 +26,22 @@ A conversational travel assistant built as a public portfolio project. The curre
 
 Bus travel, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent; it does not generate fares, links, itineraries, or final replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
 
+## Technology stack
+
+| Layer | Technology | Role in Atlas |
+| --- | --- | --- |
+| Application | Python 3.12+ | Conversation state, validation, provider orchestration, and webhook worker |
+| Messaging | WhatsApp Cloud API and Meta Graph API | Inbound webhooks, native controls, delivery status, and outbound messages |
+| Language model | OpenAI GPT-OSS 20B (`openai/gpt-oss-20b`) | Bounded intent and current-step answer interpretation |
+| Model runtime | GroqCloud API | Hosted inference for GPT-OSS 20B; the private prototype uses Groq's free tier |
+| Deterministic NLU | Atlas local Portuguese parser | First-line parsing and fallback when hosted interpretation is unnecessary or unavailable |
+| Travel source | Google Flights through a pinned `fli` revision | Experimental round-trip fare discovery and links |
+| Storage | SQLite | Inbox, sessions, preferences, delivery state, and fare snapshots |
+| Development ingress | Cloudflare Quick Tunnel | Temporary HTTPS access to the local webhook |
+| Quality | `unittest` and GitHub Actions | Local regression coverage and CI on every push |
+
+GPT-OSS 20B is published by OpenAI as an open-weight model and is executed for Atlas by GroqCloud. Atlas does not call OpenAI's hosted API, and a ChatGPT subscription is unrelated to this integration.
+
 ## Run locally
 
 Python 3.12+ and Git are required. The offline simulator and unit tests have no third-party dependencies:
