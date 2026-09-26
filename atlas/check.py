@@ -8,11 +8,52 @@ from datetime import datetime, timezone
 from urllib.parse import urlencode
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from .nlu import DEFAULT_MODEL, interpret
 from .webhook import settings
 
 
 REQUIRED = ('WHATSAPP_VERIFY_TOKEN', 'META_APP_SECRET', 'WHATSAPP_ACCESS_TOKEN',
             'WHATSAPP_PHONE_NUMBER_ID', 'META_GRAPH_API_VERSION', 'ATLAS_ALLOWED_WHATSAPP_USER')
+
+
+def groq_check(config, *, opener=urlopen):
+    """Send one synthetic intent request without exposing credentials or traveler data."""
+    enabled = config.get('ATLAS_NLU_ENABLED') == 'true'
+    model = config.get('GROQ_MODEL') or DEFAULT_MODEL
+    if not enabled:
+        return {'enabled': False, 'configured': bool(config.get('GROQ_API_KEY')),
+                'checked': False, 'model': model}
+    if not config.get('GROQ_API_KEY'):
+        return {'enabled': True, 'configured': False, 'checked': False,
+                'ok': False, 'reason': 'configuration', 'model': model}
+    failure = {}
+
+    def tracked(request, **kwargs):
+        try:
+            return opener(request, **kwargs)
+        except HTTPError as error:
+            failure['reason'] = {
+                400: 'request_or_model',
+                401: 'invalid_key',
+                403: 'access_denied',
+                429: 'quota_or_rate_limit',
+            }.get(error.code, 'api_error')
+            failure['code'] = error.code
+            raise
+        except Exception:
+            failure['reason'] = 'network_or_response'
+            raise
+
+    probe = 'como voce consegue me ajudar de um jeito melhor'
+    result = interpret(probe, 'origin', datetime.now(timezone.utc).date(), {}, config, opener=tracked)
+    if failure:
+        return {'enabled': True, 'configured': True, 'checked': True, 'ok': False,
+                'reason': failure['reason'], **({'code': failure['code']} if 'code' in failure else {}),
+                'model': model}
+    if result != 'menu':
+        return {'enabled': True, 'configured': True, 'checked': True, 'ok': False,
+                'reason': 'unexpected_response', 'model': model}
+    return {'enabled': True, 'configured': True, 'checked': True, 'ok': True, 'model': model}
 
 
 def token_check(config, *, opener=urlopen, now=None):
@@ -55,11 +96,15 @@ def token_check(config, *, opener=urlopen, now=None):
         return {'ok': False, 'reason': 'network_or_response'}
 
 
-def check(config, *, meta=False, opener=urlopen):
+def check(config, *, meta=False, groq=False, opener=urlopen, groq_opener=urlopen):
     missing = [key for key in REQUIRED if not config.get(key)]
     results = {'configuration': {'ok': not missing, 'missing_keys': missing},
                'replies_enabled': config.get('ATLAS_WHATSAPP_REPLIES_ENABLED') == 'true',
                'live_flights_enabled': config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true'}
+    results['nlu'] = (groq_check(config, opener=groq_opener) if groq else
+                      {'enabled': config.get('ATLAS_NLU_ENABLED') == 'true',
+                       'configured': bool(config.get('GROQ_API_KEY')), 'checked': False,
+                       'model': config.get('GROQ_MODEL') or DEFAULT_MODEL})
     try:
         with opener('http://127.0.0.1:8787/health', timeout=5) as response:
             results['local_server'] = {'ok': response.read(100).startswith(b'atlas-')}
@@ -98,8 +143,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--meta', action='store_true', help='Also perform a read-only Meta API check; no messages are sent.')
     parser.add_argument('--token', action='store_true', help='Inspect token expiry; requires META_APP_ID. Does not renew tokens.')
+    parser.add_argument('--groq', action='store_true', help='Send one synthetic Groq intent check; no traveler message is used.')
     args = parser.parse_args()
-    result = check(settings(), meta=args.meta)
+    result = check(settings(), meta=args.meta, groq=args.groq)
     if args.token:
         result['token'] = token_check(settings())
     print(json.dumps(result, indent=2))
@@ -108,6 +154,8 @@ def main():
         healthy = healthy and result['meta'].get('ok', False)
     if args.token:
         healthy = healthy and result['token']['ok']
+    if args.groq:
+        healthy = healthy and result['nlu'].get('ok', False)
     raise SystemExit(0 if healthy else 1)
 
 
