@@ -2,7 +2,7 @@ import io
 import json
 import unittest
 from urllib.error import HTTPError
-from atlas.check import check, token_check, REQUIRED
+from atlas.check import check, groq_check, token_check, REQUIRED
 
 
 class CheckTests(unittest.TestCase):
@@ -18,7 +18,48 @@ class CheckTests(unittest.TestCase):
         result = check(self.config, opener=open_local)
         self.assertEqual(calls, ['http://127.0.0.1:8787/health'])
         self.assertFalse(result['meta']['checked'])
+        self.assertFalse(result['nlu']['checked'])
         self.assertNotIn('secret-sentinel', json.dumps(result))
+
+    def test_groq_check_uses_synthetic_prompt_and_hides_key(self):
+        self.config.update(ATLAS_NLU_ENABLED='true', GROQ_API_KEY='secret-sentinel',
+                           GROQ_MODEL='openai/gpt-oss-20b')
+
+        def groq_response(request, **kwargs):
+            self.assertNotIn('secret-sentinel', request.full_url)
+            body = json.loads(request.data)
+            self.assertNotIn('secret-sentinel', json.dumps(body))
+            content = json.dumps({'intent': 'help', 'answer': '', 'confidence': 0.99})
+            return io.BytesIO(json.dumps({'choices': [{'message': {'content': content}}]}).encode())
+
+        result = groq_check(self.config, opener=groq_response)
+        self.assertTrue(result['ok'])
+        self.assertEqual(result['model'], 'openai/gpt-oss-20b')
+        self.assertNotIn('secret-sentinel', json.dumps(result))
+
+    def test_groq_check_reports_safe_actionable_failures(self):
+        self.config.update(ATLAS_NLU_ENABLED='true', GROQ_API_KEY='secret-sentinel')
+        for code, reason in ((401, 'invalid_key'), (403, 'access_denied'),
+                             (429, 'quota_or_rate_limit'), (400, 'request_or_model')):
+            def failure(*args, status=code, **kwargs):
+                raise HTTPError('https://api.groq.com', status, 'secret-sentinel', {}, io.BytesIO(b''))
+            result = groq_check(self.config, opener=failure)
+            self.assertEqual(result['reason'], reason)
+            self.assertNotIn('secret-sentinel', json.dumps(result))
+
+    def test_groq_check_distinguishes_disabled_and_missing_key(self):
+        calls = []
+        result = groq_check({}, opener=lambda *a, **k: calls.append(a))
+        self.assertFalse(result['enabled'])
+        self.assertFalse(result['checked'])
+        result = groq_check({'ATLAS_NLU_ENABLED': 'true'}, opener=lambda *a, **k: calls.append(a))
+        self.assertEqual(result['reason'], 'configuration')
+        self.assertEqual(calls, [])
+
+    def test_groq_check_rejects_malformed_success(self):
+        config = {'ATLAS_NLU_ENABLED': 'true', 'GROQ_API_KEY': 'secret-sentinel'}
+        result = groq_check(config, opener=lambda *a, **k: io.BytesIO(b'{"choices":[]}'))
+        self.assertEqual(result['reason'], 'unexpected_response')
 
     def test_meta_check_uses_header_and_matches_number_without_exposing_it(self):
         def open_request(request, **kwargs):
