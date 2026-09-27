@@ -13,6 +13,8 @@ docker run --rm --env-file .env --publish 8787:8787 --volume atlas-work:/app/wor
 
 The image runs as an unprivileged user, exposes port `8787`, and checks `/health`. `ATLAS_WEBHOOK_HOST` defaults to `0.0.0.0` in the image. A hosting platform may provide its own `PORT`; that value takes precedence over `ATLAS_WEBHOOK_PORT`.
 
+The image was built locally on September 27, 2026 with the pinned provider revision. A temporary container started as UID `10001` and returned HTTP 200 from `/health` before being removed.
+
 ## Required platform behavior
 
 - Terminate HTTPS before requests reach the container. Meta requires a public HTTPS callback.

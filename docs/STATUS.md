@@ -28,7 +28,7 @@ Runtime tokens and temporary tunnels can expire; this file records implementatio
 
 ## Deployment packaging
 
-The webhook can now bind to a constrained host and a platform-assigned port. A Docker image definition runs Atlas as an unprivileged user and reserves `/app/work` for persistent state. The local source and 138 tests pass, but the image build remains unverified because the installed Docker Desktop engine was not running during the September 27 check. Single-replica hosting, durable storage, HTTPS, secrets, and release checks are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
+The webhook can now bind to a constrained host and a platform-assigned port. The Docker image builds with the pinned flight dependency, runs Atlas as unprivileged UID `10001`, reserves `/app/work` for persistent state, and passed a local container `/health` check on September 27. Single-replica hosting, durable storage, HTTPS, secrets, and release checks are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Nearby dates
 

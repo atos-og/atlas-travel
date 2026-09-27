@@ -8,6 +8,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 - 138 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
+- The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
@@ -41,6 +42,6 @@ Use future dates if repeating this script after the example dates have passed. N
 
 One one-adult fare-link inspection reached the airline passenger-details page with matching itinerary and a documented BRL 0.82 price difference. See [browser evidence](LIVE_VALIDATION.md). This does not complete multi-adult acceptance or establish parity across all sources.
 
-Finish the owner script, record source-link/checkout discrepancies, resolve blocking defects, prepare a sanitized demonstration, and produce the remaining cover export. The standalone WhatsApp avatar is complete and applied to the test profile. Stable unattended operation is still limited by the local process, tunnel, and token lifetime; the container definition has not yet been built against a running Docker engine.
+Finish the owner script, record source-link/checkout discrepancies, resolve blocking defects, prepare a sanitized demonstration, and produce the remaining cover export. The standalone WhatsApp avatar is complete and applied to the test profile. Stable unattended operation is still limited by the current local process, tunnel, and token lifetime; the validated container has not yet been deployed to a stable host.
 
 A portfolio release may honestly document these limits. Do not label it production-ready or claim automatic checkout parity until verified.

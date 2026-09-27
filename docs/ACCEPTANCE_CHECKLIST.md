@@ -19,6 +19,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Budget-led comparison of up to three explicit destinations, preserving the original trip until selection.
 - [x] Live nearby-date provider check: three successful date pairs; see [the evidence](LIVE_VALIDATION.md).
 - [x] Approved brand reference, standalone WhatsApp avatar, and English identity guide committed; the avatar is applied to the test profile.
+- [x] Container image built locally, started as an unprivileged user, and passed its health check.
 
 ## Restore the WhatsApp test environment
 
@@ -63,6 +64,6 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 | Sightseeing | Validate the implemented flow on WhatsApp; expand coverage and verify calendars, costs, and travel times. |
 | Alerts | Establish stable execution, opt-in rules, source reliability, and messaging cost before promising monitoring. |
 | Broader flexible dates | Define query limits and user-approved date ranges before offering whole-month exploration. |
-| Operations | Build and validate the included container, then replace fragile test credentials/tunnels with stable single-replica hosting and persistent storage. |
+| Operations | Deploy the validated container to stable single-replica hosting with persistent storage, then replace the temporary tunnel and short-lived credentials. |
 
 Continue private testing before public use. The portfolio repository can be public while credentials, conversations, recordings, and operational identifiers remain private.
