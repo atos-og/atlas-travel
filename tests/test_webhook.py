@@ -4,10 +4,22 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from atlas.webhook import ExclusiveHTTPServer, Handler, record_receipt, valid_signature, verify_challenge
+from atlas.webhook import ExclusiveHTTPServer, Handler, record_receipt, server_address, valid_signature, verify_challenge
 
 
 class WebhookTests(unittest.TestCase):
+    def test_server_address_defaults_and_hosted_port(self):
+        self.assertEqual(server_address({}), ('127.0.0.1', 8787))
+        self.assertEqual(server_address({'ATLAS_WEBHOOK_HOST': '0.0.0.0', 'PORT': '8080'}),
+                         ('0.0.0.0', 8080))
+        self.assertEqual(server_address({'ATLAS_WEBHOOK_PORT': '9000'}), ('127.0.0.1', 9000))
+
+    def test_server_address_rejects_unbounded_values(self):
+        for config in ({'ATLAS_WEBHOOK_HOST': ''}, {'ATLAS_WEBHOOK_HOST': 'example.com'},
+                       {'PORT': '0'}, {'PORT': '65536'}, {'PORT': 'eight'}):
+            with self.subTest(config=config), self.assertRaises(ValueError):
+                server_address(config)
+
     def test_second_server_cannot_bind_same_port(self):
         first = ExclusiveHTTPServer(('127.0.0.1', 0), Handler)
         self.addCleanup(first.server_close)
