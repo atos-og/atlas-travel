@@ -125,7 +125,8 @@ def payload_for(session, reply):
         if values.get('_price_question'):
             nonce = uuid.uuid4().hex
             actions = [(f'atlas:{nonce}:0', 'sim', 'Sim, ajustar'),
-                       (f'atlas:{nonce}:1', 'ofertas', 'Ver ofertas')]
+                       (f'atlas:{nonce}:1', 'datas flexiveis', 'Comparar datas'),
+                       (f'atlas:{nonce}:2', 'ofertas', 'Ver ofertas')]
             values['_choices'] = {action: command for action, command, _ in actions}
             return {'type': 'interactive', 'interactive': {
                 'type': 'button', 'body': {'text': reply},
@@ -138,8 +139,13 @@ def payload_for(session, reply):
             options.append((f'link {i}', f'Oferta {i} • R$ {money(offer["price"])}'[:24],
                             f"{scope} | {offer['duration']//60}h{offer['duration']%60:02} total | até {offer['stops']} parada(s)"[:72]))
         options += [('filtros', 'Mudar preferência', ''), ('datas', 'Alterar datas', ''),
-                    ('passageiros', 'Alterar passageiros', ''), ('orcamento', 'Alterar orçamento', ''), ('buscar', 'Atualizar busca', ''),
-                    ('cancelar', 'Nova viagem', '')]
+                    ('passageiros', 'Alterar passageiros', ''), ('orcamento', 'Alterar orçamento', ''),
+                    ('datas flexiveis', 'Comparar ±1 dia', 'Pesquisar até três combinações próximas'),
+                    ('roteiro', 'Montar roteiro', 'Planejar passeios para o destino'),
+                    ('explorar destinos', 'Destinos por orçamento', 'Comparar até três destinos escolhidos')]
+        # WhatsApp list messages allow at most ten rows. Offers and core refinements come first;
+        # contextual feature suggestions fill the remaining space.
+        options = options[:10]
         if len(reply) > 1024:
             reply = (f"*{values.get('origin')} → {values.get('destination')}*\n\n"
                      f"Ida: {values.get('departure')}\nVolta: {values.get('return')}\n"

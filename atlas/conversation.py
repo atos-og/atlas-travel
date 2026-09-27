@@ -255,7 +255,10 @@ class Conversation:
                     "*Quer gastar menos?*\nUse orçamento, datas flexíveis (±1 dia) ou explorar destinos (até 3 aeroportos).\n\n"
                     "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo ou Bogotá.\n\n"
                     "*Suas preferências*\nSalvar preferências, minhas preferências, usar preferências ou apagar preferências.\n\n"
-                    "*Depois da busca*\nUse link 1, filtros, datas, passageiros, orçamento ou buscar.\n\n"
+                    "*Depois da busca*\n"
+                    "• Abra uma oferta ou altere os critérios.\n"
+                    "• Compare datas próximas se o preço estiver alto.\n"
+                    "• Monte um roteiro de passeios para o destino.\n\n"
                     "Digite menu para ver as opções ou cancelar para outra viagem. Ônibus e busca por mês inteiro ainda não estão disponíveis.")
         if session.step == "complete":
             if command in {'carinho em', 'carinho hein', 'caro hein', 'caro em'}:
