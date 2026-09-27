@@ -18,7 +18,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Up to four displayed offers with round-trip totals, local times, airlines, durations, and Google Flights links when valid data is available.
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
-- A native capability menu, opened with `menu`, that makes implemented features discoverable.
+- A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
 - Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
 

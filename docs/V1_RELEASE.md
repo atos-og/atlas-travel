@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 134 unit/integration tests pass locally, without paid services.
+- 136 unit/integration tests pass locally, without paid services.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
@@ -15,6 +15,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 - Multi-adult link messages explicitly require checking the passenger count on Google Flights. The upstream booking-link builder does not accept passenger counts; the displayed Atlas quote still reflects the searched count. This remains a provider limitation, not a verified checkout experience.
 - Credentials and private conversations remain excluded from the public repository.
 - Replacement tunnel callbacks can be synchronized and read back through a sanitized command; WhatsApp access-token creation remains manual.
+- Flight-result and price-objection controls suggest implemented follow-up features while respecting WhatsApp's native row and button limits.
 
 ## Owner acceptance script
 

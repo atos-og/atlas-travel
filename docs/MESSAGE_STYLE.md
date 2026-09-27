@@ -14,6 +14,8 @@ Atlas messages should be easy to scan on a narrow phone screen. The reference co
 
 Native interactive bodies must fit the supported 1,024-character limit. The itinerary combination tests exercise all supported catalog, day-count, interest, and pace combinations against this limit. Longer flight summaries use a structured compact summary and the offer list. A URL-button body that exceeds the limit falls back to complete text with its URL instead of silently truncating fare information.
 
+Completed-search lists reserve rows for the returned offers and core refinements, then fill the remaining ten-row allowance with relevant implemented features. Nearby-date comparison and sightseeing are shown when four offers occupy the list; destination comparison also appears when fewer offer rows leave room. Typed commands for refresh and restart remain available. A price objection offers three native actions: adjust the budget, compare nearby dates, or return to the current offers.
+
 The change preserves one final response per incoming message. It does not introduce several untracked outgoing bubbles; delivery and replay behavior remain unchanged. Search progress remains the separately tracked message already implemented.
 
 ## Implemented coverage
