@@ -28,10 +28,22 @@ def settings():
     for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "META_APP_ID", "WHATSAPP_ACCESS_TOKEN",
                 "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
                 "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED",
-                "ATLAS_NLU_ENABLED", "GROQ_API_KEY", "GROQ_MODEL"):
+                "ATLAS_NLU_ENABLED", "ATLAS_WEBHOOK_HOST", "ATLAS_WEBHOOK_PORT", "PORT",
+                "GROQ_API_KEY", "GROQ_MODEL"):
         if key in os.environ:
             values[key] = os.environ[key]
     return values
+
+
+def server_address(config):
+    """Return a deliberately bounded IPv4 bind address for local or hosted use."""
+    host = config.get("ATLAS_WEBHOOK_HOST", "127.0.0.1").strip()
+    if host not in {"127.0.0.1", "0.0.0.0", "localhost"}:
+        raise ValueError("ATLAS_WEBHOOK_HOST must be 127.0.0.1, localhost, or 0.0.0.0")
+    raw_port = (config.get("PORT") or config.get("ATLAS_WEBHOOK_PORT") or "8787").strip()
+    if not raw_port.isdigit() or not 1 <= int(raw_port) <= 65535:
+        raise ValueError("webhook port must be an integer from 1 to 65535")
+    return host, int(raw_port)
 
 
 def verify_challenge(query, token):
@@ -155,13 +167,18 @@ class ExclusiveHTTPServer(ThreadingHTTPServer):
 
 
 def main():
-    if not settings().get("WHATSAPP_VERIFY_TOKEN"):
+    config = settings()
+    if not config.get("WHATSAPP_VERIFY_TOKEN"):
         raise SystemExit("Set WHATSAPP_VERIFY_TOKEN in the local .env file first.")
-    server = ExclusiveHTTPServer(("127.0.0.1", 8787), Handler)
+    try:
+        address = server_address(config)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+    server = ExclusiveHTTPServer(address, Handler)
     stop = threading.Event()
     thread = threading.Thread(target=worker, args=(settings, ROOT / "work" / "conversations.db", stop), daemon=True)
     thread.start()
-    print("Atlas private webhook: http://127.0.0.1:8787", flush=True)
+    print(f"Atlas webhook listening on http://{address[0]}:{address[1]}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
