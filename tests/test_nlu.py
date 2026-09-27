@@ -52,6 +52,27 @@ class NluTests(unittest.TestCase):
         self.assertFalse(request["response_format"]["json_schema"]["schema"]["additionalProperties"])
         self.assertNotIn("secret-test-value", request["messages"][0]["content"])
 
+    def test_maps_itinerary_commands_without_model_written_copy(self):
+        mappings = (
+            ("queria ver de onde vieram essas informacoes", "itinerary_sources", "fontes do roteiro"),
+            ("quero mudar algumas coisas no passeio", "itinerary_edit", "ajustar roteiro"),
+            ("mostra o passeio que voce montou", "itinerary_show", "meu roteiro"),
+        )
+        for text, intent, expected in mappings:
+            with self.subTest(intent=intent):
+                result, _ = self.call(text, answer(intent), "itinerary:done")
+                self.assertEqual(result, expected)
+
+        result, _ = self.call(
+            "apaga tudo talvez", answer("itinerary_delete", "confirmado"), "itinerary:done")
+        self.assertEqual(result, "apaga tudo talvez")
+        result, _ = self.call(
+            "nao apaga meu roteiro", answer("itinerary_delete"), "itinerary:done")
+        self.assertEqual(result, "nao apaga meu roteiro")
+        result, _ = self.call(
+            "por favor, apaga meu roteiro", answer("itinerary_delete"), "itinerary:done")
+        self.assertEqual(result, "apagar roteiro")
+
     def test_accepts_valid_step_answer(self):
         result, _ = self.call("eu parto lá de Confins", answer("step_answer", "Confins"))
         self.assertEqual(result, "Confins")
@@ -81,6 +102,11 @@ class NluTests(unittest.TestCase):
         self.assertFalse(needs_interpretation("dia 23 de outubro desse ano", "departure", self.today, {}))
         self.assertFalse(needs_interpretation("duas pessoas", "adults", self.today, {}))
         self.assertFalse(needs_interpretation("a mais barata", "priority", self.today, {}))
+        candidates = {"origin": "CNF"}
+        self.assertFalse(needs_interpretation(
+            "GRU, BOG, REC", "discovery:candidates", self.today, candidates))
+        self.assertFalse(needs_interpretation(
+            "quero comparar Guarulhos, Recife e Bogota", "discovery:candidates", self.today, candidates))
         self.assertTrue(needs_interpretation("eu parto la de Confins", "origin", self.today, {}))
 
     def test_conversation_uses_interpreted_command(self):
@@ -88,13 +114,33 @@ class NluTests(unittest.TestCase):
         reply = bot.reply("user", "me conta o que rola", today=self.today)
         self.assertIn("O que você quer planejar", reply)
 
-    def test_conversation_does_not_interpret_active_overlay(self):
+    def test_conversation_passes_active_overlay_stage(self):
         calls = []
-        bot = Conversation(interpreter=lambda text, *args: calls.append((text, *args)) or text)
-        bot.reply("user", "roteiro", today=self.today)
-        calls.clear()
-        bot.reply("user", "Sao Paulo", today=self.today)
-        self.assertEqual(calls, [])
+
+        def interpreter(text, step, today, values):
+            calls.append((text, step))
+            return "2" if step == "itinerary:days" else text
+
+        bot = Conversation(interpreter=interpreter)
+        for text in ("roteiro", "Sao Paulo", "sem data"):
+            bot.reply("user", text, today=self.today)
+        reply = bot.reply("user", "quero aproveitar dois dias", today=self.today)
+        self.assertIn(("quero aproveitar dois dias", "itinerary:days"), calls)
+        self.assertIn("cultura", reply)
+
+    def test_overlay_answers_are_strictly_bounded(self):
+        result, _ = self.call("quero bastante tempo", answer("step_answer", "5"), "itinerary:days")
+        self.assertEqual(result, "quero bastante tempo")
+        result, _ = self.call("quero arte e museus", answer("step_answer", "cultura"), "itinerary:interest")
+        self.assertEqual(result, "cultura")
+        result, _ = self.call("escolho a segunda", answer("step_answer", "destino 2"), "discovery:done")
+        self.assertEqual(result, "destino 2")
+        result, _ = self.call("pode colocar qualquer um", answer("step_answer", "destino 4"), "discovery:done")
+        self.assertEqual(result, "pode colocar qualquer um")
+        result, _ = self.call(
+            "quero comparar tres lugares", answer("step_answer", "GRU, BOG, REC, SSA"),
+            "discovery:candidates")
+        self.assertEqual(result, "quero comparar tres lugares")
 
 
 if __name__ == "__main__":

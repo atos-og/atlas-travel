@@ -21,6 +21,9 @@ class DiscoveryTests(unittest.TestCase):
 
     def test_explicit_candidates_bounded_deduplicated_and_unambiguous(self):
         self.assertEqual(destinations('Bogotá, BOG, Recife', 'CNF'), ['BOG', 'REC'])
+        self.assertEqual(
+            destinations('quero comparar Guarulhos, Recife e Bogota', 'CNF'),
+            ['GRU', 'REC', 'BOG'])
         for text in ('GRU,REC,BOG,MDE', 'São Paulo', 'CNF', 'GRU,'):
             with self.assertRaises(ValueError):
                 destinations(text, 'CNF')
