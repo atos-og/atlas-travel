@@ -1,5 +1,7 @@
 # Atlas
 
+[![Quality](https://github.com/atos-og/atlas-travel/actions/workflows/quality.yml/badge.svg)](https://github.com/atos-og/atlas-travel/actions/workflows/quality.yml)
+
 **A personal travel assistant.**
 
 A conversational travel assistant built as a public portfolio project. The current private prototype uses Python, the official WhatsApp Cloud API, persistent conversations, and experimental flight search. The public product name is simply **Atlas**; see the [naming system](docs/NAMING.md) and [visual identity](docs/VISUAL_IDENTITY.md).
