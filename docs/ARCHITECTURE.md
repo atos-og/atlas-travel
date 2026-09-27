@@ -17,6 +17,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 ## Responsibilities
 
 - `webhook.py`: challenge verification, HMAC validation, request limits, and event acknowledgment after persistence.
+- `callback.py`: strict callback URL validation and verified Meta app-subscription synchronization without access-token rotation.
 - `messaging.py`: sender and message-age checks, deduplication, queue processing, outbound delivery, and delivery-status updates.
 - `conversation.py`: channel-independent conversation states and an injectable search function.
 - `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
@@ -54,6 +55,6 @@ Budget refinement uses the existing result snapshot and retains its query time. 
 
 ## Privacy and operational limits
 
-Secrets stay in `.env`; conversations and offers stay in local SQLite files. Logs omit tokens, phone numbers, and message payloads. When NLU is enabled, the current message, conversation step, current date, and existing departure date are sent to Groq. Phone numbers, Meta credentials, fare results, full session history, and the Groq key are not placed in the prompt. The optional fli dependency is pinned to a Git revision. Domain tests do not require network access.
+Secrets stay in `.env`; conversations and offers stay in local SQLite files. Runtime logs are ignored by Git and omit tokens, phone numbers, and message payloads. Callback synchronization sends the App ID credential, verification token, and public callback only to Meta's Graph endpoint and prints sanitized status. When NLU is enabled, the current message, conversation step, current date, and existing departure date are sent to Groq. Phone numbers, Meta credentials, fare results, full session history, and the Groq key are not placed in the prompt. The optional fli dependency is pinned to a Git revision. Domain tests do not require network access.
 
 This is a development HTTP server with one permitted recipient, a temporary tunnel, and local storage without application-level encryption or automatic retention expiry. Before public use, address consent, deletion and retention, limits, observability, stable hosting, and provider terms.

@@ -22,6 +22,14 @@ Meta screens and requirements vary by account. This guide describes Atlas config
 
 Temporary tunnels can expire or change their URL after restart. Update the callback when required. Keep one `atlas.webhook` instance using the virtual environment's Python. The server prevents port reuse. Settings are loaded for each event; changing `.env` does not require restarting the server solely to load a new token. Verify token validity with Meta without printing it.
 
+After starting a replacement tunnel, synchronize its public base URL without opening the Meta dashboard:
+
+```powershell
+python -m atlas.callback https://example.trycloudflare.com
+```
+
+The command accepts only an HTTPS URL whose path is empty or exactly `/webhook`; credentials, query strings, fragments, and alternate ports are rejected. It uses the local App ID, App Secret, and verification token to update the existing `whatsapp_business_account` subscription, then reads it back and requires an active `messages` field at the exact callback URL. Output is sanitized. The command changes the callback subscription, but it does not create or renew `WHATSAPP_ACCESS_TOKEN`, start a tunnel, or send a WhatsApp message.
+
 ## Local data
 
 `work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases and `.env` are excluded from Git. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.

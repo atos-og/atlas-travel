@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 129 local tests, including hosted-language diagnostics, guided itinerary and destination interpretation, natural-language safeguards, readable option formatting, and native choices persisted through the queue.
+- [x] 134 local tests, including hosted-language diagnostics, guided itinerary and destination interpretation, callback synchronization boundaries, readable option formatting, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
@@ -26,6 +26,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Renew the expired WhatsApp access token and validate its app and scopes locally.
 - [x] Update and verify the callback against the current tunnel. Temporary tunnel addresses can expire.
 - [x] Confirm the app remains subscribed to the test WhatsApp account.
+- [x] Synchronize and verify a replacement tunnel callback without rotating the WhatsApp access token.
 - [x] Confirm a new authorized inbound message produces a sent reply and renders the revised capability experience correctly.
 
 On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. The reconnection notice subsequently received a delivery confirmation. A new owner-driven feature test remains pending. The token and tunnel remain temporary; the owner is managing credential renewals while development continues.

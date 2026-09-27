@@ -69,6 +69,8 @@ Example conversation, one message per step: `oi` → `Confins` → `Bogotá` →
 
 For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test Meta access without sending messages, `--token` to inspect the Meta token lifetime, or `--groq` to send one synthetic intent request that validates the configured Groq key and model without using traveler data.
 
+When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
+
 Sightseeing also works in the offline simulator: send `roteiro para São Paulo`, `sem data`, `3 dias`, `misto`, `equilibrado`, then `montar`. Use `fontes do roteiro` for the sources and `voltar aos voos` to resume the flight flow. See [itinerary behavior and coverage](docs/ITINERARIES.md).
 
 ## Scope and limitations
