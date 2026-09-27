@@ -24,7 +24,13 @@ PROMPTS = {
 
 
 def destinations(text, origin):
-    parts = re.split(r'\s*[,;]\s*', text.strip())
+    value = clean(text)
+    value = re.sub(
+        r'^(?:(?:eu )?(?:quero|queria|gostaria de|prefiro) |(?:pode|vamos) )?'
+        r'(?:comparar|ver|incluir|colocar)(?: os)?(?: destinos?)?(?: de| entre)?\s+',
+        '', value,
+    )
+    parts = re.split(r'\s*[,;]\s*|\s+e\s+', value)
     if not 1 <= len(parts) <= 3 or any(not part for part in parts):
         raise ValueError('Informe de 1 a 3 destinos separados por vírgula.')
     result = []

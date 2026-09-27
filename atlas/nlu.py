@@ -17,7 +17,14 @@ INTENTS = {
     "help",
     "flights",
     "itinerary",
+    "itinerary_show",
+    "itinerary_sources",
+    "itinerary_edit",
+    "itinerary_remove",
+    "itinerary_delete",
+    "itinerary_new",
     "destination_discovery",
+    "destination_discovery_restart",
     "nearby_dates",
     "preferences_show",
     "preferences_save",
@@ -39,7 +46,14 @@ COMMANDS = {
     "help": "menu",
     "flights": "voos",
     "itinerary": "roteiro",
+    "itinerary_show": "meu roteiro",
+    "itinerary_sources": "fontes do roteiro",
+    "itinerary_edit": "ajustar roteiro",
+    "itinerary_remove": "remover passeio",
+    "itinerary_delete": "apagar roteiro",
+    "itinerary_new": "novo roteiro",
     "destination_discovery": "explorar destinos",
+    "destination_discovery_restart": "refazer comparacao",
     "nearby_dates": "datas flexiveis",
     "preferences_show": "minhas preferencias",
     "preferences_save": "salvar preferencias",
@@ -95,6 +109,69 @@ def needs_interpretation(text, step, today, values):
         return False
     if re.search(r"\b(?:onibus|rodoviari[oa]|criancas?|bebes?)\b", value):
         return False
+    if step.startswith("itinerary:"):
+        stage = step.split(":", 1)[1]
+        if stage == "city" and value in {"sao paulo", "sp", "gru", "cgh", "bogota", "bog"}:
+            return False
+        if stage == "start":
+            if value in {"sem data", "ainda sem data"}:
+                return False
+            try:
+                parse_date(text, today)
+                return False
+            except ValueError:
+                return True
+        if stage == "days" and value in {"1", "2", "3", "1 dia", "2 dias", "3 dias",
+                                          "um", "dois", "tres", "um dia", "dois dias", "tres dias"}:
+            return False
+        if stage == "interest" and value in {"1", "2", "3", "cultura", "museus", "arte",
+                                              "natureza", "parques", "misto", "um pouco de tudo"}:
+            return False
+        if stage == "pace" and value in {"1", "2", "tranquilo", "sem pressa", "equilibrado"}:
+            return False
+        if stage in {"confirm", "done", "remove"}:
+            return not is_confirmation(text)
+        if stage == "edit" and value in {"mudar dias", "dias", "mudar inicio", "inicio",
+                                          "mudar interesses", "interesses", "mudar ritmo", "ritmo"}:
+            return False
+        return True
+    if step.startswith("discovery:"):
+        stage = step.split(":", 1)[1]
+        if stage == "origin" and 1 <= len(value.split()) <= 3:
+            return False
+        if stage in {"departure", "return"}:
+            departure = None
+            if stage == "return" and values.get("departure"):
+                from datetime import datetime
+                try:
+                    departure = datetime.strptime(values["departure"], "%d/%m/%Y").date()
+                except ValueError:
+                    pass
+            try:
+                parse_date(text, today, departure)
+                return False
+            except ValueError:
+                return True
+        if stage == "adults" and choice(text, "adults") in {str(i) for i in range(1, 7)}:
+            return False
+        if stage == "budget":
+            from .budget import parse_budget
+            try:
+                return parse_budget(text) is None
+            except ValueError:
+                return True
+        if stage == "candidates":
+            from .discovery import destinations
+            try:
+                destinations(text, values.get("origin", ""))
+                return False
+            except ValueError:
+                return True
+        if stage == "confirm":
+            return not is_confirmation(text)
+        if stage == "done" and re.fullmatch(r"(?:escolher )?destino [1-3]", value):
+            return False
+        return True
     try:
         if extract_trip(text):
             return False
@@ -135,6 +212,28 @@ def needs_interpretation(text, step, today, values):
 
 def _prompt(text, step, today, values):
     departure = values.get("departure", "not supplied")
+    overlay_rules = ""
+    if step.startswith("itinerary:"):
+        overlay_rules = """
+Itinerary step answers:
+- city: answer must be "sao paulo" or "bogota" and only when explicitly stated
+- start: preserve the explicit Portuguese date expression, or "sem data"
+- days: answer must be 1, 2, or 3
+- interest: answer must be "cultura", "natureza", or "misto"
+- pace: answer must be "tranquilo" or "equilibrado"
+- edit: answer may be "mudar dias", "mudar inicio", "mudar interesses", or "mudar ritmo"
+Do not use step_answer for removing a place or selecting a place that was not named explicitly.
+"""
+    elif step.startswith("discovery:"):
+        overlay_rules = """
+Destination-comparison step answers:
+- origin: copy only the explicit place; never resolve it to an airport code
+- departure or return: preserve the explicit Portuguese date expression
+- adults: answer must be a digit from 1 through 6
+- budget: copy only the explicit amount
+- candidates: copy 1 to 3 explicitly named places separated by commas; never add or resolve a place
+- done: answer may be "destino 1", "destino 2", or "destino 3" only when explicitly selected
+"""
     return f"""You are a narrow intent translator for Atlas, a Portuguese travel assistant.
 You never answer the traveler. Return only the required JSON object.
 
@@ -143,14 +242,22 @@ Implemented actions:
 - help: explain commands
 - flights: return to flight planning
 - itinerary: start sightseeing planning; only Sao Paulo and Bogota are supported
+- itinerary_show: display an itinerary that was already generated
+- itinerary_sources: show sources for an itinerary that was already generated
+- itinerary_edit: enter the existing itinerary editing flow
+- itinerary_remove: enter the existing place-removal flow
+- itinerary_delete: delete the saved itinerary after an explicit request
+- itinerary_new: restart the itinerary questions after an explicit request
 - destination_discovery: compare up to three user-selected flight destinations
+- destination_discovery_restart: restart the destination-comparison questions
 - nearby_dates: compare exact dates with plus or minus one day
 - preferences_show, preferences_save, preferences_apply, preferences_delete
 - cancel, confirm, offers, filters, dates, passengers, budget, search, price_objection
 
-Current flight step: {step}
+Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}
 Known departure date: {departure}
+{overlay_rules}
 
 Rules:
 1. Choose only an implemented intent. Use unknown when uncertain or when the user asks for an unsupported feature.
@@ -215,6 +322,12 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
     if intent in {"unknown", "unchanged"}:
         return text
     if intent in COMMANDS:
+        if intent == "itinerary_delete":
+            from .language import clean
+            value = clean(text)
+            if "nao" in value or not re.search(
+                    r"\b(?:apaga|apagar|delete|deletar|exclua|excluir)\b.*\broteiro\b", value):
+                return text
         return COMMANDS[intent] if not answer else text
     if intent != "step_answer" or not answer or len(answer) > 100:
         return text
@@ -224,6 +337,35 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         return text
     if step == "flexibility" and answer not in {"comparar 1 dia", "manter datas"}:
         return text
+    if step.startswith("itinerary:"):
+        stage = step.split(":", 1)[1]
+        allowed = {
+            "city": {"sao paulo", "bogota"},
+            "days": {"1", "2", "3"},
+            "interest": {"cultura", "natureza", "misto"},
+            "pace": {"tranquilo", "equilibrado"},
+            "edit": {"mudar dias", "mudar inicio", "mudar interesses", "mudar ritmo"},
+        }
+        if stage in allowed and answer not in allowed[stage]:
+            return text
+        if stage == "start" and not answer:
+            return text
+        if stage not in set(allowed) | {"start"}:
+            return text
+        return answer.strip()
+    if step.startswith("discovery:"):
+        stage = step.split(":", 1)[1]
+        if stage == "adults" and answer not in {str(i) for i in range(1, 7)}:
+            return text
+        if stage == "done" and answer not in {"destino 1", "destino 2", "destino 3"}:
+            return text
+        if stage == "candidates":
+            parts = re.split(r"\s*[,;]\s*", answer)
+            if not 1 <= len(parts) <= 3 or any(not part.strip() for part in parts):
+                return text
+        if stage not in {"origin", "departure", "return", "adults", "budget", "candidates", "done"}:
+            return text
+        return answer.strip()
     if step not in {"origin", "destination", "departure", "return", "adults", "priority", "budget", "flexibility"}:
         return text
     return answer.strip()

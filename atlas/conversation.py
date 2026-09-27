@@ -55,12 +55,17 @@ class Conversation:
         text = text.strip()
         today = today or local_today()
         current = self.sessions.get(user_id)
-        overlays_active = current and (current.values.get('_itinerary', {}).get('active') or
-                                       current.values.get('_discovery', {}).get('active'))
-        if self.interpreter and not overlays_active:
+        if self.interpreter:
             try:
-                text = self.interpreter(text, current.step if current else 'origin', today,
-                                        current.values if current else {})
+                step = current.step if current else 'origin'
+                context = current.values if current else {}
+                if current and current.values.get('_itinerary', {}).get('active'):
+                    context = current.values['_itinerary']
+                    step = 'itinerary:' + context['stage']
+                elif current and current.values.get('_discovery', {}).get('active'):
+                    context = current.values['_discovery']
+                    step = 'discovery:' + context['stage']
+                text = self.interpreter(text, step, today, context)
             except Exception:
                 # Natural-language interpretation is optional; deterministic parsing remains available.
                 pass
