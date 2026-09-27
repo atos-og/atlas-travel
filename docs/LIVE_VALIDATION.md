@@ -31,3 +31,7 @@ The owner also confirmed that the WhatsApp capability menu opened the itinerary 
 # Owner itinerary acceptance — September 25, 2026
 
 The owner reported that the WhatsApp sequence São Paulo → no date yet → three days → mixed interests → relaxed pace → generate itinerary → view sources appeared to work correctly. This confirms the reported conversation path and source response, not an independent audit of each source page. Editing, exclusions, returning to flights, and the balanced pace remain separate acceptance checks.
+
+# Hosted interpretation extension — September 27, 2026
+
+Synthetic calls to the configured Groq-hosted `openai/gpt-oss-20b` model normalized natural itinerary phrases to two days, culture or nature, and a relaxed pace. Additional calls mapped natural requests to view itinerary sources, edit the itinerary, and reopen the generated plan. No traveler data was used. Candidate lists such as `quero comparar Guarulhos, Recife e Bogotá` are now handled locally, so this common structure does not consume hosted-model quota. These checks validate the interpretation boundary, not WhatsApp delivery.

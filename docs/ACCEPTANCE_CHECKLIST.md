@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 127 local tests, including hosted-language diagnostics, the sightseeing flow, natural-language safeguards, readable option formatting, and native choices persisted through the queue.
+- [x] 129 local tests, including hosted-language diagnostics, guided itinerary and destination interpretation, natural-language safeguards, readable option formatting, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
@@ -48,6 +48,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 12. Remove a place, confirm rebuilding, and verify that it does not return. Change the pace and confirm again.
 13. Use `voltar aos voos` and verify the previous flight question or results are preserved; reopen with `meu roteiro`.
 14. Use `explorar destinos`, provide a budget and up to three destinations, and confirm. Verify separate failures/no-matches, price order, and that selecting `destino 1` adopts exactly that destination without another search.
+15. During an itinerary, use natural phrases for the day count, interest, pace, viewing sources, editing, and reopening the plan. Confirm that unsupported values are rejected and that the generated copy still comes from Atlas rather than the model.
 
 ## Remaining product work
 

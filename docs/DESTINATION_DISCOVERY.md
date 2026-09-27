@@ -7,7 +7,7 @@ This is a bounded comparison, not automatic worldwide destination discovery. Bus
 ## Flow
 
 1. Reuse any origin, dates, adults, and budget already supplied in the flight conversation; ask for missing fields.
-2. Collect one to three destinations separated by commas. Recognized city aliases become airport codes. Ambiguous cities require clarification; duplicates are collapsed and the origin cannot be a destination.
+2. Collect one to three destinations separated by commas or a final `e` (and). A natural prefix such as `quero comparar` is accepted. Recognized city aliases become airport codes. Ambiguous cities require clarification; duplicates are collapsed and the origin cannot be a destination.
 3. Show the full criteria and ask for confirmation. `refazer comparação` restarts criteria collection without copying the prior trip.
 4. Perform up to three concurrent provider calls, each subject to the production provider's existing 55-second subprocess timeout.
 5. Display the cheapest matching returned fare per destination, ordered by total price. Preserve an existing nonstop preference, but replace duration/highest-price ordering with cheapest-first comparison.

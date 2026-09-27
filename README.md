@@ -20,7 +20,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu, opened with `menu`, that makes implemented features discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
-- Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer.
+- Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 

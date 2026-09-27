@@ -23,11 +23,13 @@ For each authorized inbound text, Atlas may send the current message, current co
 - an empty command payload or one answer for the current guided step;
 - a confidence value.
 
-Examples include mapping a varied help question to `help`, extracting `Confins` from a colloquial origin answer, or mapping a price complaint to the existing budget-refinement command.
+Examples include mapping a varied help question to `help`, extracting `Confins` from a colloquial origin answer, mapping a price complaint to the existing budget-refinement command, normalizing a sightseeing duration, or opening an existing itinerary's source view from a natural request.
+
+The active context may be a flight question, an itinerary question, or a destination-comparison question. Itinerary values remain bounded to the two catalog cities, one to three days, the implemented interest categories, and the implemented pace options. Destination comparison remains bounded to one to three explicitly named places. Lists such as `quero comparar Guarulhos, Recife e Bogotá` are parsed locally when possible, avoiding a hosted request.
 
 ## What the model cannot do
 
-The model does not write the WhatsApp reply, search fares, select an airport for an ambiguous city, generate an itinerary, create links, call tools, or add capabilities. Command intents must have an empty answer. Step answers are accepted only for the active step and must pass bounded value checks before the existing conversation validators run.
+The model does not write the WhatsApp reply, search fares, select an airport for an ambiguous city, generate an itinerary, create links, call tools, or add capabilities. Command intents must have an empty answer. Step answers are accepted only for the active step and must pass bounded value checks before the existing conversation validators run. A model-selected itinerary deletion is additionally rejected unless the original message explicitly asks to delete the itinerary and contains no negation.
 
 Atlas keeps the original message when the feature is disabled, the key is missing, the API times out, the response is malformed, the intent is unknown, confidence is below `0.90`, or a value violates the active step. The deterministic parser therefore remains the operational fallback.
 
