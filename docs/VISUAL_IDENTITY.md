@@ -22,7 +22,7 @@ Machine-readable values are stored in [tokens.json](../assets/brand/tokens.json)
 
 ## Applications
 
-- **WhatsApp profile:** standalone light symbol and Mint dot on Midnight, centered with enough margin for circular cropping. Avoid the full wordmark and small text at avatar size.
+- **WhatsApp profile:** use [`atlas-whatsapp-avatar.png`](../assets/brand/atlas-whatsapp-avatar.png), which keeps the light symbol and Mint dot centered on Midnight with enough margin for circular cropping. Avoid the full wordmark and small text at avatar size.
 - **Cover and repository artwork:** horizontal symbol and Atlas wordmark, on Sand or in the approved reversed version on Midnight. Preserve the proportions and keep enough space around the composition.
 - **Future offer cards:** keep fares, dates, stops, and actions readable. The brand supports the information; it does not replace it. Essential details must also be available as text.
 - **Supporting text:** use clear lettering compatible with the reference. Supporting font selection and a tagline remain open decisions.
@@ -31,6 +31,6 @@ Do not recolor the Mint dot, stretch the mark, introduce unrelated travel symbol
 
 ## Asset readiness
 
-The current source is a composite raster identity board. It is an approved reference, not a vector master or a set of separate production exports. Clean standalone avatar and cover exports are still needed; dimensions should match the actual destination surface. A production export should preserve the approved artwork and be reviewed at small sizes and under circular cropping.
+The approved composite raster identity board remains the source reference. A standalone square WhatsApp avatar is available at `assets/brand/atlas-whatsapp-avatar.png` and has been reviewed at small sizes and under circular cropping. A clean cover export and vector master are still needed.
 
-Adding this reference to the repository does not update the WhatsApp account's profile image or publish a cover. Those account changes have not been performed by this documentation update.
+The avatar was applied to the Meta-provided test number on September 27, 2026 and confirmed through the WhatsApp Business Profile API. Meta still exposes that sender as `Test Number`; a branded `Atlas` display name requires a production business phone number and Meta's display-name process.
