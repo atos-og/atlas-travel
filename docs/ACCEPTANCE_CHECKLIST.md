@@ -12,13 +12,13 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 136 local tests, including hosted-language diagnostics, guided itinerary and destination interpretation, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
+- [x] 138 local tests, including hosted-language diagnostics, hosted-port validation, guided itinerary and destination interpretation, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
 - [x] Budget-led comparison of up to three explicit destinations, preserving the original trip until selection.
 - [x] Live nearby-date provider check: three successful date pairs; see [the evidence](LIVE_VALIDATION.md).
-- [x] Approved brand reference and English identity guide committed.
+- [x] Approved brand reference, standalone WhatsApp avatar, and English identity guide committed; the avatar is applied to the test profile.
 
 ## Restore the WhatsApp test environment
 
@@ -58,11 +58,11 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 | --- | --- |
 | Source reliability | Verify supplier links and totals; establish acceptable failure and query rates. |
 | Language coverage | Validate hosted interpretation on WhatsApp and expand the regression corpus from real, sanitized phrasing while preserving the free-tier fallback. |
-| Brand production | Obtain or produce faithful separate avatar and cover exports; then apply them to the intended account surfaces. |
+| Brand production | Produce a faithful cover export and apply the completed avatar to the eventual production number. |
 | Bus travel | Select and validate a usable source before offering bus prices or cross-mode comparisons. |
 | Sightseeing | Validate the implemented flow on WhatsApp; expand coverage and verify calendars, costs, and travel times. |
 | Alerts | Establish stable execution, opt-in rules, source reliability, and messaging cost before promising monitoring. |
 | Broader flexible dates | Define query limits and user-approved date ranges before offering whole-month exploration. |
-| Operations | Replace fragile test credentials/tunnels with an appropriate stable setup when the project is ready. |
+| Operations | Build and validate the included container, then replace fragile test credentials/tunnels with stable single-replica hosting and persistent storage. |
 
 Continue private testing before public use. The portfolio repository can be public while credentials, conversations, recordings, and operational identifiers remain private.

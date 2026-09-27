@@ -40,6 +40,7 @@ Bus travel, broader itinerary coverage, whole-month date searches, and alerts ar
 | Travel source | Google Flights through a pinned `fli` revision | Experimental round-trip fare discovery and links |
 | Storage | SQLite | Inbox, sessions, preferences, delivery state, and fare snapshots |
 | Development ingress | Cloudflare Quick Tunnel | Temporary HTTPS access to the local webhook |
+| Packaging | Docker | Reproducible single-replica webhook image with an unprivileged runtime user |
 | Quality | `unittest` and GitHub Actions | Local regression coverage and CI on every push |
 
 GPT-OSS 20B is published by OpenAI as an open-weight model and is executed for Atlas by GroqCloud. Atlas does not call OpenAI's hosted API, and a ChatGPT subscription is unrelated to this integration.
@@ -64,6 +65,8 @@ Copy-Item .env.example .env
 ```
 
 The server listens on `127.0.0.1:8787`. Meta needs a publicly reachable HTTPS callback. Outbound replies and external searches are disabled by default. Follow the [WhatsApp setup guide](docs/WHATSAPP_SETUP.md).
+
+For a hosted single-replica deployment, the webhook accepts a bounded `ATLAS_WEBHOOK_HOST` and either `ATLAS_WEBHOOK_PORT` or a platform-provided `PORT`. The included container runs as an unprivileged user and requires persistent storage at `/app/work`. See the [deployment boundary](docs/DEPLOYMENT.md).
 
 Natural-language interpretation is also disabled by default. Set `ATLAS_NLU_ENABLED=true`, provide `GROQ_API_KEY`, and optionally select `GROQ_MODEL`. See the [bounded interpretation design](docs/NATURAL_LANGUAGE.md). The provider's free tier has quotas and is not an uptime or permanent-pricing guarantee.
 
@@ -94,6 +97,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [Implementation and validation status](docs/STATUS.md)
 - [Private prototype acceptance and remaining work](docs/ACCEPTANCE_CHECKLIST.md)
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
+- [Deployment boundary and container](docs/DEPLOYMENT.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
 - [Bounded natural-language interpretation](docs/NATURAL_LANGUAGE.md)
 - [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
