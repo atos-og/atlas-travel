@@ -1,6 +1,6 @@
 # Atlas
 
-[![Quality](https://github.com/atos-og/atlas-travel/actions/workflows/quality.yml/badge.svg)](https://github.com/atos-og/atlas-travel/actions/workflows/quality.yml)
+[![Tests](https://github.com/atos-og/atlas-travel/actions/workflows/tests.yml/badge.svg)](https://github.com/atos-og/atlas-travel/actions/workflows/tests.yml)
 
 **A personal travel assistant.**
 
