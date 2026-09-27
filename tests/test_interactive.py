@@ -36,6 +36,37 @@ class PayloadTests(unittest.TestCase):
         self.assertEqual(p['interactive']['action']['parameters']['display_text'], 'Abrir oferta')
         self.assertEqual(payload_for(s, 'https://attacker.test')['type'], 'text')
 
+    def test_completed_search_suggests_contextual_features_within_row_limit(self):
+        def offer(index):
+            return {'price': str(1000 + index), 'duration': 120 + index, 'stops': 0,
+                    'url': f'https://www.google.com/travel/flights?offer={index}', 'journeys': []}
+
+        session = Session('complete', {
+            'origin': 'CNF', 'destination': 'GRU', 'departure': '23/10/2027',
+            'return': '30/10/2027', 'adults': '1', 'priority': '1', 'budget': None,
+            'result': {'offers': [offer(i) for i in range(4)]},
+        })
+        payload = payload_for(session, 'Escolha uma oferta')
+        rows = payload['interactive']['action']['sections'][0]['rows']
+        commands = list(session.values['_choices'].values())
+        self.assertLessEqual(len(rows), 10)
+        self.assertIn('datas flexiveis', commands)
+        self.assertIn('roteiro', commands)
+        self.assertNotIn('buscar', commands)
+        self.assertNotIn('cancelar', commands)
+
+        session.values['result']['offers'] = [offer(i) for i in range(3)]
+        payload_for(session, 'Escolha uma oferta')
+        self.assertIn('explorar destinos', session.values['_choices'].values())
+
+    def test_price_question_offers_dates_without_exceeding_button_limit(self):
+        session = Session('complete', {'_price_question': True})
+        payload = payload_for(session, 'Você achou o preço alto?')
+        buttons = payload['interactive']['action']['buttons']
+        self.assertEqual(len(buttons), 3)
+        self.assertEqual(
+            set(session.values['_choices'].values()), {'sim', 'datas flexiveis', 'ofertas'})
+
 
 class InteractiveQueueTests(unittest.TestCase):
     setUp = messaging_tests.MessagingTests.setUp
