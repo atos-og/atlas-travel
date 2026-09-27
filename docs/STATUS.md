@@ -44,6 +44,8 @@ The temporary token expired again and was renewed with the same WhatsApp permiss
 
 On September 25, the owner renewed the test token again. Atlas verified the token's app identity and WhatsApp scopes, replaced the expired quick-tunnel callback, subscribed the app to the test account, and passed independent local, public-tunnel, phone-number, and token checks. Meta reports this token expiring at 02:00 UTC on September 26, so another authorized inbound/outbound round trip is still required before the short-lived credential expires.
 
+On September 27, Atlas replaced another expired quick tunnel and updated the existing Meta app webhook subscription through the Graph API. Meta verified the new callback, reported the `whatsapp_business_account` subscription as active, and retained the `messages` field. The owner remains responsible for creating and renewing the short-lived WhatsApp access token; this recovery did not generate or rotate that credential.
+
 `python -m atlas.check` checks local readiness; `--meta` adds a read-only Meta API check, `--token` inspects expiry using the optional `META_APP_ID` setting, and `--groq` validates hosted interpretation with synthetic text. No WhatsApp messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline. The Groq check distinguishes configuration, credentials, access, quota/rate limits, request/model rejection, output validation, and network failures without returning raw provider text.
 
 ## Sightseeing and capability discovery
