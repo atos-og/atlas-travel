@@ -33,4 +33,4 @@ Do not recolor the Mint dot, stretch the mark, introduce unrelated travel symbol
 
 The approved composite raster identity board remains the source reference. A standalone square WhatsApp avatar is available at `assets/brand/atlas-whatsapp-avatar.png` and has been reviewed at small sizes and under circular cropping. A clean cover export and vector master are still needed.
 
-The avatar was applied to the Meta-provided test number on September 27, 2026 and confirmed through the WhatsApp Business Profile API. Meta still exposes that sender as `Test Number`; a branded `Atlas` display name requires a production business phone number and Meta's display-name process.
+The avatar was applied to the Meta-provided test number on September 27, 2026 and confirmed through the WhatsApp Business Profile API. A display-name change to `Atlas` was also accepted by the API with status `AVAILABLE_WITHOUT_REVIEW`; at the verification time, however, the live `verified_name` still remained `Test Number`. A production business phone number remains necessary for a stable branded sender identity.
