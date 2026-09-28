@@ -31,7 +31,7 @@ The active context may be a flight question, an itinerary question, or a destina
 
 The model does not write the WhatsApp reply, search fares, select an airport for an ambiguous city, generate an itinerary, create links, call tools, or add capabilities. Atlas discards any model-written command payload and selects only reviewed response copy through an allowlisted intent. Step answers are accepted only for the active step and must pass bounded value checks before the existing conversation validators run. A model-selected itinerary deletion is additionally rejected unless the original message explicitly asks to delete the itinerary and contains no negation.
 
-Informational intents use a confidence floor of `0.80`; they can only show reviewed copy or explain already saved offers. State changes, field extraction, confirmation, cancellation, preference deletion, and itinerary deletion retain `0.90` plus their existing validators.
+Informational intents use a confidence floor of `0.80`; they can only show reviewed copy or explain already saved offers. Origin and destination extraction use `0.85`, followed by the airport catalog and explicit search confirmation. Other field extraction, confirmation, cancellation, preference deletion, and itinerary deletion retain `0.90` plus their existing validators.
 
 Atlas keeps the original message when the feature is disabled, the key is missing, the API times out, the response is malformed, the intent is unknown, confidence is below its applicable threshold, or a value violates the active step. The deterministic parser therefore remains the operational fallback.
 

@@ -41,7 +41,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 
 Atlas uses `openai/gpt-oss-20b`, an open-weight model published by OpenAI, through the GroqCloud API. Groq supplies the hosted inference environment and API key. This is separate from OpenAI's hosted API and from ChatGPT subscriptions.
 
-The model is an optional interpreter inside the application boundary. It returns a strict intent object; Python code enforces the allowlist, confidence threshold, conversation state, value bounds, and deterministic fallback before any product action occurs. Informational intents use a lower `0.80` threshold because their output only selects reviewed copy. Trip changes and destructive actions retain the `0.90` threshold.
+The model is an optional interpreter inside the application boundary. It returns a strict intent object; Python code enforces the allowlist, confidence threshold, conversation state, value bounds, and deterministic fallback before any product action occurs. Informational intents use `0.80` because their output only selects reviewed copy. Origin and destination text use `0.85` and still pass through airport resolution and explicit pre-search confirmation. Other trip changes and destructive actions retain `0.90`.
 
 ## Persistence and delivery
 
