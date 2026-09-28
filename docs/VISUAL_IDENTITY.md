@@ -24,6 +24,7 @@ Machine-readable values are stored in [tokens.json](../assets/brand/tokens.json)
 
 - **WhatsApp profile:** use [`atlas-whatsapp-avatar.png`](../assets/brand/atlas-whatsapp-avatar.png), which keeps the light symbol and Mint dot centered on Midnight with enough margin for circular cropping. Avoid the full wordmark and small text at avatar size.
 - **Cover and repository artwork:** horizontal symbol and Atlas wordmark, on Sand or in the approved reversed version on Midnight. Preserve the proportions and keep enough space around the composition.
+- **Current horizontal cover:** use [`atlas-cover.png`](../assets/brand/atlas-cover.png) for the repository social preview, portfolio cards, and wide headers.
 - **Future offer cards:** keep fares, dates, stops, and actions readable. The brand supports the information; it does not replace it. Essential details must also be available as text.
 - **Supporting text:** use clear lettering compatible with the reference. Supporting font selection and a tagline remain open decisions.
 
@@ -31,6 +32,6 @@ Do not recolor the Mint dot, stretch the mark, introduce unrelated travel symbol
 
 ## Asset readiness
 
-The approved composite raster identity board remains the source reference. A standalone square WhatsApp avatar is available at `assets/brand/atlas-whatsapp-avatar.png` and has been reviewed at small sizes and under circular cropping. A clean cover export and vector master are still needed.
+The approved composite raster identity board remains the source reference. A standalone square WhatsApp avatar is available at `assets/brand/atlas-whatsapp-avatar.png` and has been reviewed at small sizes and under circular cropping. A clean 2:1 horizontal cover is available at `assets/brand/atlas-cover.png`. A vector master is still needed.
 
 The avatar was applied to the Meta-provided test number on September 27, 2026 and confirmed through the WhatsApp Business Profile API. A display-name change to `Atlas` was also accepted by the API with status `AVAILABLE_WITHOUT_REVIEW`; at the verification time, however, the live `verified_name` still remained `Test Number`. A production business phone number remains necessary for a stable branded sender identity.

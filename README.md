@@ -2,6 +2,8 @@
 
 [![Tests](https://github.com/atos-og/atlas-travel/actions/workflows/tests.yml/badge.svg)](https://github.com/atos-og/atlas-travel/actions/workflows/tests.yml)
 
+![Atlas horizontal cover](assets/brand/atlas-cover.png)
+
 **A personal travel assistant.**
 
 A conversational travel assistant built as a public portfolio project. The current private prototype uses Python, the official WhatsApp Cloud API, persistent conversations, and experimental flight search. The public product name is simply **Atlas**; see the [naming system](docs/NAMING.md) and [visual identity](docs/VISUAL_IDENTITY.md).
@@ -23,6 +25,8 @@ A conversational travel assistant built as a public portfolio project. The curre
 - A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
 - Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
+- Controlled answers for natural questions about saved offers, baggage, buying, price freshness, privacy, buses, alerts, product coverage, and comfort limits.
+- Thirty-day local retention by default, rotating integrity-checked SQLite snapshots, aggregate status output, and separate liveness/readiness endpoints.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
@@ -68,11 +72,30 @@ The server listens on `127.0.0.1:8787`. Meta needs a publicly reachable HTTPS ca
 
 For a hosted single-replica deployment, the webhook accepts a bounded `ATLAS_WEBHOOK_HOST` and either `ATLAS_WEBHOOK_PORT` or a platform-provided `PORT`. The included container runs as an unprivileged user and requires persistent storage at `/app/work`. See the [deployment boundary](docs/DEPLOYMENT.md).
 
+For a zero-cost persistent local runtime, Docker Compose mounts the ignored `work/` directory from the host and restarts the container automatically:
+
+```powershell
+docker compose up --build --detach
+docker compose ps
+```
+
 Natural-language interpretation is also disabled by default. Set `ATLAS_NLU_ENABLED=true`, provide `GROQ_API_KEY`, and optionally select `GROQ_MODEL`. See the [bounded interpretation design](docs/NATURAL_LANGUAGE.md). The provider's free tier has quotas and is not an uptime or permanent-pricing guarantee.
 
 Example conversation, one message per step: `oi` → `Confins` → `Bogotá` → departure date → return date → `1` adult → `1` for lowest price → `sem limite` for no budget limit → `sim` to confirm. Alternatively, send `Confins para Guarulhos, ida 23/10/2027, volta 30/10/2027, dois adultos, mais barata, sem limite` as one message. The bot still requires confirmation before searching. Use future dates. Ambiguous places such as São Paulo or Colombia require a specific airport. `python -m atlas` remains an offline demonstration and does not query fares.
 
 For read-only diagnostics, run `python -m atlas.check`; add `--meta` to test Meta access without sending messages, `--token` to inspect the Meta token lifetime, or `--groq` to send one synthetic intent request that validates the configured Groq key and model without using traveler data.
+
+Additional safe operational commands:
+
+```powershell
+python -m atlas.maintenance status
+python -m atlas.maintenance backup
+python -m atlas.nlu_audit
+python -m atlas.provider_audit CNF GRU 20/11/2026 27/11/2026 --adults 1
+python -m atlas.profile
+```
+
+The model audit uses ten fixed synthetic phrases. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
 
 When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
 
