@@ -5,6 +5,7 @@ from datetime import date
 
 from atlas.conversation import Conversation
 from atlas.nlu import ENDPOINT, interpret, needs_interpretation
+from atlas.trip_input import extract_trip
 
 
 class Response(io.BytesIO):
@@ -72,6 +73,25 @@ class NluTests(unittest.TestCase):
         result, _ = self.call(
             "por favor, apaga meu roteiro", answer("itinerary_delete"), "itinerary:done")
         self.assertEqual(result, "apagar roteiro")
+
+    def test_maps_offer_guidance_and_faqs_to_controlled_commands(self):
+        mappings = (
+            ('qual dessas passagens voce escolheria?', 'offer_recommendation', 'recomendar oferta'),
+            ('me explica a diferenca entre elas', 'offer_comparison', 'comparar ofertas'),
+            ('essa tarifa inclui mala despachada?', 'faq_baggage', 'duvida bagagem'),
+            ('eu pago a passagem para voce?', 'faq_purchase', 'duvida compra'),
+            ('esse valor fica garantido?', 'faq_prices', 'duvida precos'),
+            ('o que voces mandam para a inteligencia artificial?', 'faq_privacy', 'duvida privacidade'),
+        )
+        for text, intent, expected in mappings:
+            with self.subTest(intent=intent):
+                result, _ = self.call(text, answer(intent), 'complete')
+                self.assertEqual(result, expected)
+
+    def test_questions_with_para_are_not_mistaken_for_routes(self):
+        self.assertEqual(extract_trip('eu pago a passagem para voce?'), {})
+        self.assertEqual(
+            extract_trip('o que voces mandam para a inteligencia artificial?'), {})
 
     def test_accepts_valid_step_answer(self):
         result, _ = self.call("eu parto lá de Confins", answer("step_answer", "Confins"))

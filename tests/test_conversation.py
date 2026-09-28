@@ -1,7 +1,7 @@
 import unittest
 from datetime import date
 
-from atlas.conversation import Conversation
+from atlas.conversation import Conversation, Session
 
 
 class ConversationTests(unittest.TestCase):
@@ -41,6 +41,29 @@ class ConversationTests(unittest.TestCase):
         self.send("cancelar")
         self.assertEqual(self.bot.sessions["a"].values, {})
         self.assertEqual(self.bot.sessions["a"].step, "origin")
+
+    def test_controlled_faq_does_not_need_live_search(self):
+        answer = self.send('duvida bagagem')
+        self.assertIn('não confirma bagagem', answer)
+        self.assertIn('fornecedor', answer)
+
+    def test_recommendation_and_comparison_use_only_saved_offers(self):
+        bot = Conversation(lambda _: None)
+        offers = [
+            {'price': '900.00', 'duration': 300, 'stops': 1, 'journeys': [{'id': 'a'}], 'url': 'https://google.com/travel/flights'},
+            {'price': '700.00', 'duration': 420, 'stops': 0, 'journeys': [{'id': 'b'}], 'url': 'https://google.com/travel/flights'},
+        ]
+        bot.sessions['a'] = Session('complete', {
+            'origin': 'CNF', 'destination': 'GRU', 'departure': '12/11/2026',
+            'return': '19/11/2026', 'adults': '1', 'priority': '1', 'budget': None,
+            'result': {'status': 'success', 'offers': offers},
+        })
+        recommendation = bot.reply('a', 'recomendar oferta', today=date(2026, 9, 23))
+        self.assertIn('R$ 700,00', recommendation)
+        self.assertIn('link 1', recommendation)
+        comparison = bot.reply('a', 'comparar ofertas', today=date(2026, 9, 23))
+        self.assertLess(comparison.index('R$ 700,00'), comparison.index('R$ 900,00'))
+        self.assertNotIn('bagagem incluída', comparison)
 
 
 if __name__ == "__main__":
