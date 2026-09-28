@@ -1,5 +1,6 @@
 """Evaluate the configured hosted interpreter with synthetic Portuguese phrases."""
 
+import argparse
 import json
 from datetime import date
 
@@ -22,10 +23,10 @@ CASES = (
 )
 
 
-def evaluate(config, *, interpreter=interpret, today=None):
+def evaluate(config, *, cases=CASES, interpreter=interpret, today=None):
     today = today or date.today()
     checks = []
-    for label, phrase, step, values, expected in CASES:
+    for label, phrase, step, values, expected in cases:
         actual = interpreter(phrase, step, today, values, config)
         passed = clean(actual) == clean(expected)
         checks.append({'case': label, 'ok': passed,
@@ -35,7 +36,12 @@ def evaluate(config, *, interpreter=interpret, today=None):
 
 
 def main():
-    result = evaluate(settings())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('cases', nargs='*', choices=[case[0] for case in CASES],
+                        help='Optional case labels. Omit to run the full corpus.')
+    args = parser.parse_args()
+    selected = tuple(case for case in CASES if not args.cases or case[0] in args.cases)
+    result = evaluate(settings(), cases=selected)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     raise SystemExit(0 if result['ok'] else 1)
 
