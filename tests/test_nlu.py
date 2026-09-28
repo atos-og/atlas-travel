@@ -122,6 +122,17 @@ class NluTests(unittest.TestCase):
         result, _ = self.call("qualquer coisa", Response(b"not-json"))
         self.assertEqual(result, "qualquer coisa")
 
+    def test_lower_threshold_is_limited_to_informational_intents(self):
+        result, _ = self.call('me explica a bagagem', answer('faq_baggage', confidence=0.85))
+        self.assertEqual(result, 'duvida bagagem')
+        result, _ = self.call('cancela isso', answer('cancel', confidence=0.85))
+        self.assertEqual(result, 'cancela isso')
+
+    def test_strips_safe_place_prefix_from_step_answer(self):
+        result, _ = self.call('eu embarco la pelo aeroporto de Confins',
+                              answer('step_answer', 'aeroporto de Confins'))
+        self.assertEqual(result, 'Confins')
+
     def test_disabled_interpreter_does_not_call_network(self):
         def fail(*args, **kwargs):
             raise AssertionError("network should not be called")
