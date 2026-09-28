@@ -146,7 +146,8 @@ class ProgressQueueTests(unittest.TestCase):
         values = {'origin': 'CNF', 'destination': 'GRU', 'departure': '23/10/2099',
                   'return': '30/10/2099', 'adults': '2', 'priority': '1', 'budget': None}
         with database(self.path) as db:
-            db.execute('INSERT INTO sessions VALUES (?,?,?)', ('570000000000', 'confirm', json.dumps(values)))
+            db.execute('INSERT INTO sessions(sender,step,data) VALUES (?,?,?)',
+                       ('570000000000', 'confirm', json.dumps(values)))
         ingest(self.payload(text='sim'), self.config, self.path, now=100)
 
     def test_notice_precedes_search_and_does_not_repeat_on_duplicate(self):

@@ -4,10 +4,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from atlas.webhook import ExclusiveHTTPServer, Handler, record_receipt, server_address, valid_signature, verify_challenge
+from atlas.webhook import ExclusiveHTTPServer, Handler, ready, record_receipt, server_address, valid_signature, verify_challenge
 
 
 class WebhookTests(unittest.TestCase):
+    def test_readiness_checks_configuration_and_writable_storage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            base = {'WHATSAPP_VERIFY_TOKEN': 'verify', 'META_APP_SECRET': 'secret'}
+            self.assertTrue(ready(base, root))
+            self.assertFalse(ready({}, root))
+            self.assertFalse(ready(dict(base, ATLAS_NLU_ENABLED='true'), root))
+            replies = dict(base, ATLAS_WHATSAPP_REPLIES_ENABLED='true')
+            self.assertFalse(ready(replies, root))
+            replies.update(WHATSAPP_ACCESS_TOKEN='token', WHATSAPP_PHONE_NUMBER_ID='123',
+                           ATLAS_ALLOWED_WHATSAPP_USER='57123', META_GRAPH_API_VERSION='v23.0')
+            self.assertTrue(ready(replies, root))
+
     def test_server_address_defaults_and_hosted_port(self):
         self.assertEqual(server_address({}), ('127.0.0.1', 8787))
         self.assertEqual(server_address({'ATLAS_WEBHOOK_HOST': '0.0.0.0', 'PORT': '8080'}),
