@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 159 local tests, including hosted-language diagnostics, retention, rotating backups, readiness, provider/profile audits, guided itinerary and destination interpretation, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
+- [x] 160 local tests, including hosted-language diagnostics, retention, rotating backups, readiness, provider/profile audits, guided itinerary and destination interpretation, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
