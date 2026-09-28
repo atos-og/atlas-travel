@@ -2,6 +2,7 @@
 
 import json
 import sqlite3
+import time
 from contextlib import closing
 
 
@@ -15,7 +16,12 @@ class Preferences:
         if path is not None:
             path.parent.mkdir(parents=True, exist_ok=True)
             with closing(sqlite3.connect(path, timeout=10)) as db:
-                db.execute('CREATE TABLE IF NOT EXISTS preferences (sender TEXT PRIMARY KEY, data TEXT NOT NULL)')
+                db.execute('CREATE TABLE IF NOT EXISTS preferences '
+                           '(sender TEXT PRIMARY KEY, data TEXT NOT NULL, updated_at INTEGER NOT NULL DEFAULT 0)')
+                columns = {row[1] for row in db.execute('PRAGMA table_info(preferences)')}
+                if 'updated_at' not in columns:
+                    db.execute('ALTER TABLE preferences ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0')
+                    db.execute('UPDATE preferences SET updated_at=? WHERE updated_at=0', (int(time.time()),))
                 db.commit()
 
     def load(self, user):
@@ -31,7 +37,8 @@ class Preferences:
             self.memory[user] = data
         else:
             with closing(sqlite3.connect(self.path, timeout=10)) as db:
-                db.execute('INSERT OR REPLACE INTO preferences VALUES (?,?)', (user, json.dumps(data)))
+                db.execute('INSERT OR REPLACE INTO preferences(sender,data,updated_at) VALUES (?,?,?)',
+                           (user, json.dumps(data), int(time.time())))
                 db.commit()
 
     def delete(self, user):

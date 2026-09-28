@@ -28,7 +28,7 @@ def settings():
     for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "META_APP_ID", "WHATSAPP_ACCESS_TOKEN",
                 "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
                 "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED",
-                "ATLAS_NLU_ENABLED", "ATLAS_WEBHOOK_HOST", "ATLAS_WEBHOOK_PORT", "PORT",
+                "ATLAS_NLU_ENABLED", "ATLAS_RETENTION_DAYS", "ATLAS_WEBHOOK_HOST", "ATLAS_WEBHOOK_PORT", "PORT",
                 "GROQ_API_KEY", "GROQ_MODEL"):
         if key in os.environ:
             values[key] = os.environ[key]
@@ -82,6 +82,32 @@ def record_receipt(body, database):
         return cursor.rowcount == 1
 
 
+def ready(config, root=ROOT):
+    """Check local runtime requirements without contacting suppliers or leaking details."""
+    required = ('WHATSAPP_VERIFY_TOKEN', 'META_APP_SECRET')
+    if any(not config.get(key) for key in required):
+        return False
+    if config.get('ATLAS_WHATSAPP_REPLIES_ENABLED') == 'true':
+        reply_keys = ('WHATSAPP_ACCESS_TOKEN', 'WHATSAPP_PHONE_NUMBER_ID',
+                      'ATLAS_ALLOWED_WHATSAPP_USER', 'META_GRAPH_API_VERSION')
+        if any(not config.get(key) for key in reply_keys):
+            return False
+    if config.get('ATLAS_NLU_ENABLED') == 'true' and not config.get('GROQ_API_KEY'):
+        return False
+    try:
+        path = root / 'work' / 'conversations.db'
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with closing(sqlite3.connect(path, timeout=2)) as db:
+            db.execute('CREATE TABLE IF NOT EXISTS runtime_probe '
+                       '(singleton INTEGER PRIMARY KEY CHECK(singleton=1), checked_at INTEGER)')
+            db.execute('INSERT OR REPLACE INTO runtime_probe VALUES (1, strftime("%s","now"))')
+            db.execute('DELETE FROM runtime_probe WHERE singleton=1')
+            db.commit()
+            return db.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
+    except (sqlite3.Error, OSError):
+        return False
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = "AtlasDev"
     sys_version = ""
@@ -107,6 +133,8 @@ class Handler(BaseHTTPRequestHandler):
         url = urlsplit(self.path)
         if url.path == "/health":
             return self.respond(200, "atlas-conversation-v10")
+        if url.path == "/ready":
+            return self.respond(200, "ready") if ready(settings()) else self.respond(503, "not ready")
         if url.path != "/webhook":
             return self.respond(404, "not found")
         challenge = verify_challenge(url.query, settings().get("WHATSAPP_VERIFY_TOKEN", ""))

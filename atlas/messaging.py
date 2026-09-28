@@ -23,11 +23,16 @@ def database(path):
               timestamp INTEGER NOT NULL, state TEXT NOT NULL DEFAULT 'pending',
               reply TEXT, outbound_id TEXT, delivery TEXT, error_code TEXT);
             CREATE TABLE IF NOT EXISTS sessions (
-              sender TEXT PRIMARY KEY, step TEXT NOT NULL, data TEXT NOT NULL);
+              sender TEXT PRIMARY KEY, step TEXT NOT NULL, data TEXT NOT NULL,
+              updated_at INTEGER NOT NULL DEFAULT 0);
             CREATE TABLE IF NOT EXISTS progress (
               inbox_id TEXT PRIMARY KEY, state TEXT NOT NULL,
               outbound_id TEXT, delivery TEXT, error_code TEXT);
         """)
+        session_columns = {row[1] for row in connection.execute('PRAGMA table_info(sessions)')}
+        if 'updated_at' not in session_columns:
+            connection.execute('ALTER TABLE sessions ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0')
+            connection.execute('UPDATE sessions SET updated_at=? WHERE updated_at=0', (int(time.time()),))
         yield connection
         connection.commit()
     except Exception:
@@ -167,8 +172,8 @@ def process_one(config, path, sender=None, now=None):
     with database(path) as db:
         session = conversation.sessions.get(recipient, Session())
         payload = payload_for(session, reply) if config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true' else text_payload(reply)
-        db.execute("INSERT OR REPLACE INTO sessions(sender,step,data) VALUES (?,?,?)",
-                   (recipient, session.step, json.dumps(session.values)))
+        db.execute("INSERT OR REPLACE INTO sessions(sender,step,data,updated_at) VALUES (?,?,?,?)",
+                   (recipient, session.step, json.dumps(session.values), now))
         db.execute("UPDATE inbox SET state='sending',reply=? WHERE id=?", (reply, mid))
     try:
         state, outbound, error = sender(config, recipient, reply) if sender else send_message(config, recipient, payload)
@@ -186,9 +191,23 @@ def worker(config_loader, path, stop):
     with database(path) as db:
         db.execute("UPDATE inbox SET state='uncertain' WHERE state='sending'")
         db.execute("UPDATE inbox SET state='pending' WHERE state='processing'")
+    from .maintenance import purge, retention_days
+    next_maintenance = 0
     while not stop.is_set():
         try:
-            if not process_one(config_loader(), path):
+            config = config_loader()
+        except Exception:
+            print('WhatsApp worker failure; details withheld.', flush=True)
+            stop.wait(5)
+            continue
+        if time.monotonic() >= next_maintenance:
+            next_maintenance = time.monotonic() + 6 * 3600
+            try:
+                purge(root=path.parent.parent, days=retention_days(config))
+            except (sqlite3.Error, OSError):
+                print('Atlas data maintenance failed; details withheld.', flush=True)
+        try:
+            if not process_one(config, path):
                 stop.wait(1)
         except Exception:
             print("WhatsApp worker failure; details withheld.", flush=True)
