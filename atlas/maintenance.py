@@ -11,6 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RETENTION_DAYS = 30
+DEFAULT_BACKUP_COPIES = 7
 
 
 def retention_days(config):
@@ -20,6 +21,15 @@ def retention_days(config):
     except ValueError:
         return DEFAULT_RETENTION_DAYS
     return days if 1 <= days <= 365 else DEFAULT_RETENTION_DAYS
+
+
+def backup_copies(config):
+    raw = str(config.get('ATLAS_BACKUP_COPIES', DEFAULT_BACKUP_COPIES)).strip()
+    try:
+        copies = int(raw)
+    except ValueError:
+        return DEFAULT_BACKUP_COPIES
+    return copies if 1 <= copies <= 30 else DEFAULT_BACKUP_COPIES
 
 
 def _tables(db):
@@ -84,7 +94,18 @@ def backup_database(source, destination):
     return destination
 
 
-def backup(root=ROOT, destination=None, instant=None):
+def prune_backups(destination, keep=DEFAULT_BACKUP_COPIES):
+    removed = []
+    for prefix in ('conversations-', 'webhooks-'):
+        candidates = sorted(destination.glob(prefix + '*.db'),
+                            key=lambda path: path.name, reverse=True)
+        for path in candidates[keep:]:
+            path.unlink()
+            removed.append(str(path.resolve()))
+    return removed
+
+
+def backup(root=ROOT, destination=None, instant=None, keep=DEFAULT_BACKUP_COPIES):
     instant = instant or datetime.now(timezone.utc)
     stamp = instant.strftime('%Y%m%dT%H%M%SZ')
     destination = Path(destination or root / 'work' / 'backups')
@@ -93,7 +114,8 @@ def backup(root=ROOT, destination=None, instant=None):
         saved = backup_database(root / 'work' / name, destination / f'{name[:-3]}-{stamp}.db')
         if saved:
             files.append(str(saved.resolve()))
-    return {'created': files, 'count': len(files)}
+    removed = prune_backups(destination, keep)
+    return {'created': files, 'count': len(files), 'removed': len(removed), 'copies_per_database': keep}
 
 
 def status(root=ROOT):
@@ -135,6 +157,7 @@ def main():
     purge_parser.add_argument('--days', type=int, default=DEFAULT_RETENTION_DAYS)
     backup_parser = commands.add_parser('backup', help='Create integrity-checked SQLite snapshots.')
     backup_parser.add_argument('destination', nargs='?', default=str(ROOT / 'work' / 'backups'))
+    backup_parser.add_argument('--keep', type=int, choices=range(1, 31), default=DEFAULT_BACKUP_COPIES)
     commands.add_parser('status', help='Print aggregate local health facts without personal data.')
     args = parser.parse_args()
     if args.command == 'purge':
@@ -142,7 +165,7 @@ def main():
             parser.error('--days must be from 1 to 365')
         result = purge(days=args.days)
     elif args.command == 'backup':
-        result = backup(destination=args.destination)
+        result = backup(destination=args.destination, keep=args.keep)
     else:
         result = status()
     print(json.dumps(result, indent=2))

@@ -191,8 +191,9 @@ def worker(config_loader, path, stop):
     with database(path) as db:
         db.execute("UPDATE inbox SET state='uncertain' WHERE state='sending'")
         db.execute("UPDATE inbox SET state='pending' WHERE state='processing'")
-    from .maintenance import purge, retention_days
+    from .maintenance import backup, backup_copies, purge, retention_days
     next_maintenance = 0
+    next_backup = 0
     while not stop.is_set():
         try:
             config = config_loader()
@@ -206,6 +207,12 @@ def worker(config_loader, path, stop):
                 purge(root=path.parent.parent, days=retention_days(config))
             except (sqlite3.Error, OSError):
                 print('Atlas data maintenance failed; details withheld.', flush=True)
+        if time.monotonic() >= next_backup:
+            next_backup = time.monotonic() + 24 * 3600
+            try:
+                backup(root=path.parent.parent, keep=backup_copies(config))
+            except (sqlite3.Error, OSError):
+                print('Atlas backup failed; details withheld.', flush=True)
         try:
             if not process_one(config, path):
                 stop.wait(1)
