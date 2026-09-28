@@ -8,6 +8,7 @@ from urllib.request import Request, urlopen
 ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
 DEFAULT_MODEL = "openai/gpt-oss-20b"
 MIN_CONFIDENCE = 0.90
+LOW_RISK_CONFIDENCE = 0.80
 
 INTENTS = {
     "unknown",
@@ -90,6 +91,12 @@ COMMANDS = {
     "faq_scope": "duvida cobertura",
     "faq_comfort": "duvida conforto",
     "gratitude": "obrigado atlas",
+}
+
+LOW_RISK_INTENTS = {
+    'menu', 'help', 'offer_recommendation', 'offer_comparison',
+    'faq_baggage', 'faq_purchase', 'faq_prices', 'faq_privacy',
+    'faq_bus', 'faq_alerts', 'faq_scope', 'faq_comfort', 'gratitude',
 }
 
 SCHEMA = {
@@ -365,7 +372,8 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
     confidence = result.get("confidence")
     if intent not in INTENTS or not isinstance(answer, str) or not isinstance(confidence, (int, float)):
         return text
-    if not 0 <= confidence <= 1 or confidence < MIN_CONFIDENCE:
+    minimum = LOW_RISK_CONFIDENCE if intent in LOW_RISK_INTENTS else MIN_CONFIDENCE
+    if not 0 <= confidence <= 1 or confidence < minimum:
         return text
     if intent in {"unknown", "unchanged"}:
         return text
@@ -419,4 +427,7 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         return answer.strip()
     if step not in {"origin", "destination", "departure", "return", "adults", "priority", "budget", "flexibility"}:
         return text
+    if step in {'origin', 'destination'}:
+        answer = re.sub(r'^(?:aeroporto|cidade)\s+(?:de|do|da)\s+', '', answer,
+                        flags=re.IGNORECASE)
     return answer.strip()
