@@ -130,8 +130,11 @@ class NluTests(unittest.TestCase):
 
     def test_strips_safe_place_prefix_from_step_answer(self):
         result, _ = self.call('eu embarco la pelo aeroporto de Confins',
-                              answer('step_answer', 'aeroporto de Confins'))
+                              answer('step_answer', 'aeroporto de Confins', confidence=0.85))
         self.assertEqual(result, 'Confins')
+        result, _ = self.call('quero sair algum dia',
+                              answer('step_answer', 'amanha', confidence=0.85), 'departure')
+        self.assertEqual(result, 'quero sair algum dia')
 
     def test_disabled_interpreter_does_not_call_network(self):
         def fail(*args, **kwargs):

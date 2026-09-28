@@ -319,13 +319,14 @@ Rules:
 10. For command intents, answer must be empty. For unchanged or unknown, answer must be empty.
 11. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
 12. Distinguish these common requests carefully:
-    - "which option should I choose" is offer_recommendation; asking for differences is offer_comparison
-    - asking where sightseeing information came from is itinerary_sources
-    - asking whether a fare includes luggage is faq_baggage
-    - asking whether Atlas supports buses is faq_bus
-    - asking for a future notification when a price falls is faq_alerts
-    - asking what Atlas supports today is faq_scope
-    - thanking Atlas is gratitude
+    - "qual dessas passagens faz mais sentido pra mim?" is offer_recommendation
+    - "me explica a diferenca entre elas" is offer_comparison
+    - "de onde sairam as informacoes dos passeios?" is itinerary_sources
+    - "essa tarifa ja vem com mala despachada?" is faq_baggage
+    - "voce tambem pesquisa passagem rodoviaria?" is faq_bus
+    - "tem como voce me avisar se esse valor baixar?" is faq_alerts
+    - "ate onde vai o que voce consegue fazer hoje?" is faq_scope
+    - "valeu demais por ter me ajudado" is gratitude
 
 Traveler message:
 {json.dumps(text, ensure_ascii=False)}"""
@@ -372,7 +373,14 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
     confidence = result.get("confidence")
     if intent not in INTENTS or not isinstance(answer, str) or not isinstance(confidence, (int, float)):
         return text
-    minimum = LOW_RISK_CONFIDENCE if intent in LOW_RISK_INTENTS else MIN_CONFIDENCE
+    if intent in LOW_RISK_INTENTS:
+        minimum = LOW_RISK_CONFIDENCE
+    elif intent == 'step_answer' and step in {'origin', 'destination'}:
+        # Airport resolution and the explicit pre-search confirmation remain
+        # authoritative after this low-impact extraction.
+        minimum = 0.85
+    else:
+        minimum = MIN_CONFIDENCE
     if not 0 <= confidence <= 1 or confidence < minimum:
         return text
     if intent in {"unknown", "unchanged"}:
