@@ -1,0 +1,19 @@
+services:
+  atlas:
+    build: .
+    env_file:
+      - .env
+    environment:
+      ATLAS_WEBHOOK_HOST: 0.0.0.0
+      ATLAS_WEBHOOK_PORT: 8787
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - ./work:/app/work
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    security_opt:
+      - no-new-privileges:true
