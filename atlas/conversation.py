@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from .language import local_today, parse_date, choice, clean, is_greeting, is_confirmation
-from .budget import parse_budget, BUDGET_PROMPT, label
+from .budget import parse_budget, BUDGET_PROMPT, label, money
 
 
 PRIORITY_PROMPT = (
@@ -34,6 +34,18 @@ FLEXIBILITY_PROMPT = (
     '*O que você prefere?*\n'
     'Escolha comparar ±1 dia ou manter as datas exatas.'
 )
+
+FAQ_RESPONSES = {
+    'duvida bagagem': ('*Bagagem e regras da tarifa*\n\nAtlas ainda não confirma bagagem incluída, marcação de assento, alteração ou reembolso. '
+                       'Confira essas condições no fornecedor antes de comprar.'),
+    'duvida compra': ('*Compra da passagem*\n\nAtlas não vende, reserva nem recebe pagamentos. O botão abre a fonte da oferta; '
+                      'confirme passageiros, datas, bagagem, regras e total antes de concluir por lá.'),
+    'duvida precos': ('*Sobre os preços*\n\nAs tarifas são uma fotografia da consulta e podem mudar no fornecedor. '
+                      'Atlas compara apenas as opções retornadas pela fonte e não garante o menor preço de todo o mercado.'),
+    'duvida privacidade': ('*Seus dados no Atlas*\n\nA conversa e as preferências ficam no armazenamento privado do serviço. '
+                          'Quando a interpretação inteligente é necessária, apenas a mensagem atual e um contexto curto da etapa são enviados ao Groq; '
+                          'preços, telefone e credenciais não entram nesse pedido.'),
+}
 
 
 @dataclass
@@ -97,6 +109,8 @@ class Conversation:
                     '*Suas preferências*\n'
                     'Salve origem, passageiros e o tipo de oferta que prefere.\n\n'
                     'Abra o menu abaixo para escolher por onde começar.')
+        if command in FAQ_RESPONSES:
+            return FAQ_RESPONSES[command]
         if command in {'voos', 'consultar voos', 'voltar aos voos', 'sair do roteiro'}:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):
@@ -274,6 +288,26 @@ class Conversation:
                 return "Atualizei o Atlas com busca de voos. Quantos adultos vão viajar? De 1 a 6."
             if command in {'ofertas', 'opcoes', 'ver ofertas'}:
                 return format_results(values.get('result', {'status': 'empty'}), values)
+            if command in {'recomendar oferta', 'comparar ofertas'}:
+                offers = rank(values.get('result', {}).get('offers', []), values['priority'], values.get('budget'))
+                if not offers:
+                    return 'Não tenho ofertas válidas salvas para comparar. Digite buscar para consultar novamente.'
+                priority = {'1': 'menor preço', '2': 'menor duração', '3': 'voo sem paradas',
+                            '4': 'maior preço entre as opções retornadas'}[values['priority']]
+                if command == 'recomendar oferta':
+                    offer = offers[0]
+                    duration = offer['duration']
+                    return (f"*Minha sugestão pelos seus critérios*\n\nA oferta 1 aparece primeiro por priorizar *{priority}*.\n\n"
+                            f"• Total: R$ {money(offer['price'])}\n"
+                            f"• Duração somada: {duration // 60}h{duration % 60:02}\n"
+                            f"• Até {offer['stops']} parada(s) por sentido\n\n"
+                            "Isso não confirma conforto, bagagem ou regras tarifárias. Digite *link 1* para conferir na fonte.")
+                lines = ['*Comparação das ofertas salvas*', '', f'Ordenação atual: {priority}.']
+                for index, offer in enumerate(offers, 1):
+                    duration = offer['duration']
+                    lines.append(f"\n*{index}.* R$ {money(offer['price'])} • {duration // 60}h{duration % 60:02} • até {offer['stops']} parada(s)")
+                lines.append('\nDigite *recomendar oferta* para entender a primeira opção ou *link 1* para abrir uma tarifa.')
+                return '\n'.join(lines)
             if command.startswith("link "):
                 offers = rank(values.get("result", {}).get("offers", []), values["priority"], values.get('budget'))
                 try:

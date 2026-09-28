@@ -39,6 +39,12 @@ INTENTS = {
     "budget",
     "search",
     "price_objection",
+    "offer_recommendation",
+    "offer_comparison",
+    "faq_baggage",
+    "faq_purchase",
+    "faq_prices",
+    "faq_privacy",
 }
 
 COMMANDS = {
@@ -68,6 +74,12 @@ COMMANDS = {
     "budget": "orcamento",
     "search": "buscar",
     "price_objection": "ta caro",
+    "offer_recommendation": "recomendar oferta",
+    "offer_comparison": "comparar ofertas",
+    "faq_baggage": "duvida bagagem",
+    "faq_purchase": "duvida compra",
+    "faq_prices": "duvida precos",
+    "faq_privacy": "duvida privacidade",
 }
 
 SCHEMA = {
@@ -96,6 +108,8 @@ CANONICAL_INPUTS = set(COMMANDS.values()) | {
     "ofertas", "filtros", "datas", "passageiros", "orcamento", "buscar", "cancelar",
     "ta caro", "esta caro", "muito caro", "achei caro", "achei bem caro", "ficou caro",
     "caro demais", "carinho em", "carinho hein", "caro hein", "caro em",
+    "recomendar oferta", "comparar ofertas", "duvida bagagem", "duvida compra",
+    "duvida precos", "duvida privacidade",
 }
 
 
@@ -253,6 +267,12 @@ Implemented actions:
 - nearby_dates: compare exact dates with plus or minus one day
 - preferences_show, preferences_save, preferences_apply, preferences_delete
 - cancel, confirm, offers, filters, dates, passengers, budget, search, price_objection
+- offer_recommendation: explain the first currently ranked offer without inventing a new option
+- offer_comparison: compare only the offers already returned by Atlas
+- faq_baggage: questions about baggage or included luggage
+- faq_purchase: questions about buying, booking, payment, or ticket issuance
+- faq_prices: questions about price freshness, guarantees, or why a quoted price changed
+- faq_privacy: questions about stored conversation data or the hosted language model
 
 Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}

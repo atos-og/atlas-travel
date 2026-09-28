@@ -34,11 +34,26 @@ def extract_trip(text):
     prefix = prefix.strip(' ,;')
     prefix = re.sub(r'^(?:(?:oi|ola|bom dia|boa tarde|boa noite)(?: atlas)?\s*[,;:-]?\s*)+', '', prefix)
     prefix = re.sub(r'\s*,?\s*(?:de aviao|encontre .*|busque .*)$', '', prefix)
+    explicit_route = bool(re.match(
+        r'^(?:(?:eu )?(?:quero ir|vou|quero viajar) de |'
+        r'(?:(?:eu )?(?:quero|preciso de)|procure|busque|pode procurar|pode buscar) '
+        r'(?:uma passagem|um voo)(?: de)? |de )', prefix))
+    arrow_route = bool(re.search(r'(?:->|→)', prefix))
     route = re.fullmatch(
         r'(?:(?:eu )?(?:quero ir|vou|quero viajar) de |'
         r'(?:(?:eu )?(?:quero|preciso de)|procure|busque|pode procurar|pode buscar) '
         r'(?:uma passagem|um voo)(?: de)? |de )?(.+?)\s*(?:->|→| para | pra )\s*(.+)', prefix)
-    if route and not re.match(r'(?:(?:eu )?quero ir|mudar|trocar|alterar|eu gostaria)', route[1]):
+    bare_route_is_plausible = bool(route and all(
+        1 <= len(part.split()) <= 3
+        and not re.search(
+            r'\b(?:eu|voce|voces|mim|isso|aquilo|passagem|pago|pagar|manda|mandam|enviar|'
+            r'inteligencia|artificial|serve|funciona|inclui|ajuda|faz|fazer)\b',
+            part,
+        )
+        for part in route.groups()
+    ))
+    if (route and (explicit_route or arrow_route or bare_route_is_plausible)
+            and not re.match(r'(?:(?:eu )?quero ir|mudar|trocar|alterar|eu gostaria)', route[1])):
         fields.update(origin=route[1], destination=route[2])
     else:
         for key, pattern in (
