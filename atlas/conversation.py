@@ -45,6 +45,11 @@ FAQ_RESPONSES = {
     'duvida privacidade': ('*Seus dados no Atlas*\n\nA conversa e as preferências ficam no armazenamento privado do serviço. '
                           'Quando a interpretação inteligente é necessária, apenas a mensagem atual e um contexto curto da etapa são enviados ao Groq; '
                           'preços, telefone e credenciais não entram nesse pedido.'),
+    'duvida onibus': ('*Passagens de ônibus*\n\nAtlas ainda não consulta tarifas rodoviárias. Essa função só será liberada depois que uma fonte confiável for validada.'),
+    'duvida alertas': ('*Alertas de preço*\n\nAtlas ainda não monitora preços em segundo plano nem envia alertas automáticos. Hoje, cada busca acontece quando você pede.'),
+    'duvida cobertura': ('*O que Atlas cobre hoje*\n\nAtlas consulta voos de ida e volta para adultos, compara orçamento e datas próximas, guarda preferências quando você pede e monta roteiros para São Paulo ou Bogotá.\n\nDigite *menu* para ver as opções.'),
+    'duvida conforto': ('*Conforto e qualidade*\n\nAtlas pode comparar preço, duração e quantidade de paradas. Ainda não avalia espaço do assento, serviço de bordo, bagagem ou qualidade da cabine.'),
+    'obrigado atlas': ('Por nada! 😊\n\nQuando quiser continuar, digite *menu* para consultar voos, explorar destinos ou montar um roteiro.'),
 }
 
 

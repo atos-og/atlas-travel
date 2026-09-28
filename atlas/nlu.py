@@ -45,6 +45,11 @@ INTENTS = {
     "faq_purchase",
     "faq_prices",
     "faq_privacy",
+    "faq_bus",
+    "faq_alerts",
+    "faq_scope",
+    "faq_comfort",
+    "gratitude",
 }
 
 COMMANDS = {
@@ -80,6 +85,11 @@ COMMANDS = {
     "faq_purchase": "duvida compra",
     "faq_prices": "duvida precos",
     "faq_privacy": "duvida privacidade",
+    "faq_bus": "duvida onibus",
+    "faq_alerts": "duvida alertas",
+    "faq_scope": "duvida cobertura",
+    "faq_comfort": "duvida conforto",
+    "gratitude": "obrigado atlas",
 }
 
 SCHEMA = {
@@ -109,7 +119,8 @@ CANONICAL_INPUTS = set(COMMANDS.values()) | {
     "ta caro", "esta caro", "muito caro", "achei caro", "achei bem caro", "ficou caro",
     "caro demais", "carinho em", "carinho hein", "caro hein", "caro em",
     "recomendar oferta", "comparar ofertas", "duvida bagagem", "duvida compra",
-    "duvida precos", "duvida privacidade",
+    "duvida precos", "duvida privacidade", "duvida onibus", "duvida alertas",
+    "duvida cobertura", "duvida conforto", "obrigado atlas",
 }
 
 
@@ -121,8 +132,12 @@ def needs_interpretation(text, step, today, values):
     value = clean(text)
     if value in CANONICAL_INPUTS or is_greeting(text) or is_confirmation(text):
         return False
-    if re.search(r"\b(?:onibus|rodoviari[oa]|criancas?|bebes?)\b", value):
+    if re.search(r"\b(?:criancas?|bebes?)\b", value):
         return False
+    if re.search(r"\b(?:onibus|rodoviari[oa])\b", value):
+        # A capability question can use the controlled FAQ. A concrete bus trip
+        # stays with the local parser, which explicitly refuses flight substitution.
+        return bool(re.search(r"\b(?:tambem|pesquisa|consultar|consegue|pode|oferece|tem)\b", value))
     if step.startswith("itinerary:"):
         stage = step.split(":", 1)[1]
         if stage == "city" and value in {"sao paulo", "sp", "gru", "cgh", "bogota", "bog"}:
@@ -273,6 +288,11 @@ Implemented actions:
 - faq_purchase: questions about buying, booking, payment, or ticket issuance
 - faq_prices: questions about price freshness, guarantees, or why a quoted price changed
 - faq_privacy: questions about stored conversation data or the hosted language model
+- faq_bus: questions about searching or comparing bus tickets
+- faq_alerts: questions about monitoring prices or receiving future price alerts
+- faq_scope: questions about supported cities, airports, itinerary coverage, or product limits
+- faq_comfort: questions about ranking by comfort, seats, cabin quality, or service quality
+- gratitude: a short thank-you directed to Atlas
 
 Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}
@@ -291,6 +311,14 @@ Rules:
 9. For flexibility, answer must be "comparar 1 dia" or "manter datas".
 10. For command intents, answer must be empty. For unchanged or unknown, answer must be empty.
 11. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
+12. Distinguish these common requests carefully:
+    - "which option should I choose" is offer_recommendation; asking for differences is offer_comparison
+    - asking where sightseeing information came from is itinerary_sources
+    - asking whether a fare includes luggage is faq_baggage
+    - asking whether Atlas supports buses is faq_bus
+    - asking for a future notification when a price falls is faq_alerts
+    - asking what Atlas supports today is faq_scope
+    - thanking Atlas is gratitude
 
 Traveler message:
 {json.dumps(text, ensure_ascii=False)}"""
@@ -348,7 +376,10 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
             if "nao" in value or not re.search(
                     r"\b(?:apaga|apagar|delete|deletar|exclua|excluir)\b.*\broteiro\b", value):
                 return text
-        return COMMANDS[intent] if not answer else text
+        # The free hosted model occasionally repeats a harmless label in
+        # `answer`. Command payloads are never executed or shown, so discard it
+        # and rely only on the allowlisted intent and confidence checks.
+        return COMMANDS[intent]
     if intent != "step_answer" or not answer or len(answer) > 100:
         return text
     if step == "adults" and answer not in {str(i) for i in range(1, 7)}:
