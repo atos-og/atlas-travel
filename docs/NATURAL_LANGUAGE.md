@@ -61,6 +61,7 @@ Run the bounded ten-case corpus when changing the prompt or model:
 
 ```powershell
 python -m atlas.nlu_audit
+python -m atlas.nlu_audit bus alerts scope thanks
 ```
 
-All phrases are fixed project fixtures. The command does not read the conversation database. Each case can consume a free-tier request, so a quota or rate limit can produce a fallback and a failed case without affecting the deterministic bot path.
+All phrases are fixed project fixtures. The command does not read the conversation database. Each case can consume a free-tier request, so the full corpus can reach a burst or token limit. Pass one or more case labels to run a smaller group after the quota window resets. A quota fallback can fail an audit case without affecting the deterministic bot path.
