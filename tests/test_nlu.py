@@ -53,6 +53,14 @@ class NluTests(unittest.TestCase):
         self.assertFalse(request["response_format"]["json_schema"]["schema"]["additionalProperties"])
         self.assertNotIn("secret-test-value", request["messages"][0]["content"])
 
+    def test_ignores_model_copy_for_an_allowlisted_command(self):
+        result, _ = self.call(
+            'qual dessas passagens eu deveria escolher?',
+            answer('offer_recommendation', 'I would choose option 99'),
+            'complete',
+        )
+        self.assertEqual(result, 'recomendar oferta')
+
     def test_maps_itinerary_commands_without_model_written_copy(self):
         mappings = (
             ("queria ver de onde vieram essas informacoes", "itinerary_sources", "fontes do roteiro"),
@@ -82,6 +90,11 @@ class NluTests(unittest.TestCase):
             ('eu pago a passagem para voce?', 'faq_purchase', 'duvida compra'),
             ('esse valor fica garantido?', 'faq_prices', 'duvida precos'),
             ('o que voces mandam para a inteligencia artificial?', 'faq_privacy', 'duvida privacidade'),
+            ('voce tambem pesquisa passagem de onibus?', 'faq_bus', 'duvida onibus'),
+            ('da para me avisar quando o preco baixar?', 'faq_alerts', 'duvida alertas'),
+            ('quais lugares e viagens voce atende hoje?', 'faq_scope', 'duvida cobertura'),
+            ('qual opcao tem o assento mais confortavel?', 'faq_comfort', 'duvida conforto'),
+            ('valeu demais pela ajuda', 'gratitude', 'obrigado atlas'),
         )
         for text, intent, expected in mappings:
             with self.subTest(intent=intent):

@@ -47,6 +47,13 @@ class ConversationTests(unittest.TestCase):
         self.assertIn('não confirma bagagem', answer)
         self.assertIn('fornecedor', answer)
 
+    def test_controlled_scope_answers_do_not_promise_future_features(self):
+        self.assertIn('ainda não consulta', self.send('duvida onibus'))
+        self.assertIn('ainda não monitora', self.send('duvida alertas'))
+        self.assertIn('São Paulo ou Bogotá', self.send('duvida cobertura'))
+        self.assertIn('Ainda não avalia', self.send('duvida conforto'))
+        self.assertIn('Por nada', self.send('obrigado atlas'))
+
     def test_recommendation_and_comparison_use_only_saved_offers(self):
         bot = Conversation(lambda _: None)
         offers = [
