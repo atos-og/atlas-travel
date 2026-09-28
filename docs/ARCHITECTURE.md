@@ -23,6 +23,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
 - `language.py`: supported Portuguese dates and short phrases, interpreted locally.
 - `nlu.py`: optional Groq request, strict intent schema, confidence gate, allowlisted command mapping, and fail-open return to the original message.
+- `nlu_audit.py`: ten fixed synthetic phrases for measuring the hosted interpreter without traveler data.
 - `preferences.py`: explicit per-user defaults, stored separately from conversation sessions.
 - `itinerary.py`: bounded sightseeing planner and an independent session overlay; no external API calls.
 - `destinations.py`: an editorial catalog with primary-source links and selected closure rules.
@@ -31,13 +32,16 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `flexible.py`: at most three concurrent nearby-date queries, actual-date attribution, and partial-failure reporting.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
 - `providers/google_flights.py`: the unofficial provider boundary.
+- `provider_audit.py`: sanitized live-source evidence containing no booking URLs.
 - `interactive.py`: text/list/button/URL payloads, session-bound choice IDs, and inbound click normalization.
+- `maintenance.py`: retention, integrity-checked rotating backups, and aggregate local status.
+- `profile.py`: read-only Meta business-profile branding checks with identifiers removed from output.
 
 ## Hosted model boundary
 
 Atlas uses `openai/gpt-oss-20b`, an open-weight model published by OpenAI, through the GroqCloud API. Groq supplies the hosted inference environment and API key. This is separate from OpenAI's hosted API and from ChatGPT subscriptions.
 
-The model is an optional interpreter inside the application boundary. It returns a strict intent object; Python code enforces the allowlist, confidence threshold, conversation state, value bounds, and deterministic fallback before any product action occurs.
+The model is an optional interpreter inside the application boundary. It returns a strict intent object; Python code enforces the allowlist, confidence threshold, conversation state, value bounds, and deterministic fallback before any product action occurs. Informational intents use a lower `0.80` threshold because their output only selects reviewed copy. Trip changes and destructive actions retain the `0.90` threshold.
 
 ## Persistence and delivery
 
@@ -56,6 +60,8 @@ Budget refinement uses the existing result snapshot and retains its query time. 
 ## Privacy and operational limits
 
 Secrets stay in `.env`; conversations and offers stay in local SQLite files. Runtime logs are ignored by Git and omit tokens, phone numbers, and message payloads. Callback synchronization sends the App ID credential, verification token, and public callback only to Meta's Graph endpoint and prints sanitized status. When NLU is enabled, the current message, conversation step, current date, and existing departure date are sent to Groq. Phone numbers, Meta credentials, fare results, full session history, and the Groq key are not placed in the prompt. The optional fli dependency is pinned to a Git revision. Domain tests do not require network access.
+
+Records expire after a bounded local retention period. SQLite online backups run daily and keep a bounded number of copies. `/health` checks only the process; `/ready` additionally checks required local configuration and writable, valid storage without calling Meta, Groq, or the fare source. `python -m atlas.maintenance status` emits only counts and storage state.
 
 This is a development HTTP server with one permitted recipient, a temporary tunnel, and local storage without application-level encryption or automatic retention expiry. Before public use, address consent, deletion and retention, limits, observability, stable hosting, and provider terms.
 

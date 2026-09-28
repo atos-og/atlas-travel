@@ -11,9 +11,18 @@
 
 Meta screens and requirements vary by account. This guide describes Atlas configuration, not a guarantee of free service or production eligibility. This stage uses the Meta-provided test number without registering a production phone number. Meta accepted an API request for the `Atlas` display name and reported it as `AVAILABLE_WITHOUT_REVIEW`, but the live verified sender name still remained `Test Number` during validation. Treat a production business phone number as the requirement for a stable branded sender identity. The test number's profile photo can currently be updated through the WhatsApp Business Profile API, and the approved Atlas avatar is stored at `assets/brand/atlas-whatsapp-avatar.png`.
 
+After registering a real number and applying its name and avatar in Meta, validate the live profile without exposing identifiers:
+
+```powershell
+python -m atlas.profile
+```
+
+The check is read-only. It confirms whether the resource is reachable, the live verified name is exactly `Atlas`, and a profile picture exists. It does not upload the image, submit a display-name request, register a phone, or print the token, number, name value, or image URL.
+
 ## Diagnosis
 
 - `/health` identifies the local server version; it does not validate external sources.
+- `/ready` checks required local configuration and writable SQLite storage; it does not contact external services.
 - A verified callback means the GET challenge and verification token succeeded.
 - An accepted signed POST means App Secret signature verification succeeded.
 - Local `sent` means the API accepted the message; delivery is confirmed separately through status events.
@@ -32,7 +41,7 @@ The command accepts only an HTTPS URL whose path is empty or exactly `/webhook`;
 
 ## Local data
 
-`work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases and `.env` are excluded from Git. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.
+`work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases, their rotating snapshots, and `.env` are excluded from Git. By default records expire after 30 days and seven daily copies of each database are kept under `work/backups/`. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.
 
 ## Read-only readiness checks
 

@@ -15,6 +15,20 @@ The image runs as an unprivileged user, exposes port `8787`, and checks `/health
 
 The image was built locally on September 27, 2026 with the pinned provider revision. A temporary container started as UID `10001` and returned HTTP 200 from `/health` before being removed.
 
+## Zero-cost persistent runtime
+
+The repository includes `compose.yaml` for the current no-cost choice: run Atlas on the owner's computer, persist state in the ignored host `work/` directory, and place the existing HTTPS tunnel in front of `127.0.0.1:8787`.
+
+```powershell
+docker compose up --build --detach
+docker compose ps
+docker compose logs --tail 50 atlas
+```
+
+The service restarts unless explicitly stopped, runs with a read-only container filesystem, writes only to `/app/work` and a small temporary filesystem, and drops privilege inside the image. The host computer and Docker still need to remain running. The temporary tunnel URL can still change.
+
+Free Render and Koyeb web instances were not selected because their official documentation says free web instances cannot attach persistent disks: [Render free-service limits](https://render.com/docs/free) and [Koyeb instance limits](https://www.koyeb.com/docs/reference/instances). Railway's current free plan provides a small monthly credit rather than a guaranteed always-on allowance: [Railway free trial and free plan](https://docs.railway.com/pricing/free-trial). Oracle documents Always Free compute-compatible block storage, but creating and securing that account and VM is a separate owner-operated infrastructure step: [Oracle Always Free resources](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm). No external host has been provisioned by this repository.
+
 ## Required platform behavior
 
 - Terminate HTTPS before requests reach the container. Meta requires a public HTTPS callback.
@@ -22,7 +36,7 @@ The image was built locally on September 27, 2026 with the pinned provider revis
 - Mount persistent storage at `/app/work`. Losing that directory loses sessions, saved preferences, delivery state, and deduplication records.
 - Store every credential as a platform secret or environment variable. Never copy `.env` into the image.
 - Route `/webhook` to the container and allow Meta's verification challenge and signed events.
-- Use `/health` only as a process check. It does not validate Meta, Groq, the flight source, storage durability, or message delivery.
+- Use `/health` as a process check. Use `/ready` to check required local settings and writable, valid SQLite storage. Neither endpoint contacts Meta, Groq, the flight source, or message delivery.
 - Preserve graceful shutdown time so the worker can finish its current operation. A provider search can run for up to 55 seconds.
 
 ## Configuration
@@ -41,4 +55,16 @@ The current allowlist permits one traveler. Keep `ATLAS_WHATSAPP_REPLIES_ENABLED
 6. Run `python -m atlas.check --meta --token --groq` from a trusted environment.
 7. Send one authorized inbound message and verify both the reply and delivery event.
 
-Stable hosting still requires a durable Meta credential strategy, retention rules, monitoring, backups, supplier validation, and completion of the owner acceptance script. Do not scale beyond one replica or advertise public availability until the SQLite and single-recipient boundaries are replaced deliberately.
+## Retention, backups, and status
+
+`ATLAS_RETENTION_DAYS` defaults to 30 and is bounded from 1 to 365. The worker checks for expired local records every six hours. `ATLAS_BACKUP_COPIES` defaults to seven and is bounded from 1 to 30. The worker creates integrity-checked SQLite snapshots at startup and every 24 hours, rotating each database independently.
+
+```powershell
+python -m atlas.maintenance status
+python -m atlas.maintenance purge --days 30
+python -m atlas.maintenance backup --keep 7
+```
+
+The status command reports aggregate queue state and database health without traveler identifiers or message text. Backups under `work/backups/` remain on the same host and contain private data. Copying encrypted backups off-device and sending alerts on readiness failures remain public-launch requirements.
+
+Stable public hosting still requires a durable Meta credential strategy, external alerting and backups, supplier reliability, and completion of the owner acceptance script. Do not scale beyond one replica or advertise public availability until the SQLite and single-recipient boundaries are replaced deliberately.
