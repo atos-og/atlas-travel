@@ -35,3 +35,11 @@ The owner reported that the WhatsApp sequence São Paulo → no date yet → thr
 # Hosted interpretation extension — September 27, 2026
 
 Synthetic calls to the configured Groq-hosted `openai/gpt-oss-20b` model normalized natural itinerary phrases to two days, culture or nature, and a relaxed pace. Additional calls mapped natural requests to view itinerary sources, edit the itinerary, and reopen the generated plan. No traveler data was used. Candidate lists such as `quero comparar Guarulhos, Recife e Bogotá` are now handled locally, so this common structure does not consume hosted-model quota. These checks validate the interpretation boundary, not WhatsApp delivery.
+
+# Provider availability audit — September 28, 2026
+
+The sanitized provider-audit command queried CNF–GRU for October 23–30 and November 20–27, 2026, one adult. The source returned `empty` for both periods. No normalized offer, price, or booking link was available to inspect. This contrasts with earlier successful checks and confirms that the unofficial source can produce inconsistent availability without a code change. Atlas correctly avoids claiming that no flight exists.
+
+# Expanded hosted-language audit — September 28, 2026
+
+An initial ten-phrase synthetic evaluation passed two cases. After prompt and command-output handling changes it passed four: capabilities, itinerary duration, itinerary sources, and baggage. The remaining phrases fell back to their original text or exposed a safely rejected place prefix. Atlas then added safe place-prefix normalization and separate confidence thresholds: `0.80` only for informational intents and `0.90` for trip changes and destructive actions. A later clean evaluation is still required because the free Groq tier can rate-limit repeated audit calls. No traveler data was used.

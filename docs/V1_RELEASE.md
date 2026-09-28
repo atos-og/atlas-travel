@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 138 unit/integration tests pass locally, without paid services.
+- 159 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
@@ -18,6 +18,8 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 - Credentials and private conversations remain excluded from the public repository.
 - Replacement tunnel callbacks can be synchronized and read back through a sanitized command; WhatsApp access-token creation remains manual.
 - Flight-result and price-objection controls suggest implemented follow-up features while respecting WhatsApp's native row and button limits.
+- Bounded retention, rotating SQLite snapshots, aggregate status, liveness/readiness, a persistent local Compose runtime, and sanitized supplier/profile audits are implemented.
+- A horizontal 2:1 Atlas cover joins the approved identity reference and WhatsApp avatar.
 
 ## Owner acceptance script
 
@@ -42,6 +44,6 @@ Use future dates if repeating this script after the example dates have passed. N
 
 One one-adult fare-link inspection reached the airline passenger-details page with matching itinerary and a documented BRL 0.82 price difference. See [browser evidence](LIVE_VALIDATION.md). This does not complete multi-adult acceptance or establish parity across all sources.
 
-Finish the owner script, record source-link/checkout discrepancies, resolve blocking defects, prepare a sanitized demonstration, and produce the remaining cover export. The standalone WhatsApp avatar is complete and applied to the test profile. Stable unattended operation is still limited by the current local process, tunnel, and token lifetime; the validated container has not yet been deployed to a stable host.
+Finish the owner script, record source-link/checkout discrepancies, resolve blocking defects, and prepare a sanitized demonstration. The standalone WhatsApp avatar and horizontal cover are complete; the avatar is applied to the test profile. Stable unattended operation is still limited by the current host computer, tunnel, and token lifetime; the validated container has not been deployed to an external host.
 
 A portfolio release may honestly document these limits. Do not label it production-ready or claim automatic checkout parity until verified.
