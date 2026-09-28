@@ -5,7 +5,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 from pathlib import Path
 
-from atlas.maintenance import backup, purge, retention_days, status
+from atlas.maintenance import backup, backup_copies, purge, retention_days, status
 from atlas.messaging import database
 
 
@@ -21,6 +21,12 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(retention_days({'ATLAS_RETENTION_DAYS': '7'}), 7)
         for value in ('0', '366', 'many'):
             self.assertEqual(retention_days({'ATLAS_RETENTION_DAYS': value}), 30)
+
+    def test_backup_copies_is_bounded(self):
+        self.assertEqual(backup_copies({}), 7)
+        self.assertEqual(backup_copies({'ATLAS_BACKUP_COPIES': '3'}), 3)
+        for value in ('0', '31', 'many'):
+            self.assertEqual(backup_copies({'ATLAS_BACKUP_COPIES': value}), 7)
 
     def test_purge_removes_only_expired_records(self):
         path = self.root / 'work' / 'conversations.db'
@@ -64,6 +70,17 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(saved.name, 'conversations-20260928T120000Z.db')
         with closing(sqlite3.connect(saved)) as db:
             self.assertEqual(db.execute('SELECT value FROM sample').fetchone()[0], 'kept')
+
+    def test_backup_rotation_keeps_bounded_copies_per_database(self):
+        source = self.root / 'work' / 'conversations.db'
+        with closing(sqlite3.connect(source)) as db:
+            db.execute('CREATE TABLE sample (value TEXT)')
+            db.commit()
+        destination = self.root / 'snapshots'
+        for hour in range(4):
+            backup(self.root, destination,
+                   datetime(2026, 9, 28, hour, 0, tzinfo=timezone.utc), keep=2)
+        self.assertEqual(len(list(destination.glob('conversations-*.db'))), 2)
 
     def test_status_contains_aggregates_without_private_content(self):
         path = self.root / 'work' / 'conversations.db'
