@@ -26,6 +26,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
 - Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
 - Controlled answers for natural questions about saved offers, baggage, buying, price freshness, privacy, buses, alerts, product coverage, and comfort limits.
+- A saved-trip summary and a domestic/international preparation checklist, available from the native menu or natural requests.
 - Thirty-day local retention by default, rotating integrity-checked SQLite snapshots, aggregate status output, and separate liveness/readiness endpoints.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
@@ -95,7 +96,7 @@ python -m atlas.provider_audit CNF GRU 20/11/2026 27/11/2026 --adults 1
 python -m atlas.profile
 ```
 
-The model audit uses ten fixed synthetic phrases. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
+The model audit uses twelve fixed synthetic phrases. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
 
 When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
 

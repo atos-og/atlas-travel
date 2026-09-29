@@ -10,6 +10,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 4. **Flights and buses:** select a viable bus data source before promising coverage. Compare total cost, duration, stops, terminals, and supplier-reported travel class. Include terminal transfers when reliable information is available.
 5. **Personalized sightseeing itineraries — partially implemented:** an independent flow builds sourced 1–3-day drafts for São Paulo and Bogotá, with an explicit start date, interest, pace, regional grouping, edits, and exclusions. Broader coverage, spending preferences, complete opening calendars, travel times, and verified availability remain planned. See [itinerary rules](ITINERARIES.md).
 6. **Preferences and alerts — partially implemented:** users can explicitly save, view, reuse, update, and delete origin/adult-count/ranking defaults. Monitoring requires a stable source and a cost assessment for proactive messaging.
+7. **Trip organization — implemented for the current session:** travelers can reopen a concise summary of saved flight and sightseeing decisions and request a reviewed domestic/international preparation checklist. The checklist does not determine official entry eligibility.
 
 ## Conversation improvements — September 25, 2026
 
@@ -19,7 +20,7 @@ An optional hosted NLU layer now translates varied wording into a strict, allowl
 
 ## Intended differentiators
 
-Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; and contextual suggestions that reveal useful capabilities. A native `menu` lists available capabilities, including the implemented itinerary flow. Fare-link messages focus on the selected offer and its next action to keep them readable. When prices are high, Atlas can refine the budget or compare nearby dates; alternative transport still needs a provider.
+Cross-mode comparisons; budget-led searches; personalized itineraries; user-controlled preferences; trip summaries and checklists; and contextual suggestions that reveal useful capabilities. A native `menu` lists available capabilities, including the implemented itinerary and organization flows. Fare-link messages focus on the selected offer and its next action to keep them readable. When prices are high, Atlas can refine the budget or compare nearby dates; alternative transport still needs a provider.
 
 Planned capabilities must never be presented as already available. The help response distinguishes current features from future work. No audited competitor feature comparison has been completed, so these are product directions rather than verified exclusivity claims.
 
