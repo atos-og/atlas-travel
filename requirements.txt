@@ -1,2 +1,2 @@
-# Unofficial provider, pinned to the same reviewed revision used by Fly Club.
-flights @ git+https://github.com/punitarani/fli.git@121d34fea056dc513258958c4262cb5a4cc033c1
+# Unofficial provider, pinned to a reviewed revision with the current public-page transport.
+flights @ git+https://github.com/punitarani/fli.git@881aee5ff4321e81ea2157cb44be94ce6a21dc1b

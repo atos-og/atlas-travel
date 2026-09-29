@@ -10,7 +10,7 @@ from decimal import Decimal
 from urllib.parse import urlsplit, parse_qs
 
 
-def normalize(raw, client, values):
+def normalize(raw, client, values, passenger_info=None):
     journeys = raw if isinstance(raw, tuple) else (raw,)
     if len(journeys) != 2:
         return None
@@ -40,7 +40,10 @@ def normalize(raw, client, values):
                       'flights': [code(leg.airline) + str(leg.flight_number) for leg in legs]})
     url = None
     try:
-        candidate = client.build_flight_booking_url(raw, currency='BRL', language='pt-BR', country='BR')
+        candidate = client.build_flight_booking_url(
+            raw, currency='BRL', language='pt-BR', country='BR',
+            passenger_info=passenger_info,
+        )
         parsed = urlsplit(candidate)
         if (parsed.scheme == 'https' and parsed.hostname in {'www.google.com', 'www.google.com.br', 'google.com'}
                 and not parsed.username and parsed.path == '/travel/flights/booking'
@@ -68,8 +71,9 @@ def search(values):
         adults = int(values['adults'])
         if not 1 <= adults <= 6 or returning < departure or origin == destination:
             raise ValueError('Invalid route')
+        passenger_info = PassengerInfo(adults=adults)
         filters = FlightSearchFilters(
-            trip_type=TripType.ROUND_TRIP, passenger_info=PassengerInfo(adults=adults),
+            trip_type=TripType.ROUND_TRIP, passenger_info=passenger_info,
             flight_segments=[FlightSegment(departure_airport=[[origin, 0]], arrival_airport=[[destination, 0]], travel_date=departure.isoformat()),
                              FlightSegment(departure_airport=[[destination, 0]], arrival_airport=[[origin, 0]], travel_date=returning.isoformat())],
             seat_type=SeatType.ECONOMY, stops=MaxStops.NON_STOP if values['priority'] == '3' else MaxStops.ANY,
@@ -86,7 +90,7 @@ def search(values):
         offers = []
         for raw in results:
             try:
-                offer = normalize(raw, client, values)
+                offer = normalize(raw, client, values, passenger_info)
                 if offer and (values['priority'] != '3' or offer['stops'] == 0):
                     offers.append(offer)
             except Exception:
