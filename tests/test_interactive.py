@@ -85,6 +85,32 @@ class PayloadTests(unittest.TestCase):
         self.assertEqual(payload['interactive']['type'], 'button')
         self.assertEqual(len(payload['interactive']['action']['buttons']), 2)
 
+    def test_unavailable_bus_notice_does_not_attach_pending_flight_choices(self):
+        session = Session('priority', {'_bus_notice': True,
+                                       '_bus': {'active': False, 'stage': 'unavailable'}})
+        payload = payload_for(session, 'Fonte rodoviária indisponível')
+        self.assertEqual(payload['type'], 'text')
+        self.assertNotIn('_choices', session.values)
+
+    def test_long_bus_results_keep_a_readable_native_list(self):
+        offers = [{
+            'price': str(100 + index), 'duration': 480, 'connections': 0,
+            'available_seats': 10,
+            'departure': {'place': 'Terminal Rodoviário de Belo Horizonte' * 3, 'time': '08:00'},
+            'arrival': {'place': 'Terminal Rodoviário do Tietê' * 3, 'time': '16:00'},
+            'company': 'Viação Exemplo', 'service_class': 'Executivo',
+        } for index in range(4)]
+        session = Session('complete', {'_bus': {
+            'active': True, 'stage': 'done', 'origin': 'Belo Horizonte',
+            'destination': 'São Paulo', 'departure': '23/10/2026', 'adults': '2',
+            'priority': '1', 'budget': None,
+            'result': {'status': 'success', 'checked_at': 'agora', 'offers': offers},
+        }})
+        payload = payload_for(session, 'x' * 1500)
+        self.assertEqual(payload['interactive']['type'], 'list')
+        self.assertLessEqual(len(payload['interactive']['body']['text']), 1024)
+        self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 7)
+
 
 class InteractiveQueueTests(unittest.TestCase):
     setUp = messaging_tests.MessagingTests.setUp

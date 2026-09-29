@@ -121,11 +121,11 @@ def normalize_offer(raw, adults):
     }
 
 
-def rank(offers, priority, budget=None):
+def rank(offers, priority, budget=None, adults=1):
     cap = Decimal(str(budget)) if budget is not None else None
     valid = []
     for raw in offers or []:
-        offer = normalize_offer(raw, 1)
+        offer = normalize_offer(raw, int(adults))
         if offer and (cap is None or Decimal(offer['price']) <= cap):
             valid.append(offer)
     if priority == '2':
@@ -150,7 +150,7 @@ def format_results(result, values):
         }
         return ('*Não consegui comparar os ônibus*\n\n' + messages.get(status, messages['unavailable']) +
                 '\n\nNenhum preço foi estimado. Digite *nova busca de ônibus* para tentar outros critérios ou *voos* para voltar.')
-    offers = rank(result.get('offers'), values['priority'], values.get('budget'))
+    offers = rank(result.get('offers'), values['priority'], values.get('budget'), values.get('adults', 1))
     if not offers:
         return ('*Nenhuma opção cabe no limite informado*\n\n'
                 'A consulta não encontrou uma oferta válida dentro do orçamento total. '
@@ -199,7 +199,7 @@ def choices(state):
         return [('sim', 'Confirmar busca', ''), ('nova busca de onibus', 'Recomeçar', '')]
     if stage == 'done':
         result = state.get('result', {})
-        offers = rank(result.get('offers'), state.get('priority', '1'), state.get('budget'))
+        offers = rank(result.get('offers'), state.get('priority', '1'), state.get('budget'), state.get('adults', 1))
         options = [(f'onibus oferta {index}', f'Ônibus {index} • R$ {money(offer["price"])}'[:24],
                     f'{offer["company"]} | {offer["service_class"]}'[:72])
                    for index, offer in enumerate(offers, 1)]
@@ -238,6 +238,7 @@ def handle(session, text, today, bus_search=None, on_search=None):
     if not active:
         if bus_search is None:
             session.values['_bus'] = {'active': False, 'stage': 'unavailable'}
+            session.values['_bus_notice'] = True
             return UNAVAILABLE
         state = {'active': True, 'stage': 'origin'}
         session.values['_bus'] = state
@@ -254,7 +255,7 @@ def handle(session, text, today, bus_search=None, on_search=None):
     if command.startswith('onibus oferta ') and state.get('stage') == 'done':
         try:
             index = int(command.rsplit(' ', 1)[1]) - 1
-            offer = rank(state.get('result', {}).get('offers'), state['priority'], state.get('budget'))[index]
+            offer = rank(state.get('result', {}).get('offers'), state['priority'], state.get('budget'), state.get('adults', 1))[index]
             if index < 0:
                 raise IndexError
         except (ValueError, IndexError):

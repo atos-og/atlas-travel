@@ -69,6 +69,7 @@ class BusDomainTests(unittest.TestCase):
         raw = offer()
         raw['available_seats'] = 1
         self.assertIsNone(normalize_offer(raw, 2))
+        self.assertEqual(rank([raw], '1', adults=2), [])
 
     def test_failure_copy_never_estimates_a_price(self):
         values = {'origin': 'BH', 'destination': 'São Paulo', 'departure': '23/10/2026',

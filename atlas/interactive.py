@@ -37,6 +37,8 @@ def money(value):
 def payload_for(session, reply):
     """Final response payload. Search progress is sent separately without choices."""
     session.values.pop('_choices', None)
+    if session.values.pop('_bus_notice', False):
+        return text_payload(reply)
     if session.values.pop('_capabilities', False):
         options = [('voos', 'Consultar voos'), ('onibus', 'Consultar ônibus'), ('roteiro', 'Montar roteiro'),
                    ('explorar destinos', 'Destinos por orçamento'),
@@ -62,10 +64,16 @@ def payload_for(session, reply):
     bus = session.values.get('_bus', {})
     if bus.get('active'):
         from .buses import choices
-        if len(reply) > 1024:
-            return text_payload(reply)
         options = choices(bus)
         if not options:
+            return text_payload(reply)
+        if len(reply) > 1024 and bus.get('stage') == 'done':
+            reply = (f"*{bus.get('origin')} → {bus.get('destination')} de ônibus*\n\n"
+                     f"Data: {bus.get('departure')}\nPassageiros: {bus.get('adults')} adulto(s)\n"
+                     f"Consulta: {bus.get('result', {}).get('checked_at', 'horário não disponível')}\n\n"
+                     'Tarifas e assentos podem mudar. Confirme os dados na fonte.\n\n'
+                     '*Qual opção você prefere?*\nAbra a lista abaixo.')
+        elif len(reply) > 1024:
             return text_payload(reply)
         nonce = uuid.uuid4().hex
         rows = [{'id': f'atlas:{nonce}:{i}', 'title': title,
