@@ -171,7 +171,7 @@ class ItineraryConversationTests(unittest.TestCase):
         answer = self.send('o que você faz?')
         session = self.bot.sessions['a']
         payload = payload_for(session, answer)
-        self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 8)
+        self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 9)
         self.assertIn('\n\n*Passagens*\n', answer)
         self.assertIn('\n\n*Passeios*\n', answer)
         self.assertLess(len(answer), 1024)
@@ -197,4 +197,4 @@ class ItineraryConversationTests(unittest.TestCase):
             answer = self.send(text)
             payload = payload_for(self.bot.sessions['a'], answer)
             self.assertEqual(payload['interactive']['action']['button'], 'Explorar recursos')
-            self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 8)
+            self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 9)

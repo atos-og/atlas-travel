@@ -226,6 +226,13 @@ def handle(session, text, today, bus_search=None, on_search=None):
     command = clean(text)
     state = session.values.get('_bus')
     active = bool(state and state.get('active'))
+    if active and command in {
+        'voos', 'consultar voos', 'voltar aos voos', 'roteiro', 'montar roteiro',
+        'planejar passeios', 'passeios', 'explorar destinos', 'comparar destinos',
+        'destinos por orcamento',
+    }:
+        state['active'] = False
+        return None
     if not active and not starts(text):
         return None
     if not active:

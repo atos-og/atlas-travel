@@ -59,9 +59,11 @@ BRAZIL_AIRPORTS = {'CNF', 'GRU', 'CGH', 'VCP', 'GIG', 'SDU', 'BSB', 'SSA',
 def trip_summary(session):
     values = session.values
     itinerary = values.get('_itinerary', {})
+    bus = values.get('_bus', {})
     has_flight = any(values.get(key) for key in ('origin', 'destination', 'departure', 'return'))
     has_itinerary = itinerary.get('plan') is not None
-    if not has_flight and not has_itinerary:
+    has_bus = bool(bus.get('result'))
+    if not has_flight and not has_itinerary and not has_bus:
         return ('*Resumo da viagem*\n\nVocê ainda não confirmou dados de voo nem montou um roteiro. '
                 'Digite *menu* para começar.')
     lines = ['*Resumo da sua viagem*']
@@ -88,6 +90,12 @@ def trip_summary(session):
                   f"• Duração: {itinerary['days']} dia(s)",
                   f"• Interesses: {itinerary['interest']}",
                   f"• Ritmo: {itinerary['pace']}"]
+    if has_bus:
+        lines += ['', '*Ônibus*', f"• Rota: {bus.get('origin', '?')} → {bus.get('destination', '?')}",
+                  f"• Ida: {bus.get('departure', '?')}",
+                  f"• Passageiros: {bus.get('adults', '?')} adulto(s)"]
+        if bus.get('result', {}).get('status') == 'success':
+            lines.append(f"• Consulta salva: {len(bus['result'].get('offers', []))} opção(ões) retornada(s)")
     lines += ['', 'Preços, horários, documentos e disponibilidade devem ser conferidos antes da viagem.',
               '', 'Digite *checklist da viagem* para revisar os preparativos.']
     return '\n'.join(lines)
@@ -123,13 +131,14 @@ class Session:
 
 
 class Conversation:
-    def __init__(self, flight_search=None, on_search=None, preferences=None, interpreter=None):
+    def __init__(self, flight_search=None, on_search=None, preferences=None, interpreter=None, bus_search=None):
         self.sessions: dict[str, Session] = {}
         self.flight_search = flight_search
         self.on_search = on_search
         from .preferences import Preferences
         self.preferences = preferences if preferences is not None else Preferences()
         self.interpreter = interpreter
+        self.bus_search = bus_search
 
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
@@ -145,6 +154,9 @@ class Conversation:
                 elif current and current.values.get('_discovery', {}).get('active'):
                     context = current.values['_discovery']
                     step = 'discovery:' + context['stage']
+                elif current and current.values.get('_bus', {}).get('active'):
+                    context = current.values['_bus']
+                    step = 'bus:' + context['stage']
                 text = self.interpreter(text, step, today, context)
             except Exception:
                 # Natural-language interpretation is optional; deterministic parsing remains available.
@@ -166,10 +178,14 @@ class Conversation:
                 session.values['_discovery']['active'] = False
             if session.values.get('_itinerary'):
                 session.values['_itinerary']['active'] = False
+            if session.values.get('_bus'):
+                session.values['_bus']['active'] = False
             session.values['_capabilities'] = True
             return ('*O que você quer planejar?* ✈️\n\n'
                     '*Passagens*\n'
                     'Compare voos de ida e volta por preço, duração, paradas e orçamento.\n\n'
+                    '*Ônibus*\n'
+                    'Prepare uma busca rodoviária; tarifas ao vivo dependem do credenciamento da fonte.\n\n'
                     '*Mais possibilidades*\n'
                     'Veja datas próximas ou compare até 3 destinos escolhidos por você.\n\n'
                     '*Passeios*\n'
@@ -191,13 +207,27 @@ class Conversation:
                 session.values['_discovery']['active'] = False
             if session.values.get('_itinerary'):
                 session.values['_itinerary']['active'] = False
+            if session.values.get('_bus'):
+                session.values['_bus']['active'] = False
             return self.resume_flights(session)
         if clean(text) not in {'cancelar', '/cancelar', '/start'}:
+            from .buses import handle as handle_bus
+            session = self.sessions.get(user_id, Session())
+            bus_reply = handle_bus(session, text, today, self.bus_search, self.on_search)
+            if bus_reply is not None:
+                if session.values.get('_discovery'):
+                    session.values['_discovery']['active'] = False
+                if session.values.get('_itinerary'):
+                    session.values['_itinerary']['active'] = False
+                self.sessions[user_id] = session
+                return bus_reply
             from .itinerary import START as ITINERARY_START
             import re
             itinerary_command = command in ITINERARY_START | {'meu roteiro', 'fontes do roteiro', 'ajustar roteiro', 'apagar roteiro'} or re.fullmatch(r'(?:quero (?:um |montar um )?)?roteiro (?:para|em|pra) .+', command)
             if itinerary_command and current and current.values.get('_discovery'):
                 current.values['_discovery']['active'] = False
+            if itinerary_command and current and current.values.get('_bus'):
+                current.values['_bus']['active'] = False
             from .discovery import handle as discover
             session = self.sessions.get(user_id, Session())
             discovery_reply = discover(session, text, today, self.flight_search, self.on_search)
@@ -318,7 +348,7 @@ class Conversation:
         from .trip_input import extract_trip
         import re
         if re.search(r'\b(?:onibus|rodoviari[oa])\b', command):
-            return 'A busca de ônibus ainda não está disponível. Não alterei sua viagem nem consultei voos no lugar de ônibus. Posso ajudar com passagens aéreas; digite ajuda para ver os recursos disponíveis.'
+            return 'A fonte de ônibus ainda não está credenciada. Não alterei sua viagem nem consultei voos no lugar de ônibus. Digite ônibus para ver o estado dessa integração.'
         if re.search(r'\b(?:criancas?|bebes?)\b', command) or re.search(r'-\s*\d+\s+adult', command):
             return 'Nesta versão, a busca atende apenas de 1 a 6 adultos. Não alterei os dados da viagem.'
         try:
@@ -340,6 +370,7 @@ class Conversation:
         if command == "ajuda":
             return ("*Como posso ajudar*\n\n"
                     "✈️ *Passagens*\nIda e volta para 1 a 6 adultos. Compare preço, duração e paradas.\n\n"
+                    "🚌 *Ônibus*\nDigite ônibus para iniciar; preços reais só aparecem quando a fonte parceira estiver credenciada.\n\n"
                     "*Quer gastar menos?*\nUse orçamento, datas flexíveis (±1 dia) ou explorar destinos (até 3 aeroportos).\n\n"
                     "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo ou Bogotá.\n\n"
                     "*Organização*\nUse resumo da viagem ou checklist da viagem para reunir o plano e revisar preparativos.\n\n"

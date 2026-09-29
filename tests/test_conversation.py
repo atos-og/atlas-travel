@@ -96,6 +96,27 @@ class ConversationTests(unittest.TestCase):
         self.assertLess(comparison.index('R$ 700,00'), comparison.index('R$ 900,00'))
         self.assertNotIn('bagagem incluída', comparison)
 
+    def test_bus_overlay_preserves_flight_data_and_can_return_to_flights(self):
+        bot = Conversation(lambda _: {'status': 'empty', 'offers': []},
+                           bus_search=lambda _: {'status': 'empty', 'offers': []})
+        bot.sessions['a'] = Session('departure', {'origin': 'CNF', 'destination': 'GRU'})
+        answer = bot.reply('a', 'ônibus', today=date(2026, 9, 23))
+        self.assertIn('De qual cidade', answer)
+        self.assertEqual(bot.sessions['a'].values['origin'], 'CNF')
+        self.assertIn('Qual é a data de ida', bot.reply('a', 'voos', today=date(2026, 9, 23)))
+        self.assertFalse(bot.sessions['a'].values['_bus']['active'])
+
+    def test_trip_summary_includes_saved_bus_query(self):
+        self.bot.sessions['a'] = Session('origin', {'_bus': {
+            'active': False, 'stage': 'done', 'origin': 'Belo Horizonte',
+            'destination': 'São Paulo', 'departure': '12/11/2026', 'adults': '2',
+            'result': {'status': 'success', 'offers': [{'price': '100'}]},
+        }})
+        answer = self.send('resumo da viagem')
+        self.assertIn('Ônibus', answer)
+        self.assertIn('Belo Horizonte → São Paulo', answer)
+        self.assertIn('1 opção', answer)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -69,6 +69,22 @@ class PayloadTests(unittest.TestCase):
         self.assertEqual(
             set(session.values['_choices'].values()), {'sim', 'datas flexiveis', 'ofertas'})
 
+    def test_capability_menu_exposes_bus_status_without_exceeding_limit(self):
+        session = Session('origin', {'_capabilities': True})
+        payload = payload_for(session, 'Recursos')
+        self.assertEqual(len(session.values['_choices']), 9)
+        self.assertIn('onibus', session.values['_choices'].values())
+
+    def test_bus_overlay_uses_native_controls(self):
+        session = Session('origin', {'_bus': {'active': True, 'stage': 'priority'}})
+        payload = payload_for(session, 'Escolha')
+        self.assertEqual(payload['interactive']['type'], 'list')
+        self.assertEqual(set(session.values['_choices'].values()), {'1', '2', '3', '4'})
+        session.values['_bus']['stage'] = 'confirm'
+        payload = payload_for(session, 'Confirme')
+        self.assertEqual(payload['interactive']['type'], 'button')
+        self.assertEqual(len(payload['interactive']['action']['buttons']), 2)
+
 
 class InteractiveQueueTests(unittest.TestCase):
     setUp = messaging_tests.MessagingTests.setUp

@@ -38,7 +38,7 @@ def payload_for(session, reply):
     """Final response payload. Search progress is sent separately without choices."""
     session.values.pop('_choices', None)
     if session.values.pop('_capabilities', False):
-        options = [('voos', 'Consultar voos'), ('roteiro', 'Montar roteiro'),
+        options = [('voos', 'Consultar voos'), ('onibus', 'Consultar ônibus'), ('roteiro', 'Montar roteiro'),
                    ('explorar destinos', 'Destinos por orçamento'),
                    ('datas flexiveis', 'Comparar datas'), ('minhas preferencias', 'Minhas preferências'),
                    ('resumo da viagem', 'Resumo da viagem'),
@@ -59,6 +59,27 @@ def payload_for(session, reply):
         session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
         return {'type': 'interactive', 'interactive': {'type': 'list', 'body': {'text': reply},
                 'action': {'button': 'Preferências', 'sections': [{'title': 'Seu perfil', 'rows': rows}]}}}
+    bus = session.values.get('_bus', {})
+    if bus.get('active'):
+        from .buses import choices
+        if len(reply) > 1024:
+            return text_payload(reply)
+        options = choices(bus)
+        if not options:
+            return text_payload(reply)
+        nonce = uuid.uuid4().hex
+        rows = [{'id': f'atlas:{nonce}:{i}', 'title': title,
+                 **({'description': description} if description else {})}
+                for i, (_, title, description) in enumerate(options)]
+        session.values['_choices'] = {row['id']: option[0] for row, option in zip(rows, options)}
+        if bus.get('stage') == 'confirm':
+            action = {'buttons': [{'type': 'reply', 'reply': {'id': row['id'], 'title': row['title']}}
+                                  for row in rows]}
+            kind = 'button'
+        else:
+            action = {'button': 'Opções de ônibus', 'sections': [{'title': 'Viagem rodoviária', 'rows': rows}]}
+            kind = 'list'
+        return {'type': 'interactive', 'interactive': {'type': kind, 'body': {'text': reply}, 'action': action}}
     discovery = session.values.get('_discovery', {})
     if discovery.get('active'):
         from .discovery import choices
