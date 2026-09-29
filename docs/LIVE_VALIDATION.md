@@ -55,3 +55,9 @@ A clean `atlas:validation` image build resolved the same pinned revision from sc
 # Trip-organization language audit — September 29, 2026
 
 Two additional fixed synthetic phrases mapped natural requests to the allowlisted `trip_summary` and `travel_checklist` actions. The focused Groq run passed both cases without traveler data. The complete corpus now contains twelve cases; the model selects commands while deterministic Atlas copy builds the summary and checklist.
+
+# Callback synchronization — September 29, 2026
+
+With explicit owner approval for the named Cloudflare Quick Tunnel, Atlas updated the Meta app callback to `https://amounts-cables-empirical-scan.trycloudflare.com/webhook`. The sanitized readback reported an active `whatsapp_business_account` subscription containing the `messages` field and the exact callback URL. The public `/health` endpoint identified Atlas v11. No test message was sent during this check.
+
+The first read immediately after Meta accepted the update briefly returned a verification mismatch; a second read returned the expected value. The callback utility now retries this non-secret readback twice with short bounded delays. Its regression test simulates stale-then-current metadata without network access.
