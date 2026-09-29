@@ -91,7 +91,9 @@ def choices(state):
         'pace': [('tranquilo', 'Tranquilo'), ('equilibrado', 'Equilibrado')],
         'confirm': [('montar', 'Montar roteiro'), ('novo roteiro', 'Alterar dados')],
         'done': [('fontes do roteiro', 'Ver fontes'), ('ajustar roteiro', 'Ajustar roteiro'),
-                 ('remover passeio', 'Remover passeio'), ('meu roteiro', 'Ver roteiro')],
+                 ('remover passeio', 'Remover passeio'), ('meu roteiro', 'Ver roteiro'),
+                 ('resumo da viagem', 'Resumo da viagem'),
+                 ('checklist da viagem', 'Checklist da viagem')],
         'edit': [('mudar dias', 'Quantidade de dias'), ('mudar inicio', 'Data inicial'),
                  ('mudar interesses', 'Interesses'), ('mudar ritmo', 'Ritmo'), ('novo roteiro', 'Trocar cidade')],
     }.get(stage, [])

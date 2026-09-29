@@ -41,6 +41,8 @@ def payload_for(session, reply):
         options = [('voos', 'Consultar voos'), ('roteiro', 'Montar roteiro'),
                    ('explorar destinos', 'Destinos por orçamento'),
                    ('datas flexiveis', 'Comparar datas'), ('minhas preferencias', 'Minhas preferências'),
+                   ('resumo da viagem', 'Resumo da viagem'),
+                   ('checklist da viagem', 'Checklist da viagem'),
                    ('ajuda', 'Todos os comandos')]
         nonce = uuid.uuid4().hex
         rows = [{'id': f'atlas:{nonce}:{i}', 'title': title} for i, (_, title) in enumerate(options)]

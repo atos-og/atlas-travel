@@ -52,6 +52,69 @@ FAQ_RESPONSES = {
     'obrigado atlas': ('Por nada! 😊\n\nQuando quiser continuar, digite *menu* para consultar voos, explorar destinos ou montar um roteiro.'),
 }
 
+BRAZIL_AIRPORTS = {'CNF', 'GRU', 'CGH', 'VCP', 'GIG', 'SDU', 'BSB', 'SSA',
+                   'REC', 'FOR', 'FLN', 'POA', 'CWB'}
+
+
+def trip_summary(session):
+    values = session.values
+    itinerary = values.get('_itinerary', {})
+    has_flight = any(values.get(key) for key in ('origin', 'destination', 'departure', 'return'))
+    has_itinerary = itinerary.get('plan') is not None
+    if not has_flight and not has_itinerary:
+        return ('*Resumo da viagem*\n\nVocê ainda não confirmou dados de voo nem montou um roteiro. '
+                'Digite *menu* para começar.')
+    lines = ['*Resumo da sua viagem*']
+    if has_flight:
+        lines += ['', '*Passagens*']
+        if values.get('origin') or values.get('destination'):
+            lines.append(f"• Rota: {values.get('origin', '?')} → {values.get('destination', '?')}")
+        if values.get('departure'):
+            lines.append(f"• Ida: {values['departure']}")
+        if values.get('return'):
+            lines.append(f"• Volta: {values['return']}")
+        if values.get('adults'):
+            lines.append(f"• Passageiros: {values['adults']} adulto(s)")
+        if values.get('budget') is not None:
+            lines.append(f"• Orçamento total: R$ {money(values['budget'])}")
+        result = values.get('result', {})
+        if result.get('status') == 'success':
+            lines.append(f"• Consulta salva: {len(result.get('offers', []))} opção(ões) retornada(s)")
+            if result.get('checked_at'):
+                lines.append(f"• Horário da consulta: {result['checked_at']}")
+    if has_itinerary:
+        from .destinations import CITIES
+        lines += ['', '*Passeios*', f"• Cidade: {CITIES[itinerary['city']]}",
+                  f"• Duração: {itinerary['days']} dia(s)",
+                  f"• Interesses: {itinerary['interest']}",
+                  f"• Ritmo: {itinerary['pace']}"]
+    lines += ['', 'Preços, horários, documentos e disponibilidade devem ser conferidos antes da viagem.',
+              '', 'Digite *checklist da viagem* para revisar os preparativos.']
+    return '\n'.join(lines)
+
+
+def travel_checklist(session):
+    values = session.values
+    destination = values.get('destination')
+    international = bool(destination and destination not in BRAZIL_AIRPORTS)
+    route = f" para {destination}" if destination else ''
+    lines = [f"*Checklist da viagem{route}*", '', '*Documentos*']
+    if international:
+        lines += ['□ Passaporte válido para todo o período.',
+                  '□ Conferir visto, entrada, vacinas e permanência em fontes oficiais do destino.']
+    else:
+        lines.append('□ Documento oficial aceito pela transportadora e dentro da validade.')
+    lines += ['', '*Passagens e hospedagem*',
+              '□ Conferir nomes, aeroportos, datas e quantidade de passageiros.',
+              '□ Revisar bagagem, check-in, alteração e reembolso diretamente no fornecedor.',
+              '□ Salvar reservas e endereços para acesso offline.',
+              '', '*Durante a viagem*',
+              '□ Planejar deslocamento entre aeroporto, hospedagem e passeios.',
+              '□ Conferir clima, horários e disponibilidade perto da data.',
+              '□ Separar medicamentos, contatos de emergência e meios de pagamento.',
+              '', 'Esta lista é um apoio geral. Regras oficiais e necessidades pessoais podem exigir outros itens.']
+    return '\n'.join(lines)
+
 
 @dataclass
 class Session:
@@ -111,11 +174,17 @@ class Conversation:
                     'Veja datas próximas ou compare até 3 destinos escolhidos por você.\n\n'
                     '*Passeios*\n'
                     'Monte de 1 a 3 dias em São Paulo ou Bogotá.\n\n'
+                    '*Organização*\n'
+                    'Veja o resumo e um checklist da sua viagem.\n\n'
                     '*Suas preferências*\n'
                     'Salve origem, passageiros e o tipo de oferta que prefere.\n\n'
                     'Abra o menu abaixo para escolher por onde começar.')
         if command in FAQ_RESPONSES:
             return FAQ_RESPONSES[command]
+        if command in {'resumo da viagem', 'resumo viagem'}:
+            return trip_summary(self.sessions.get(user_id, Session()))
+        if command in {'checklist da viagem', 'checklist viagem'}:
+            return travel_checklist(self.sessions.get(user_id, Session()))
         if command in {'voos', 'consultar voos', 'voltar aos voos', 'sair do roteiro'}:
             session = self.sessions.setdefault(user_id, Session())
             if session.values.get('_discovery'):
@@ -273,6 +342,7 @@ class Conversation:
                     "✈️ *Passagens*\nIda e volta para 1 a 6 adultos. Compare preço, duração e paradas.\n\n"
                     "*Quer gastar menos?*\nUse orçamento, datas flexíveis (±1 dia) ou explorar destinos (até 3 aeroportos).\n\n"
                     "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo ou Bogotá.\n\n"
+                    "*Organização*\nUse resumo da viagem ou checklist da viagem para reunir o plano e revisar preparativos.\n\n"
                     "*Suas preferências*\nSalvar preferências, minhas preferências, usar preferências ou apagar preferências.\n\n"
                     "*Depois da busca*\n"
                     "• Abra uma oferta ou altere os critérios.\n"
