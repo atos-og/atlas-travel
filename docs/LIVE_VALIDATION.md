@@ -43,3 +43,13 @@ The sanitized provider-audit command queried CNF–GRU for October 23–30 and N
 # Expanded hosted-language audit — September 28, 2026
 
 An initial ten-phrase synthetic evaluation passed two cases. After prompt, command-output, place-prefix, and confidence changes, a later run passed its first six cases: capabilities, origin, itinerary duration, itinerary sources, offer recommendation, and baggage. The remaining consecutive calls returned the original text, matching a free-tier burst/token-limit pattern. After the quota window reset, a focused run passed the four remaining cases: bus support, price alerts, current product scope, and gratitude. All ten fixtures therefore passed across two bounded runs. Informational intents use `0.80`, origin/destination extraction uses `0.85` plus airport resolution, and other trip changes and destructive actions retain `0.90`. No traveler data was used.
+
+# Provider transport recovery — September 29, 2026
+
+The project still pinned the older fli batch transport after upstream had moved to parsing the public Google Flights results page. Atlas reviewed and pinned revision `881aee5ff4321e81ea2157cb44be94ce6a21dc1b`. The production provider boundary then returned 45 normalized CNF–GRU round trips for October 23–30, 2026 for one adult, all with validated `www.google.com` deep links; the observed range was BRL 783–855. A separate two-adult call also returned 45 normalized offers and 45 validated links, with an observed range of BRL 1,565–1,710. Query times were 10:34 and 10:31 UTC, respectively. These are historical source observations, not fare promises.
+
+The adapter now passes the searched passenger mix to the current deterministic link builder. Local regression coverage asserts that boundary. A real multi-adult Google Flights page and supplier checkout still require owner acceptance before claiming end-to-end parity.
+
+# Trip-organization language audit — September 29, 2026
+
+Two additional fixed synthetic phrases mapped natural requests to the allowlisted `trip_summary` and `travel_checklist` actions. The focused Groq run passed both cases without traveler data. The complete corpus now contains twelve cases; the model selects commands while deterministic Atlas copy builds the summary and checklist.

@@ -23,7 +23,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `trip_input.py`: conservative multi-field extraction with explicit ambiguity checks.
 - `language.py`: supported Portuguese dates and short phrases, interpreted locally.
 - `nlu.py`: optional Groq request, strict intent schema, confidence gate, allowlisted command mapping, and fail-open return to the original message.
-- `nlu_audit.py`: ten fixed synthetic phrases for measuring the hosted interpreter without traveler data.
+- `nlu_audit.py`: twelve fixed synthetic phrases for measuring the hosted interpreter without traveler data.
 - `preferences.py`: explicit per-user defaults, stored separately from conversation sessions.
 - `itinerary.py`: bounded sightseeing planner and an independent session overlay; no external API calls.
 - `destinations.py`: an editorial catalog with primary-source links and selected closure rules.
@@ -51,7 +51,7 @@ Choice IDs are stored before sending the response. The system sends one final re
 
 ## Fare integrity
 
-Normalization requires a complete outbound and return journey, matching airports and dates, BRL currency, and a positive price. In the pinned fli representation, the first journey's price represents the round-trip total; journey prices must not be added together.
+Normalization requires a complete outbound and return journey, matching airports and dates, BRL currency, and a positive price. In the pinned fli representation, the first journey's price represents the round-trip total; journey prices must not be added together. The reviewed provider revision reads the public Google Flights results page rather than the older blocked batch endpoint. Atlas passes the searched passenger mix into the deterministic deep-link builder and still validates the resulting HTTPS host, path, query token, and length before exposing it.
 
 The optional cap applies to the total for all requested adults, before sorting and limiting the display to four options. Text, lists, and link selection use the same filter. Highest-price ranking only reorders returned options and makes no claim about comfort or full-market coverage.
 
