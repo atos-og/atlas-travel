@@ -20,6 +20,9 @@ class WebhookTests(unittest.TestCase):
             replies.update(WHATSAPP_ACCESS_TOKEN='token', WHATSAPP_PHONE_NUMBER_ID='123',
                            ATLAS_ALLOWED_WHATSAPP_USER='57123', META_GRAPH_API_VERSION='v23.0')
             self.assertTrue(ready(replies, root))
+            self.assertFalse(ready(dict(replies, ATLAS_LIVE_BUSES_ENABLED='true'), root))
+            self.assertTrue(ready(dict(replies, ATLAS_LIVE_BUSES_ENABLED='true',
+                                       CLICKBUS_ACCESS_TOKEN='partner-token'), root))
 
     def test_server_address_defaults_and_hosted_port(self):
         self.assertEqual(server_address({}), ('127.0.0.1', 8787))

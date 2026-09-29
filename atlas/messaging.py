@@ -155,9 +155,12 @@ def process_one(config, path, sender=None, now=None):
 
     from .preferences import Preferences
     from .nlu import interpret
+    from .providers.clickbus import search as search_buses
     interpreter = lambda text, step, today, values: interpret(text, step, today, values, config)
+    bus_search = (lambda values: search_buses(values, config)) if config.get('ATLAS_LIVE_BUSES_ENABLED') == 'true' else None
     conversation = Conversation(search if config.get("ATLAS_LIVE_FLIGHTS_ENABLED") == "true" else None,
-                                on_search=progress, preferences=Preferences(path), interpreter=interpreter)
+                                on_search=progress, preferences=Preferences(path), interpreter=interpreter,
+                                bus_search=bus_search)
     if saved:
         conversation.sessions[recipient] = Session(saved[0], json.loads(saved[1]))
     try:
@@ -171,7 +174,9 @@ def process_one(config, path, sender=None, now=None):
         reply = "Não consegui concluir essa etapa. Digite cancelar para recomeçar."
     with database(path) as db:
         session = conversation.sessions.get(recipient, Session())
-        payload = payload_for(session, reply) if config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true' else text_payload(reply)
+        interactive = (config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true' or
+                       config.get('ATLAS_LIVE_BUSES_ENABLED') == 'true')
+        payload = payload_for(session, reply) if interactive else text_payload(reply)
         db.execute("INSERT OR REPLACE INTO sessions(sender,step,data,updated_at) VALUES (?,?,?,?)",
                    (recipient, session.step, json.dumps(session.values), now))
         db.execute("UPDATE inbox SET state='sending',reply=? WHERE id=?", (reply, mid))

@@ -100,7 +100,12 @@ def check(config, *, meta=False, groq=False, opener=urlopen, groq_opener=urlopen
     missing = [key for key in REQUIRED if not config.get(key)]
     results = {'configuration': {'ok': not missing, 'missing_keys': missing},
                'replies_enabled': config.get('ATLAS_WHATSAPP_REPLIES_ENABLED') == 'true',
-               'live_flights_enabled': config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true'}
+               'live_flights_enabled': config.get('ATLAS_LIVE_FLIGHTS_ENABLED') == 'true',
+               'bus_source': {
+                   'enabled': config.get('ATLAS_LIVE_BUSES_ENABLED') == 'true',
+                   'configured': bool(config.get('CLICKBUS_ACCESS_TOKEN')),
+                   'source': 'ClickBus partner API',
+               }}
     results['nlu'] = (groq_check(config, opener=groq_opener) if groq else
                       {'enabled': config.get('ATLAS_NLU_ENABLED') == 'true',
                        'configured': bool(config.get('GROQ_API_KEY')), 'checked': False,

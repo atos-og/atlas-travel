@@ -19,6 +19,15 @@ class CheckTests(unittest.TestCase):
         self.assertEqual(calls, ['http://127.0.0.1:8787/health'])
         self.assertFalse(result['meta']['checked'])
         self.assertFalse(result['nlu']['checked'])
+        self.assertFalse(result['bus_source']['enabled'])
+        self.assertFalse(result['bus_source']['configured'])
+        self.assertNotIn('secret-sentinel', json.dumps(result))
+
+    def test_bus_diagnostic_reports_configuration_without_exposing_token(self):
+        self.config.update(ATLAS_LIVE_BUSES_ENABLED='true', CLICKBUS_ACCESS_TOKEN='secret-sentinel')
+        result = check(self.config, opener=lambda *a, **k: io.BytesIO(b'atlas-test'))
+        self.assertTrue(result['bus_source']['enabled'])
+        self.assertTrue(result['bus_source']['configured'])
         self.assertNotIn('secret-sentinel', json.dumps(result))
 
     def test_groq_check_uses_synthetic_prompt_and_hides_key(self):

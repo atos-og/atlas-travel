@@ -28,6 +28,7 @@ def settings():
     for key in ("WHATSAPP_VERIFY_TOKEN", "META_APP_SECRET", "META_APP_ID", "WHATSAPP_ACCESS_TOKEN",
                 "WHATSAPP_PHONE_NUMBER_ID", "META_GRAPH_API_VERSION",
                 "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED",
+                "ATLAS_LIVE_BUSES_ENABLED", "CLICKBUS_ACCESS_TOKEN", "CLICKBUS_API_BASE_URL",
                 "ATLAS_NLU_ENABLED", "ATLAS_RETENTION_DAYS", "ATLAS_BACKUP_COPIES",
                 "ATLAS_WEBHOOK_HOST", "ATLAS_WEBHOOK_PORT", "PORT",
                 "GROQ_API_KEY", "GROQ_MODEL"):
@@ -94,6 +95,8 @@ def ready(config, root=ROOT):
         if any(not config.get(key) for key in reply_keys):
             return False
     if config.get('ATLAS_NLU_ENABLED') == 'true' and not config.get('GROQ_API_KEY'):
+        return False
+    if config.get('ATLAS_LIVE_BUSES_ENABLED') == 'true' and not config.get('CLICKBUS_ACCESS_TOKEN'):
         return False
     try:
         path = root / 'work' / 'conversations.db'
