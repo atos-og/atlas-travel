@@ -51,6 +51,8 @@ INTENTS = {
     "faq_scope",
     "faq_comfort",
     "gratitude",
+    "trip_summary",
+    "travel_checklist",
 }
 
 COMMANDS = {
@@ -91,12 +93,15 @@ COMMANDS = {
     "faq_scope": "duvida cobertura",
     "faq_comfort": "duvida conforto",
     "gratitude": "obrigado atlas",
+    "trip_summary": "resumo da viagem",
+    "travel_checklist": "checklist da viagem",
 }
 
 LOW_RISK_INTENTS = {
     'menu', 'help', 'offer_recommendation', 'offer_comparison',
     'faq_baggage', 'faq_purchase', 'faq_prices', 'faq_privacy',
     'faq_bus', 'faq_alerts', 'faq_scope', 'faq_comfort', 'gratitude',
+    'trip_summary', 'travel_checklist',
 }
 
 SCHEMA = {
@@ -128,6 +133,7 @@ CANONICAL_INPUTS = set(COMMANDS.values()) | {
     "recomendar oferta", "comparar ofertas", "duvida bagagem", "duvida compra",
     "duvida precos", "duvida privacidade", "duvida onibus", "duvida alertas",
     "duvida cobertura", "duvida conforto", "obrigado atlas",
+    "resumo da viagem", "resumo viagem", "checklist da viagem", "checklist viagem",
 }
 
 
@@ -300,6 +306,8 @@ Implemented actions:
 - faq_scope: questions about supported cities, airports, itinerary coverage, or product limits
 - faq_comfort: questions about ranking by comfort, seats, cabin quality, or service quality
 - gratitude: a short thank-you directed to Atlas
+- trip_summary: show a summary of flight and itinerary data already stored in the current session
+- travel_checklist: show a deterministic preparation checklist for the current trip
 
 Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}
@@ -327,6 +335,8 @@ Rules:
     - "tem como voce me avisar se esse valor baixar?" is faq_alerts
     - "ate onde vai o que voce consegue fazer hoje?" is faq_scope
     - "valeu demais por ter me ajudado" is gratitude
+    - "junta tudo que ja planejei" is trip_summary
+    - "o que eu preciso conferir antes de viajar?" is travel_checklist
 
 Traveler message:
 {json.dumps(text, ensure_ascii=False)}"""

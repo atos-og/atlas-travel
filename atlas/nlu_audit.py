@@ -20,6 +20,8 @@ CASES = (
     ('alerts', 'tem como voce me avisar se esse valor baixar?', 'complete', {}, 'duvida alertas'),
     ('scope', 'ate onde vai o que voce consegue fazer hoje?', 'origin', {}, 'duvida cobertura'),
     ('thanks', 'valeu demais por ter me ajudado', 'complete', {}, 'obrigado atlas'),
+    ('trip_summary', 'junta tudo que ja planejei nessa viagem', 'complete', {}, 'resumo da viagem'),
+    ('travel_checklist', 'o que eu preciso conferir antes de viajar?', 'complete', {}, 'checklist da viagem'),
 )
 
 
