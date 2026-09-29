@@ -64,13 +64,35 @@ class CallbackTests(unittest.TestCase):
                 "fields": [{"name": "messages"}],
             }]}).encode())
 
-        result = synchronize(self.config, "https://atlas.example", opener=opener)
+        result = synchronize(
+            self.config, "https://atlas.example", opener=opener, sleeper=lambda _: None)
         self.assertTrue(result["ok"])
         self.assertEqual(len(requests), 2)
         posted = requests[0].data.decode()
         self.assertIn("callback_url=https%3A%2F%2Fatlas.example%2Fwebhook", posted)
         self.assertIn("verify_token=verify-sentinel", posted)
         self.assertNotIn("secret-sentinel", posted)
+
+    def test_synchronize_tolerates_eventually_consistent_readback(self):
+        reads = 0
+        delays = []
+
+        def opener(request, timeout):
+            nonlocal reads
+            if request.data is not None:
+                return Response(b'{"success": true}')
+            reads += 1
+            callback = "https://old.example/webhook" if reads == 1 else "https://atlas.example/webhook"
+            return Response(json.dumps({"data": [{
+                "object": "whatsapp_business_account", "active": True,
+                "callback_url": callback, "fields": [{"name": "messages"}],
+            }]}).encode())
+
+        result = synchronize(
+            self.config, "https://atlas.example", opener=opener, sleeper=delays.append)
+        self.assertTrue(result["ok"])
+        self.assertEqual(reads, 2)
+        self.assertEqual(delays, [0.25])
 
     def test_synchronize_rejects_bad_config_and_verification_mismatch(self):
         self.assertEqual(
@@ -85,7 +107,8 @@ class CallbackTests(unittest.TestCase):
                 return Response(b'{"success": true}')
             return Response(b'{"data": []}')
 
-        result = synchronize(self.config, "https://atlas.example", opener=opener)
+        result = synchronize(
+            self.config, "https://atlas.example", opener=opener, sleeper=lambda _: None)
         self.assertFalse(result["ok"])
         self.assertEqual(result["reason"], "verification_failed")
 

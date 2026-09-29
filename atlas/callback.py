@@ -3,6 +3,7 @@
 import argparse
 import json
 import re
+from time import sleep
 from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit, urlunsplit
 from urllib.request import Request, urlopen
@@ -60,7 +61,7 @@ def subscription(config, *, opener=urlopen):
     return {"active": False, "callback_url": None, "messages": False}
 
 
-def synchronize(config, url, *, opener=urlopen):
+def synchronize(config, url, *, opener=urlopen, sleeper=sleep):
     """Update and verify the Meta subscription without exposing credentials or raw errors."""
     try:
         expected = callback_url(url)
@@ -87,6 +88,12 @@ def synchronize(config, url, *, opener=urlopen):
         if updated.get("success") is not True:
             return {"ok": False, "reason": "update_rejected"}
         current = subscription(config, opener=opener)
+        for delay in (0.25, 0.75):
+            if (current["active"] and current["messages"]
+                    and current["callback_url"] == expected):
+                break
+            sleeper(delay)
+            current = subscription(config, opener=opener)
     except HTTPError as error:
         reason = "credentials_or_access" if error.code in {400, 401, 403} else "meta_api"
         return {"ok": False, "reason": reason, "code": error.code}
