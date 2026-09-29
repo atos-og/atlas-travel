@@ -29,6 +29,8 @@ The service restarts unless explicitly stopped, runs with a read-only container 
 
 Free Render and Koyeb web instances were not selected because their official documentation says free web instances cannot attach persistent disks: [Render free-service limits](https://render.com/docs/free) and [Koyeb instance limits](https://www.koyeb.com/docs/reference/instances). Railway's current free plan provides a small monthly credit rather than a guaranteed always-on allowance: [Railway free trial and free plan](https://docs.railway.com/pricing/free-trial). Oracle documents Always Free compute-compatible block storage, but creating and securing that account and VM is a separate owner-operated infrastructure step: [Oracle Always Free resources](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm). No external host has been provisioned by this repository.
 
+The repository now includes optional Oracle VM service and Caddy examples. Combined with a free DuckDNS subdomain, they avoid a domain purchase while preserving the current SQLite design. See the [zero-cost external hosting guide](FREE_HOSTING.md). Account creation, resource selection, hostname registration, and secret entry remain owner-operated; no cloud resource has been created.
+
 ## Required platform behavior
 
 - Terminate HTTPS before requests reach the container. Meta requires a public HTTPS callback.

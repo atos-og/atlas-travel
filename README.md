@@ -20,6 +20,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Ranking by lowest price, shortest duration, nonstop service, or highest price among returned offers.
 - An optional total budget in BRL for all adults and both directions, adjustable after a search.
 - Up to four displayed offers with round-trip totals, local times, airlines, durations, and Google Flights links when valid data is available.
+- A guided one-way bus flow with price, duration, connection, declared-class, and total-budget ranking; its ClickBus partner source remains disabled until credentials are approved.
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
@@ -31,7 +32,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Bus travel, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent; it does not generate fares, links, itineraries, or final replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
+Live bus-source activation, cross-mode comparison, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent; it does not generate fares, links, itineraries, or final replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
 
 ## Technology stack
 
@@ -43,6 +44,7 @@ Bus travel, broader itinerary coverage, whole-month date searches, and alerts ar
 | Model runtime | GroqCloud API | Hosted inference for GPT-OSS 20B; the private prototype uses Groq's free tier |
 | Deterministic NLU | Atlas local Portuguese parser | First-line parsing and fallback when hosted interpretation is unnecessary or unavailable |
 | Travel source | Google Flights through a pinned `fli` revision | Experimental round-trip fare discovery and links |
+| Bus source | ClickBus partner API adapter | Implemented behind a disabled credential gate; no live-fare claim |
 | Storage | SQLite | Inbox, sessions, preferences, delivery state, and fare snapshots |
 | Development ingress | Cloudflare Quick Tunnel | Temporary HTTPS access to the local webhook |
 | Packaging | Docker | Reproducible single-replica webhook image with an unprivileged runtime user |
@@ -106,6 +108,8 @@ Sightseeing also works in the offline simulator: send `roteiro para São Paulo`,
 
 The unofficial Google Flights provider may change or become unavailable. Atlas does not cover every source or guarantee the market's lowest price. Links open Google Flights, not an Atlas checkout. Baggage, refund rules, and comfort are not inferred from price. Only economy round trips for adults are supported.
 
+The bus conversation is implemented for one-way trips and one to six adults, but live pricing is disabled until ClickBus partner access is granted. It does not scrape public booking pages, invent prices, or fabricate a checkout link. See [bus source scope and activation](docs/BUS_TRAVEL.md).
+
 The initial setup is a private test without purchased services. This does not guarantee free WhatsApp production usage. The computer, tunnel, and server must remain running. The prototype is not ready for public customer service.
 
 ## Documentation
@@ -122,10 +126,12 @@ The initial setup is a private test without purchased services. This does not gu
 - [Private prototype acceptance and remaining work](docs/ACCEPTANCE_CHECKLIST.md)
 - [WhatsApp setup](docs/WHATSAPP_SETUP.md)
 - [Deployment boundary and container](docs/DEPLOYMENT.md)
+- [Optional zero-cost external hosting](docs/FREE_HOSTING.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
 - [Bounded natural-language interpretation](docs/NATURAL_LANGUAGE.md)
 - [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
 - [Destination comparison by budget](docs/DESTINATION_DISCOVERY.md)
+- [Bus travel source, flow, and activation](docs/BUS_TRAVEL.md)
 - [Security](SECURITY.md)
 - [Contribution and language policy](CONTRIBUTING.md)
 
