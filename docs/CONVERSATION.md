@@ -92,7 +92,7 @@ Both actions appear in the native capability menu. They can also be selected fro
 
 ## Validation and references
 
-The latest suite contains 181 passing tests; the earlier integration evidence below remains historical.
+The latest suite contains 183 passing tests; the earlier integration evidence below remains historical.
 
 The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 
