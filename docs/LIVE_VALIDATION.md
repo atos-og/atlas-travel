@@ -50,6 +50,8 @@ The project still pinned the older fli batch transport after upstream had moved 
 
 The adapter now passes the searched passenger mix to the current deterministic link builder. Local regression coverage asserts that boundary. A real multi-adult Google Flights page and supplier checkout still require owner acceptance before claiming end-to-end parity.
 
+A clean `atlas:validation` image build resolved the same pinned revision from scratch. A network-disabled container inspection reported UID `10001`, Atlas v11, and a `build_flight_booking_url` signature containing `passenger_info`. This validates packaging and the intended dependency surface; it does not validate live source availability inside a deployed container.
+
 # Trip-organization language audit — September 29, 2026
 
 Two additional fixed synthetic phrases mapped natural requests to the allowlisted `trip_summary` and `travel_checklist` actions. The focused Groq run passed both cases without traveler data. The complete corpus now contains twelve cases; the model selects commands while deterministic Atlas copy builds the summary and checklist.

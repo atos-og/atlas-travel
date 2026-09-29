@@ -28,7 +28,7 @@ Runtime tokens and temporary tunnels can expire; this file records implementatio
 
 ## Deployment packaging
 
-The webhook can now bind to a constrained host and a platform-assigned port. The Docker image builds with the pinned flight dependency, runs Atlas as unprivileged UID `10001`, reserves `/app/work` for persistent state, and passed a local container `/health` check on September 27. Single-replica hosting, durable storage, HTTPS, secrets, and release checks are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
+The webhook can bind to a constrained host and a platform-assigned port. On September 29, a clean Docker build fetched the exact new flight-provider revision and completed successfully. A network-disabled container inspection confirmed Atlas v11, unprivileged UID `10001`, and the passenger-aware provider API. `/app/work` remains reserved for persistent state. Single-replica hosting, durable storage, HTTPS, secrets, and release checks are documented in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 The zero-cost Compose runtime persists the ignored host `work/` directory, restarts the process, uses a read-only container filesystem, and keeps the public port bound to localhost for the tunnel. Render and Koyeb free web instances were rejected for this SQLite design because their free tiers do not support persistent volumes. No external host has been provisioned. `/ready` checks local configuration and storage, while aggregate status, 30-day retention, and seven-copy daily SQLite rotation are implemented. Off-device encrypted backups and active alerts remain public-launch work.
 
