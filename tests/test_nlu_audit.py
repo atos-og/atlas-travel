@@ -28,7 +28,7 @@ class NluAuditTests(unittest.TestCase):
         self.assertEqual(result['checks'][0]['case'], 'capabilities')
 
     def test_can_run_a_small_subset_within_free_tier_limits(self):
-        subset = (CASES[6], CASES[7])
+        subset = tuple(case for case in CASES if case[0] in {'bus', 'alerts'})
         expected = iter(('duvida onibus', 'duvida alertas'))
         result = evaluate({}, cases=subset, interpreter=lambda *args: next(expected))
         self.assertTrue(result['ok'])

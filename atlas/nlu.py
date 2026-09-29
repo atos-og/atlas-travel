@@ -17,6 +17,7 @@ INTENTS = {
     "menu",
     "help",
     "flights",
+    "bus_search",
     "itinerary",
     "itinerary_show",
     "itinerary_sources",
@@ -59,6 +60,7 @@ COMMANDS = {
     "menu": "menu",
     "help": "menu",
     "flights": "voos",
+    "bus_search": "onibus",
     "itinerary": "roteiro",
     "itinerary_show": "meu roteiro",
     "itinerary_sources": "fontes do roteiro",
@@ -122,6 +124,7 @@ CANONICAL_INPUTS = set(COMMANDS.values()) | {
     "como voce pode me ajudar", "como vc pode me ajudar", "como pode me ajudar",
     "como vc me ajuda", "ajuda",
     "voos", "consultar voos", "voltar aos voos", "sair do roteiro",
+    "onibus", "consultar onibus", "buscar onibus", "passagem de onibus", "passagens de onibus",
     "roteiro", "montar roteiro", "planejar passeios", "passeios", "meu roteiro",
     "fontes do roteiro", "ajustar roteiro", "apagar roteiro",
     "explorar destinos", "comparar destinos", "destinos por orcamento",
@@ -151,6 +154,31 @@ def needs_interpretation(text, step, today, values):
         # A capability question can use the controlled FAQ. A concrete bus trip
         # stays with the local parser, which explicitly refuses flight substitution.
         return bool(re.search(r"\b(?:tambem|pesquisa|consultar|consegue|pode|oferece|tem)\b", value))
+    if step.startswith("bus:"):
+        stage = step.split(":", 1)[1]
+        if stage in {'origin', 'destination'} and 1 <= len(value.split()) <= 5:
+            return False
+        if stage == 'departure':
+            try:
+                parse_date(text, today)
+                return False
+            except ValueError:
+                return True
+        if stage == 'adults' and choice(text, 'adults') in {str(i) for i in range(1, 7)}:
+            return False
+        if stage == 'priority' and (choice(text, 'priority') in {'1', '2'} or value in {
+                'menos conexoes', 'direto', 'mais conforto', 'mais confortavel'}):
+            return False
+        if stage == 'budget':
+            from .budget import parse_budget
+            try:
+                parse_budget(text)
+                return False
+            except ValueError:
+                return True
+        if stage == 'confirm':
+            return not is_confirmation(text)
+        return True
     if step.startswith("itinerary:"):
         stage = step.split(":", 1)[1]
         if stage == "city" and value in {"sao paulo", "sp", "gru", "cgh", "bogota", "bog"}:
@@ -284,6 +312,7 @@ Implemented actions:
 - help: explain commands
 - flights: return to flight planning
 - itinerary: start sightseeing planning; only Sao Paulo and Bogota are supported
+- bus_search: start the implemented guided bus flow; live prices still require configured partner access
 - itinerary_show: display an itinerary that was already generated
 - itinerary_sources: show sources for an itinerary that was already generated
 - itinerary_edit: enter the existing itinerary editing flow
@@ -332,6 +361,7 @@ Rules:
     - "de onde sairam as informacoes dos passeios?" is itinerary_sources
     - "essa tarifa ja vem com mala despachada?" is faq_baggage
     - "voce tambem pesquisa passagem rodoviaria?" is faq_bus
+    - "quero cotar uma passagem rodoviaria" is bus_search
     - "tem como voce me avisar se esse valor baixar?" is faq_alerts
     - "ate onde vai o que voce consegue fazer hoje?" is faq_scope
     - "valeu demais por ter me ajudado" is gratitude
@@ -385,7 +415,8 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         return text
     if intent in LOW_RISK_INTENTS:
         minimum = LOW_RISK_CONFIDENCE
-    elif intent == 'step_answer' and step in {'origin', 'destination'}:
+    elif intent == 'step_answer' and (step in {'origin', 'destination'} or
+                                      step in {'bus:origin', 'bus:destination'}):
         # Airport resolution and the explicit pre-search confirmation remain
         # authoritative after this low-impact extraction.
         minimum = 0.85
@@ -441,6 +472,15 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
             if not 1 <= len(parts) <= 3 or any(not part.strip() for part in parts):
                 return text
         if stage not in {"origin", "departure", "return", "adults", "budget", "candidates", "done"}:
+            return text
+        return answer.strip()
+    if step.startswith('bus:'):
+        stage = step.split(':', 1)[1]
+        if stage == 'adults' and answer not in {str(i) for i in range(1, 7)}:
+            return text
+        if stage == 'priority' and answer not in {'1', '2', '3', '4'}:
+            return text
+        if stage not in {'origin', 'destination', 'departure', 'adults', 'priority', 'budget'}:
             return text
         return answer.strip()
     if step not in {"origin", "destination", "departure", "return", "adults", "priority", "budget", "flexibility"}:

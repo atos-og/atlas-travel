@@ -17,6 +17,7 @@ CASES = (
     ('offer_recommendation', 'qual dessas passagens faz mais sentido pra mim?', 'complete', {}, 'recomendar oferta'),
     ('baggage', 'essa tarifa ja vem com mala despachada?', 'complete', {}, 'duvida bagagem'),
     ('bus', 'voce tambem consegue pesquisar passagem rodoviaria?', 'origin', {}, 'duvida onibus'),
+    ('bus_search', 'preciso me deslocar pela estrada e queria uma passagem', 'origin', {}, 'onibus'),
     ('alerts', 'tem como voce me avisar se esse valor baixar?', 'complete', {}, 'duvida alertas'),
     ('scope', 'ate onde vai o que voce consegue fazer hoje?', 'origin', {}, 'duvida cobertura'),
     ('thanks', 'valeu demais por ter me ajudado', 'complete', {}, 'obrigado atlas'),

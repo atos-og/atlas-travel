@@ -103,6 +103,12 @@ class NluTests(unittest.TestCase):
                 result, _ = self.call(text, answer(intent), 'complete')
                 self.assertEqual(result, expected)
 
+    def test_distinguishes_bus_capability_question_from_search_request(self):
+        result, _ = self.call('preciso me deslocar pela estrada e queria uma passagem', answer('bus_search'))
+        self.assertEqual(result, 'onibus')
+        result, _ = self.call('voce tambem pesquisa passagem rodoviaria?', answer('faq_bus'))
+        self.assertEqual(result, 'duvida onibus')
+
     def test_questions_with_para_are_not_mistaken_for_routes(self):
         self.assertEqual(extract_trip('eu pago a passagem para voce?'), {})
         self.assertEqual(
@@ -190,6 +196,10 @@ class NluTests(unittest.TestCase):
             "quero comparar tres lugares", answer("step_answer", "GRU, BOG, REC, SSA"),
             "discovery:candidates")
         self.assertEqual(result, "quero comparar tres lugares")
+        result, _ = self.call('quero o mais confortavel', answer('step_answer', '4'), 'bus:priority')
+        self.assertEqual(result, '4')
+        result, _ = self.call('somos nove', answer('step_answer', '9'), 'bus:adults')
+        self.assertEqual(result, 'somos nove')
 
 
 if __name__ == "__main__":
