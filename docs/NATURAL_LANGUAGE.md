@@ -57,7 +57,7 @@ python -m atlas.check --groq
 
 The check does not use a traveler message and never prints the API key or provider response body. It reports whether hosted interpretation is enabled and configured, the public model ID, and a bounded reason for invalid credentials, denied access, quota/rate limits, request/model rejection, unexpected output, or network failure. Without `--groq`, the normal health command makes no Groq request.
 
-Run the bounded twelve-case corpus when changing the prompt or model:
+Run the bounded thirteen-case corpus when changing the prompt or model:
 
 ```powershell
 python -m atlas.nlu_audit
