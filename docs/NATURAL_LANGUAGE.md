@@ -25,7 +25,7 @@ For each authorized inbound text, Atlas may send the current message, current co
 
 Examples include mapping a varied help question to `help`, extracting `Confins` from a colloquial origin answer, mapping a price complaint to the existing budget-refinement command, normalizing a sightseeing duration, opening an existing itinerary's source view, comparing or recommending saved offers, requesting a saved-trip summary or preparation checklist, and recognizing questions about baggage, buying, price freshness, privacy, buses, alerts, product coverage, or comfort.
 
-The active context may be a flight question, an itinerary question, or a destination-comparison question. Itinerary values remain bounded to the two catalog cities, one to three days, the implemented interest categories, and the implemented pace options. Destination comparison remains bounded to one to three explicitly named places. Lists such as `quero comparar Guarulhos, Recife e Bogotá` are parsed locally when possible, avoiding a hosted request.
+The active context may be a flight question, bus question, itinerary question, or destination-comparison question. Bus values remain bounded to cities or terminals, one exact future date, one to six adults, four reviewed rankings, and one total budget. Itinerary values remain bounded to the two catalog cities, one to three days, the implemented interest categories, and the implemented pace options. Destination comparison remains bounded to one to three explicitly named places. Lists such as `quero comparar Guarulhos, Recife e Bogotá` are parsed locally when possible, avoiding a hosted request.
 
 ## What the model cannot do
 
@@ -61,7 +61,7 @@ Run the bounded twelve-case corpus when changing the prompt or model:
 
 ```powershell
 python -m atlas.nlu_audit
-python -m atlas.nlu_audit bus alerts scope thanks trip_summary travel_checklist
+python -m atlas.nlu_audit bus bus_search alerts scope thanks trip_summary travel_checklist
 ```
 
 All phrases are fixed project fixtures. The command does not read the conversation database. Each case can consume a free-tier request, so the full corpus can reach a burst or token limit. Pass one or more case labels to run a smaller group after the quota window resets. A quota fallback can fail an audit case without affecting the deterministic bot path.

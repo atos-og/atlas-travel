@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 164 local tests, including hosted-language diagnostics, retention, rotating backups, readiness, provider/profile audits, guided itinerary and destination interpretation, trip organization, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
+- [x] 181 local tests, including hosted-language diagnostics, retention, rotating backups, readiness, flight and bus provider boundaries, guided itinerary, destination and bus interpretation, trip organization, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
@@ -53,6 +53,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 14. Use `explorar destinos`, provide a budget and up to three destinations, and confirm. Verify separate failures/no-matches, price order, and that selecting `destino 1` adopts exactly that destination without another search.
 15. During an itinerary, use natural phrases for the day count, interest, pace, viewing sources, editing, and reopening the plan. Confirm that unsupported values are rejected and that the generated copy still comes from Atlas rather than the model.
 16. After a flight result, open the native list and verify that nearby dates and sightseeing appear without exceeding ten rows. Trigger an ambiguous price objection and verify the three buttons for budget, nearby dates, and current offers.
+17. Choose `Consultar ônibus` while partner access is disabled. Verify that Atlas explains the credential boundary, shows no price, and preserves the pending flight search.
 
 ## Remaining product work
 
@@ -61,7 +62,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 | Source reliability | Repeat supplier audits over time; the September 28 sample returned no offers for two date pairs despite earlier successful results. |
 | Language coverage | Validate hosted interpretation on WhatsApp and expand the regression corpus from real, sanitized phrasing while preserving the free-tier fallback. |
 | Brand production | Apply the completed avatar and Atlas display name to the eventual production number, then run the sanitized profile check. |
-| Bus travel | Select and validate a usable source before offering bus prices or cross-mode comparisons. |
+| Bus travel | Obtain ClickBus partner staging credentials, validate real place/trip responses and an approved purchase handoff, then enable the already implemented flow. |
 | Sightseeing | Validate the implemented flow on WhatsApp; expand coverage and verify calendars, costs, and travel times. |
 | Alerts | Establish stable execution, opt-in rules, source reliability, and messaging cost before promising monitoring. |
 | Broader flexible dates | Define query limits and user-approved date ranges before offering whole-month exploration. |

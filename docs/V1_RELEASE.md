@@ -2,11 +2,11 @@
 
 Status: **private acceptance in progress**, not a finished public service.
 
-The v1 scope is round-trip economy flights for adults, total-ticket budget filtering, nearby dates, explicit destination comparisons, saved preferences, native WhatsApp controls, and sourced sightseeing drafts for São Paulo and Bogotá. Bus fares, proactive price alerts, worldwide sightseeing, and whole-month search are outside this release.
+The v1 scope is round-trip economy flights for adults, total-ticket budget filtering, nearby dates, explicit destination comparisons, saved preferences, native WhatsApp controls, and sourced sightseeing drafts for São Paulo and Bogotá. A disabled-by-default one-way bus integration boundary is included for portfolio demonstration; live bus fares, proactive price alerts, worldwide sightseeing, and whole-month search are outside this release.
 
 ## Completed engineering checks
 
-- 164 unit/integration tests pass locally, without paid services.
+- 181 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
@@ -16,6 +16,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 - Generic Google Flights fallback pages are no longer treated as specific offer links.
 - The current provider revision encodes the searched adult count in its deterministic Google Flights deep link. Atlas still asks the traveler to verify the passenger count and final total because client rendering and checkout parity have not been accepted for multiple adults.
 - Saved-trip summaries and domestic/international preparation checklists are available through typed requests, the bounded hosted interpreter, and native menus.
+- The bus conversation, native controls, offer validation, and ClickBus staging adapter are implemented behind a credential gate; no live coverage or purchase-link claim is made.
 - Credentials and private conversations remain excluded from the public repository.
 - Replacement tunnel callbacks can be synchronized and read back through a sanitized command; WhatsApp access-token creation remains manual.
 - Flight-result and price-objection controls suggest implemented follow-up features while respecting WhatsApp's native row and button limits.

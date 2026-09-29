@@ -54,6 +54,7 @@ Before a confirmed provider query, the worker sends a short progress notice. Its
 - Results: up to four offers plus refinement actions.
 - Selected offer: a summary and `Abrir oferta` (Open offer), a native URL button using the returned Google Flights link. This is not an Atlas checkout or a guaranteed direct airline purchase link.
 - `ofertas` redisplays options; typed commands remain supported.
+- Bus travel: a separate native flow for adults, comparison preference, total one-way budget, confirmation, and returned options. Without partner credentials it stops at a controlled source-status message.
 
 Lists contain at most ten rows, with titles limited to 24 characters and descriptions to 72. Confirmation uses two short buttons. Interactive bodies are conservatively limited to 1,024 characters. URLs longer than the local CTA limit remain text links.
 
@@ -97,9 +98,17 @@ The implementation passed 68 local unit tests covering dates, ambiguous amounts,
 
 References: [Meta's official list/button examples](https://whatsapp.github.io/WhatsApp-Nodejs-SDK/api-reference/messages/interactive/) (archived SDK documentation) and [CTA URL documentation](https://developers.facebook.com/documentation/business-messaging/whatsapp/messages/interactive-cta-url-messages). The CTA documentation endpoint returned HTTP 429 during research; its message format was also validated through a real API send.
 
+## Bus travel
+
+`ônibus` starts an independent one-way flow. A short explicit route such as `quero ir de BH pra São Paulo de ônibus` preserves both cities and asks for the date. The optional hosted interpreter can map varied wording to the allowlisted bus command and understand bounded answers inside the bus stages; Python still validates every answer and controls the final copy.
+
+The flow ranks only validated source offers. “More comfort” means only the class declared by the operator, not a subjective quality score. Atlas requires confirmation before search, multiplies a per-ticket provider price by the requested adult count, and applies the budget to that total. Purchase handoff remains disabled because the documented partner search does not expose a verified fare URL.
+
+See [the complete source and activation boundary](BUS_TRAVEL.md).
+
 ## Intent safeguards
 
-A request explicitly mentioning bus travel receives an unsupported-mode explanation and leaves the current trip unchanged. Price complaints such as `ficou mais caro` open budget refinement rather than selecting highest-price ranking. Result summaries suggest nearby dates and saving preferences only because both features are implemented.
+A request explicitly mentioning bus travel opens its independent flow when the source is configured, or receives a credential-status explanation when it is not. It never changes the saved flight trip or substitutes a flight search. Price complaints such as `ficou mais caro` open budget refinement rather than selecting highest-price ranking. Result summaries suggest nearby dates and saving preferences only because both features are implemented.
 
 ## Capability menu and sightseeing
 

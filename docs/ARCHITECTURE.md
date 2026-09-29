@@ -7,7 +7,7 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
                                                        ↓ validation/fallback
                                               conversation + session
                                                        ↓ confirmation
-                                              fli subprocess (55s)
+                         fli subprocess (55s) or gated ClickBus partner search
                                                        ↓
                                               normalize, filter, rank
                                                        ↓
@@ -28,10 +28,12 @@ WhatsApp → Meta → HTTPS tunnel → signed webhook → SQLite inbox
 - `itinerary.py`: bounded sightseeing planner and an independent session overlay; no external API calls.
 - `destinations.py`: an editorial catalog with primary-source links and selected closure rules.
 - `discovery.py`: bounded destination comparisons using a separate session overlay, with explicit adoption of a selected fare snapshot.
+- `buses.py`: independent one-way bus overlay, source-neutral offer validation, total-budget filtering, and declared-class ranking.
 - `budget.py`: explicit total BRL parsing and formatting with Decimal arithmetic.
 - `flexible.py`: at most three concurrent nearby-date queries, actual-date attribution, and partial-failure reporting.
 - `flights.py`: airport resolution, bounded provider execution, budget filtering, deduplication, ranking, and result presentation.
 - `providers/google_flights.py`: the unofficial provider boundary.
+- `providers/clickbus.py`: a disabled-by-default official partner boundary for place and trip search; it performs no booking or payment action.
 - `provider_audit.py`: sanitized live-source evidence containing no booking URLs.
 - `interactive.py`: text/list/button/URL payloads, session-bound choice IDs, and inbound click normalization.
 - `maintenance.py`: retention, integrity-checked rotating backups, and aggregate local status.
