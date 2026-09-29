@@ -106,7 +106,9 @@ class FlightTests(unittest.TestCase):
             answer = bot.reply('test', text, today=date(2026, 9, 23))
         self.assertIn('900,00', answer)
         self.assertLess(len(answer), 4096)
-        self.assertIn(offer['url'], bot.reply('test', 'link 1'))
+        selected = bot.reply('test', 'link 1')
+        self.assertIn(offer['url'], selected)
+        self.assertIn('confirme que o Google Flights mostra 2 adultos', selected)
         self.assertNotIn('https', bot.reply('test', 'link 0'))
 
     def test_provider_timeout_is_explicit(self):

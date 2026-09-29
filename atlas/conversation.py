@@ -390,7 +390,7 @@ class Conversation:
                     if index < 0 or index >= len(offers):
                         raise ValueError
                     url = offers[index].get("url")
-                    warning = (f"Ao abrir, ajuste e confirme {values['adults']} adultos: o link da fonte não garante manter a quantidade. "
+                    warning = (f"Ao abrir, confirme que o Google Flights mostra {values['adults']} adultos antes de continuar. "
                                if int(values['adults']) > 1 else '')
                     return (warning + "Confira disponibilidade e valor final no Google Flights:\n" + url) if url else "O fornecedor não retornou um link para essa oferta. Digite buscar para atualizar."
                 except (ValueError, IndexError):
