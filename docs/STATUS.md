@@ -1,4 +1,4 @@
-# Implementation status — September 28, 2026
+# Implementation status — September 29, 2026
 
 ## WhatsApp
 
@@ -10,7 +10,7 @@ Native lists, confirmation buttons, and an offer URL button are implemented. Met
 
 The flow collects airports, dates, adults, preferences, an optional total budget, and confirmation. It normalizes complete round trips and displays up to four ranked offers with links. Searches run in a subprocess limited to 55 seconds without holding a SQLite transaction open.
 
-Initial external searches returned no results. Later CNF–GRU queries for October 23–30, 2026 succeeded for one and two adults through the same subprocess used by the bot. Both produced four displayable offers with links. See [LIVE_VALIDATION.md](LIVE_VALIDATION.md). No purchase or checkout-total verification was performed.
+The older pinned provider transport became unreliable after Google blocked its batch endpoint. Atlas now pins reviewed fli revision `881aee5ff4321e81ea2157cb44be94ce6a21dc1b`, which reads the public results page. On September 29, bounded CNF–GRU audits for October 23–30 returned 45 normalized offers with 45 Google deep links for one adult and again for two adults. The two-adult link builder receives the searched passenger mix. See [LIVE_VALIDATION.md](LIVE_VALIDATION.md). No purchase or multi-adult checkout-total verification was performed.
 
 ## Conversation and budget
 
@@ -20,7 +20,7 @@ The budget is a total BRL cap for all adults and both directions. Confirmation s
 
 ## Validation and remaining work
 
-The latest implementation run passed 160 local unit tests, including retention, backup rotation, readiness, sanitized provider and profile diagnostics, strict NLU schema handling, confidence tiers, quota-preserving local parsing, bounded itinerary and destination answers, contextual feature suggestions, token expiry diagnostics, cent boundaries, readable option lists, stale interactive IDs, signed events, natural combined requests, and context-preserving greetings. A GitHub Actions workflow compiles the code and runs the offline suite on pushes and pull requests. A live synthetic `--groq` check previously confirmed the configured key and `openai/gpt-oss-20b` model. The expanded corpus guided safe prompt and confidence changes; six consecutive cases passed before the free-tier burst limit and the remaining four passed together after the quota window reset. Unit tests and direct API checks do not replace WhatsApp validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, and search progress are validated locally with mocked delivery and providers; live acceptance of the newest budget, result copy, and hosted interpretation remains pending.
+The latest implementation run passed 163 local unit tests, including retention, backup rotation, readiness, sanitized provider and profile diagnostics, strict NLU schema handling, confidence tiers, quota-preserving local parsing, bounded itinerary and destination answers, trip summaries and checklists, contextual feature suggestions, passenger-aware booking links, token expiry diagnostics, cent boundaries, readable option lists, stale interactive IDs, signed events, natural combined requests, and context-preserving greetings. A GitHub Actions workflow compiles the application and runs the offline suite on pushes and pull requests. The twelve-case synthetic language corpus has passed in bounded groups against the configured Groq-hosted `openai/gpt-oss-20b` model; the final two organization cases passed together on September 29. Unit tests and direct API checks do not replace WhatsApp validation. The budget feature has not yet completed a separately confirmed user-driven WhatsApp acceptance test. Combined requests, contextual edits, price clarification buttons, search progress, summaries, and checklists are validated locally; live acceptance of the newest organization copy remains pending.
 
 Remaining product scope includes source reliability, child passengers, whole-month searches, bus fares, and expanded sightseeing coverage. There is no payment collection, ticket issuance, reservation service, or public bot deployment.
 
@@ -61,5 +61,7 @@ The successful recovery path is now available as `python -m atlas.callback <HTTP
 Destination exploration compares up to three explicitly chosen airports against one total ticket budget, with exact dates, per-destination failures, confirmation, and explicit adoption into the original trip. Natural candidate lists can include a short request prefix and a final `e`. See [comparison behavior](DESTINATION_DISCOVERY.md). It does not search every possible destination. Live WhatsApp acceptance remains pending.
 
 A native `menu` exposes implemented features in spaced sections. Sightseeing runs alongside the saved flight flow, with explicit city, start date or no date, 1–3 days, interest, pace, and confirmation. The catalog contains four sourced places each for São Paulo and Bogotá. Plans group by editorial region, avoid repetitions and known recorded closures, and can be edited or have a place excluded. Empty days disclose catalog limits. Sources are accessible in the chat; live opening hours, costs, availability, and route times are not verified. Fare-link messages stay focused on the selected offer; sightseeing is suggested through the menu and help. All of this is tested locally, including persistence through the message queue; live WhatsApp acceptance of the latest copy remains pending.
+
+The native menu also exposes `resumo da viagem` and `checklist da viagem`. The summary reads only the current saved session and does not query a source. The checklist distinguishes implemented Brazilian airport codes from international destinations, directs official-rule checks to official sources, and makes no entry-eligibility decision. Both actions have deterministic final copy; Groq can only select their allowlisted commands.
 
 The owner confirmed on September 25 that the abbreviated request `como vc pode me ajudar` opened the revised capability experience successfully after vertical option formatting replaced semicolon-separated choices. Webhook logs recorded the authorized inbound event and a sent reply outcome.

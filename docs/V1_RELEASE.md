@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 160 unit/integration tests pass locally, without paid services.
+- 163 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
@@ -14,7 +14,8 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 - Two-destination budget comparison succeeded against the real provider.
 - Flow navigation preserves flight criteria and allows switching between destination comparison and sightseeing.
 - Generic Google Flights fallback pages are no longer treated as specific offer links.
-- Multi-adult link messages explicitly require checking the passenger count on Google Flights. The upstream booking-link builder does not accept passenger counts; the displayed Atlas quote still reflects the searched count. This remains a provider limitation, not a verified checkout experience.
+- The current provider revision encodes the searched adult count in its deterministic Google Flights deep link. Atlas still asks the traveler to verify the passenger count and final total because client rendering and checkout parity have not been accepted for multiple adults.
+- Saved-trip summaries and domestic/international preparation checklists are available through typed requests, the bounded hosted interpreter, and native menus.
 - Credentials and private conversations remain excluded from the public repository.
 - Replacement tunnel callbacks can be synchronized and read back through a sanitized command; WhatsApp access-token creation remains manual.
 - Flight-result and price-objection controls suggest implemented follow-up features while respecting WhatsApp's native row and button limits.
