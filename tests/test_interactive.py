@@ -34,6 +34,8 @@ class PayloadTests(unittest.TestCase):
         self.assertEqual(p['interactive']['type'], 'cta_url')
         self.assertEqual(p['interactive']['action']['parameters']['url'], url)
         self.assertEqual(p['interactive']['action']['parameters']['display_text'], 'Abrir oferta')
+        self.assertIn('confirme que o Google Flights mostra 2 adultos', p['interactive']['body']['text'])
+        self.assertNotIn('não garante manter', p['interactive']['body']['text'])
         self.assertEqual(payload_for(s, 'https://attacker.test')['type'], 'text')
 
     def test_completed_search_suggests_contextual_features_within_row_limit(self):

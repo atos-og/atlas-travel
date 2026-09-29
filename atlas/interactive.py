@@ -95,7 +95,7 @@ def payload_for(session, reply):
             if offer.get('travel_dates'):
                 lines.append(f"Ida {offer['travel_dates']['departure']} • volta {offer['travel_dates']['return']}")
             if offer.get('link_requires_passenger_check') or int(session.values['adults']) > 1:
-                lines.append(f"Ao abrir, ajuste e confirme {session.values['adults']} adultos: o link da fonte não garante manter a quantidade. O preço mostrado aqui é para todos.")
+                lines.append(f"Ao abrir, confirme que o Google Flights mostra {session.values['adults']} adultos antes de continuar. O preço mostrado aqui é para todos.")
             for index, journey in enumerate(offer['journeys']):
                 duration = journey['duration']
                 lines.append(f"*{'Ida' if index == 0 else 'Volta'}*\n{journey['departure']} → {journey['arrival']}\n{journey['airlines']} • {duration//60}h{duration%60:02} • {journey['stops']} parada(s)")
