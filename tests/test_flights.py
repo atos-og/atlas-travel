@@ -48,6 +48,16 @@ class FlightTests(unittest.TestCase):
     def test_multiple_adults_require_explicit_link_passenger_check(self):
         self.assertTrue(normalize(self.raw, self.client, self.values)['link_requires_passenger_check'])
 
+    def test_passenger_mix_is_forwarded_to_booking_link_builder(self):
+        captured = {}
+        def build(*args, **kwargs):
+            captured.update(kwargs)
+            return 'https://www.google.com/travel/flights/booking?tfs=synthetic'
+        self.client.build_flight_booking_url = build
+        passengers = Obj(adults=2)
+        normalize(self.raw, self.client, self.values, passengers)
+        self.assertIs(captured['passenger_info'], passengers)
+
     def test_rank_deduplicates_filters_and_sorts(self):
         a = normalize(self.raw, self.client, self.values)
         b = dict(a, price='500', duration=300, stops=1, journeys=[{'id': 'other'}])

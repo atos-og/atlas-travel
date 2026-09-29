@@ -95,6 +95,8 @@ class NluTests(unittest.TestCase):
             ('quais lugares e viagens voce atende hoje?', 'faq_scope', 'duvida cobertura'),
             ('qual opcao tem o assento mais confortavel?', 'faq_comfort', 'duvida conforto'),
             ('valeu demais pela ajuda', 'gratitude', 'obrigado atlas'),
+            ('junta tudo que ja planejei', 'trip_summary', 'resumo da viagem'),
+            ('o que eu preciso conferir antes de viajar?', 'travel_checklist', 'checklist da viagem'),
         )
         for text, intent, expected in mappings:
             with self.subTest(intent=intent):

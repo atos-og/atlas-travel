@@ -54,6 +54,30 @@ class ConversationTests(unittest.TestCase):
         self.assertIn('Ainda não avalia', self.send('duvida conforto'))
         self.assertIn('Por nada', self.send('obrigado atlas'))
 
+    def test_trip_summary_uses_only_saved_session_data(self):
+        self.bot.sessions['a'] = Session('complete', {
+            'origin': 'CNF', 'destination': 'BOG', 'departure': '12/11/2026',
+            'return': '19/11/2026', 'adults': '2', 'budget': '2500',
+            '_itinerary': {'city': 'bogota', 'days': 2, 'interest': 'cultura',
+                           'pace': 'tranquilo', 'plan': [{'date': None, 'places': ['botero']}]},
+        })
+        answer = self.send('resumo da viagem')
+        self.assertIn('CNF → BOG', answer)
+        self.assertIn('R$ 2.500,00', answer)
+        self.assertIn('Cidade: Bogotá', answer)
+        self.assertNotIn('_itinerary', answer)
+
+    def test_checklist_distinguishes_domestic_and_international_without_legal_claims(self):
+        self.bot.sessions['a'] = Session('destination', {'destination': 'GRU'})
+        domestic = self.send('checklist da viagem')
+        self.assertIn('Documento oficial', domestic)
+        self.assertNotIn('Passaporte válido', domestic)
+        self.bot.sessions['a'].values['destination'] = 'BOG'
+        international = self.send('checklist da viagem')
+        self.assertIn('Passaporte válido', international)
+        self.assertIn('fontes oficiais', international)
+        self.assertIn('apoio geral', international)
+
     def test_recommendation_and_comparison_use_only_saved_offers(self):
         bot = Conversation(lambda _: None)
         offers = [
