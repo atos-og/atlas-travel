@@ -12,6 +12,16 @@ from .conversation import Conversation, Session
 from .interactive import incoming, payload_for, text_payload, ACTION_PREFIX
 
 
+def session_idle_seconds(config):
+    """Return the bounded inactivity window for resuming a conversation."""
+    raw = config.get('ATLAS_SESSION_IDLE_MINUTES', '30')
+    try:
+        minutes = int(raw)
+    except (TypeError, ValueError):
+        return 30 * 60
+    return minutes * 60 if 1 <= minutes <= 24 * 60 else 30 * 60
+
+
 @contextmanager
 def database(path):
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -135,7 +145,10 @@ def process_one(config, path, sender=None, now=None):
         if recipient != allowed or not 0 <= now - timestamp < 23 * 3600:
             db.execute("UPDATE inbox SET state='skipped' WHERE id=?", (mid,))
             return True
-        saved = db.execute("SELECT step,data FROM sessions WHERE sender=?", (recipient,)).fetchone()
+        saved = db.execute("SELECT step,data,updated_at FROM sessions WHERE sender=?", (recipient,)).fetchone()
+        if saved and (saved[2] <= 0 or now - saved[2] >= session_idle_seconds(config)):
+            db.execute("DELETE FROM sessions WHERE sender=?", (recipient,))
+            saved = None
         db.execute("UPDATE inbox SET state='processing' WHERE id=?", (mid,))
     from .flights import search
     def progress(text):

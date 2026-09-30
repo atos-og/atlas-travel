@@ -1,7 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
-from atlas.messaging import database, ingest, process_one
+from atlas.messaging import database, ingest, process_one, session_idle_seconds
 
 
 class MessagingTests(unittest.TestCase):
@@ -34,6 +34,26 @@ class MessagingTests(unittest.TestCase):
         process_one(self.config, self.path, self.send, now=100)
         self.assertEqual(len(self.sent), 2)
         self.assertIn('Para onde', self.sent[-1])
+
+    def test_inactive_session_is_removed_before_the_next_message(self):
+        ingest(self.payload(), self.config, self.path, now=100)
+        process_one(self.config, self.path, self.send, now=100)
+        ingest(self.payload(mid='m2', text='BH'), self.config, self.path, now=110)
+        process_one(self.config, self.path, self.send, now=110)
+        ingest(self.payload(mid='m3', text='resumo da viagem', timestamp='1910'),
+               self.config, self.path, now=1910)
+        process_one(self.config, self.path, self.send, now=1910)
+        self.assertIn('ainda não confirmou', self.sent[-1])
+        with database(self.path) as db:
+            step, data = db.execute('SELECT step,data FROM sessions').fetchone()
+        self.assertEqual(step, 'origin')
+        self.assertEqual(data, '{}')
+
+    def test_session_idle_window_is_bounded(self):
+        self.assertEqual(session_idle_seconds({}), 1800)
+        self.assertEqual(session_idle_seconds({'ATLAS_SESSION_IDLE_MINUTES': '60'}), 3600)
+        for value in ('0', '1441', 'abc', ''):
+            self.assertEqual(session_idle_seconds({'ATLAS_SESSION_IDLE_MINUTES': value}), 1800)
 
     def test_other_user_old_messages_and_missing_allowlist_are_ignored(self):
         self.assertEqual(ingest(self.payload(user='other'), self.config, self.path, now=100), 0)

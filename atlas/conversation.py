@@ -143,6 +143,11 @@ class Conversation:
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
         today = today or local_today()
+        # A standalone greeting starts a new planning session. Longer messages
+        # such as "bom dia, quero ir de..." are not classified as greetings and
+        # still keep every explicitly supplied trip field.
+        if is_greeting(text):
+            self.sessions.pop(user_id, None)
         current = self.sessions.get(user_id)
         if self.interpreter:
             try:
@@ -307,8 +312,6 @@ class Conversation:
             self.sessions[user_id] = Session()
         session = self.sessions[user_id]
         values = session.values
-        if is_greeting(text) and not fresh:
-            return 'Olá! Continuamos de onde paramos.\n\n' + self.resume_flights(session)
         from .preferences import FIELDS, describe
         if command == 'salvar preferencias':
             if not all(key in values for key in FIELDS):

@@ -121,8 +121,8 @@ class InteractiveQueueTests(unittest.TestCase):
         self.config['ATLAS_LIVE_FLIGHTS_ENABLED'] = 'true'
         session = Session('adults', {'origin': 'CNF', 'destination': 'BOG'})
         with database(self.path) as db:
-            db.execute('INSERT INTO sessions(sender,step,data) VALUES (?,?,?)',
-                       ('570000000000', session.step, json.dumps(session.values)))
+            db.execute('INSERT INTO sessions(sender,step,data,updated_at) VALUES (?,?,?,?)',
+                       ('570000000000', session.step, json.dumps(session.values), 100))
         p = self.payload()
         message = p['entry'][0]['changes'][0]['value']['messages'][0]
         message['text']['body'] = 'roteiro'
@@ -151,8 +151,8 @@ class InteractiveQueueTests(unittest.TestCase):
         payload_for(session, 'Adultos?')
         action = next(k for k,v in session.values['_choices'].items() if v == '2')
         with database(self.path) as db:
-            db.execute('INSERT INTO sessions(sender,step,data) VALUES (?,?,?)',
-                       ('570000000000', session.step, json.dumps(session.values)))
+            db.execute('INSERT INTO sessions(sender,step,data,updated_at) VALUES (?,?,?,?)',
+                       ('570000000000', session.step, json.dumps(session.values), 100))
         p = self.payload()
         message = p['entry'][0]['changes'][0]['value']['messages'][0]
         message.update(type='interactive', interactive={'type':'list_reply','list_reply':{'id':action,'title':'IGNORE'}})

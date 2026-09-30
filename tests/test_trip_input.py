@@ -53,13 +53,13 @@ class TripInputTests(unittest.TestCase):
         self.assertEqual(self.bot.sessions['u'].values['adults'], '2')
         self.assertEqual(self.bot.sessions['u'].values['priority'], '1')
 
-    def test_standalone_greeting_preserves_pending_flight_question(self):
+    def test_standalone_greeting_starts_a_new_trip(self):
         self.send('oi')
         self.send('Confins')
-        before = self.bot.sessions['u'].values.copy()
         answer = self.send('Oi, Atlas!')
-        self.assertIn('Para qual cidade', answer)
-        self.assertEqual(self.bot.sessions['u'].values, before)
+        self.assertIn('De qual cidade', answer)
+        self.assertEqual(self.bot.sessions['u'].values, {})
+        self.assertEqual(self.bot.sessions['u'].step, 'origin')
         self.assertEqual(self.calls, [])
 
     def test_colloquial_confirmation_runs_the_confirmed_search(self):
@@ -146,8 +146,8 @@ class ProgressQueueTests(unittest.TestCase):
         values = {'origin': 'CNF', 'destination': 'GRU', 'departure': '23/10/2099',
                   'return': '30/10/2099', 'adults': '2', 'priority': '1', 'budget': None}
         with database(self.path) as db:
-            db.execute('INSERT INTO sessions(sender,step,data) VALUES (?,?,?)',
-                       ('570000000000', 'confirm', json.dumps(values)))
+            db.execute('INSERT INTO sessions(sender,step,data,updated_at) VALUES (?,?,?,?)',
+                       ('570000000000', 'confirm', json.dumps(values), 100))
         ingest(self.payload(text='sim'), self.config, self.path, now=100)
 
     def test_notice_precedes_search_and_does_not_repeat_on_duplicate(self):

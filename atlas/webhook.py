@@ -30,6 +30,7 @@ def settings():
                 "ATLAS_ALLOWED_WHATSAPP_USER", "ATLAS_WHATSAPP_REPLIES_ENABLED", "ATLAS_LIVE_FLIGHTS_ENABLED",
                 "ATLAS_LIVE_BUSES_ENABLED", "CLICKBUS_ACCESS_TOKEN", "CLICKBUS_API_BASE_URL",
                 "ATLAS_NLU_ENABLED", "ATLAS_RETENTION_DAYS", "ATLAS_BACKUP_COPIES",
+                "ATLAS_SESSION_IDLE_MINUTES",
                 "ATLAS_WEBHOOK_HOST", "ATLAS_WEBHOOK_PORT", "PORT",
                 "GROQ_API_KEY", "GROQ_MODEL"):
         if key in os.environ:
@@ -136,7 +137,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-conversation-v12")
+            return self.respond(200, "atlas-conversation-v13")
         if url.path == "/ready":
             return self.respond(200, "ready") if ready(settings()) else self.respond(503, "not ready")
         if url.path != "/webhook":
