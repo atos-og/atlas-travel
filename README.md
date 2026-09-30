@@ -22,6 +22,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Up to four displayed offers with round-trip totals, local times, airlines, durations, and Google Flights links when valid data is available.
 - A guided one-way bus flow with price, duration, connection, declared-class, and total-budget ranking; its ClickBus partner source remains disabled until credentials are approved.
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
+- Fresh planning sessions on standalone greetings and after 30 minutes of inactivity, so old trips and prices do not reappear unexpectedly.
 - Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.

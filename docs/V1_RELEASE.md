@@ -6,7 +6,7 @@ The v1 scope is round-trip economy flights for adults, total-ticket budget filte
 
 ## Completed engineering checks
 
-- 183 unit/integration tests pass locally, without paid services.
+- 185 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.

@@ -12,7 +12,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Opt-in preference save, view, reuse, update, and deletion.
 - [x] Search progress attempts tracked independently from final replies.
 - [x] Signed incoming events, recipient restriction, and duplicate handling.
-- [x] 183 local tests, including hosted-language diagnostics, retention, rotating backups, readiness, flight and bus provider boundaries, guided itinerary, destination and bus interpretation, trip organization, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
+- [x] 185 local tests, including hosted-language diagnostics, retention, rotating backups, session expiry, greeting resets, readiness, flight and bus provider boundaries, guided itinerary, destination and bus interpretation, trip organization, callback synchronization boundaries, contextual feature suggestions, and native choices persisted through the queue.
 - [x] Synthetic Groq health check confirmed the configured `openai/gpt-oss-20b` model without using traveler data.
 - [x] Sourced sightseeing drafts for São Paulo and Bogotá, with edits and preserved flight criteria.
 - [x] Native capability menu with readable sections for the implemented features.
@@ -54,6 +54,7 @@ Use future dates and the allowlisted test recipient. These checks should happen 
 15. During an itinerary, use natural phrases for the day count, interest, pace, viewing sources, editing, and reopening the plan. Confirm that unsupported values are rejected and that the generated copy still comes from Atlas rather than the model.
 16. After a flight result, open the native list and verify that nearby dates and sightseeing appear without exceeding ten rows. Trigger an ambiguous price objection and verify the three buttons for budget, nearby dates, and current offers.
 17. Choose `Consultar ônibus` while partner access is disabled. Verify that Atlas explains the credential boundary, shows no price, and preserves the pending flight search.
+18. Build part of a trip, then send a standalone `oi` or `bom dia Atlas`. Verify that route, dates, passengers, fares, itinerary, bus state, and old native choices are gone. Also resume after more than the configured idle window and verify a clean session. Explicit preferences must remain opt-in and unapplied.
 
 ## Remaining product work
 

@@ -61,6 +61,8 @@ The current allowlist permits one traveler. Keep `ATLAS_WHATSAPP_REPLIES_ENABLED
 
 `ATLAS_RETENTION_DAYS` defaults to 30 and is bounded from 1 to 365. The worker checks for expired local records every six hours. `ATLAS_BACKUP_COPIES` defaults to seven and is bounded from 1 to 30. The worker creates integrity-checked SQLite snapshots at startup and every 24 hours, rotating each database independently.
 
+`ATLAS_SESSION_IDLE_MINUTES` defaults to 30 and is bounded from 1 to 1,440. It controls only whether an active trip can resume after inactivity. It does not change message-record retention or automatically apply saved preferences.
+
 ```powershell
 python -m atlas.maintenance status
 python -m atlas.maintenance purge --days 30

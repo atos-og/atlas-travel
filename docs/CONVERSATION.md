@@ -27,7 +27,9 @@ Relative dates use Brasília time (UTC−3). Missing years mean the current year
 
 This is not unrestricted AI understanding. Bare weekdays such as `sexta-feira` and arbitrary corrections are not interpreted because their intended date can be ambiguous. Supported combined requests use explicit route, departure, return, passenger, preference, and budget phrases. Parsing is local and does not require a paid AI service.
 
-A standalone greeting such as `oi`, `bom dia Atlas`, or `boa tarde` never becomes a city, date, budget, or itinerary choice. Atlas greets the traveler and repeats the current flight, destination-comparison, or itinerary step without changing saved answers or querying the provider. A longer message that starts with a greeting is still parsed as a travel request.
+A standalone greeting such as `oi`, `bom dia Atlas`, or `boa tarde` starts a fresh planning session. Atlas discards the active route, dates, passenger count, budget, returned fares, sightseeing plan, bus flow, destination comparison, and native choices before asking for a new origin. A longer message that starts with a greeting is still parsed as a travel request and keeps every field explicitly supplied in that same message.
+
+The WhatsApp worker also discards an active planning session after 30 minutes without a message. The next message is processed against a clean session even when it is `menu`, a summary request, or a new combined trip. `ATLAS_SESSION_IDLE_MINUTES` can set a bounded value from 1 to 1,440 minutes; invalid values use 30 minutes. Explicitly saved preferences remain separate, are never applied automatically, and can still be deleted by the traveler.
 
 ## Combined requests and contextual changes
 
@@ -92,7 +94,7 @@ Both actions appear in the native capability menu. They can also be selected fro
 
 ## Validation and references
 
-The latest suite contains 183 passing tests; the earlier integration evidence below remains historical.
+The latest suite contains 185 passing tests; the earlier integration evidence below remains historical.
 
 The implementation passed 68 local unit tests covering dates, ambiguous amounts, confirmation, payloads, stale/fake IDs, persistence, signatures, rankings, and budgets. Meta accepted live `interactive.type=cta_url` and `interactive.type=list` messages for the private recipient.
 

@@ -14,7 +14,7 @@ Atlas helps people search and refine travel options through WhatsApp, compare al
 
 ## Conversation improvements — September 25, 2026
 
-Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, persisted search progress notices, context-preserving greetings, shared colloquial confirmations, and explicit relative weekdays. Offer details include duration in the URL-button message; long result summaries retain travel dates and query time. The newest conversation changes still need live WhatsApp acceptance.
+Implemented locally: explicit combined requests, contextual trip edits, price-objection clarification with native buttons, persisted search progress notices, greeting-triggered fresh sessions, inactivity expiry, shared colloquial confirmations, and explicit relative weekdays. Offer details include duration in the URL-button message; long result summaries retain travel dates and query time. The newest conversation changes still need live WhatsApp acceptance.
 
 An optional hosted NLU layer now translates varied wording into a strict, allowlisted intent. Deterministic parsing remains the fallback. Next: validate natural phrases through WhatsApp, broaden coverage using concrete regression examples, evaluate offer artwork and carousel feasibility against the test account and cost constraint, and extend nearby dates only after validating source reliability and query limits. Branded visuals must remain readable without images and must not invent baggage or fare guarantees. Capability suggestions should appear only when their underlying feature works.
 

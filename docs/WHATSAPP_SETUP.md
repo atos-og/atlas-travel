@@ -41,7 +41,7 @@ The command accepts only an HTTPS URL whose path is empty or exactly `/webhook`;
 
 ## Local data
 
-`work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases, their rotating snapshots, and `.env` are excluded from Git. By default records expire after 30 days and seven daily copies of each database are kept under `work/backups/`. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.
+`work/conversations.db` contains messages, responses, sender IDs, offers, and state. `work/webhooks.db` contains event hashes. Both databases, their rotating snapshots, and `.env` are excluded from Git. By default records expire after 30 days and seven daily copies of each database are kept under `work/backups/`. Active planning state expires after 30 minutes of inactivity; configure a bounded 1–1,440 minute window with `ATLAS_SESSION_IDLE_MINUTES`. A standalone greeting resets it immediately. Explicit saved preferences remain separate. Uncertain sends are not retried automatically. Use `cancelar` to recover a conversation.
 
 ## Read-only readiness checks
 
