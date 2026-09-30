@@ -98,7 +98,7 @@ python -m atlas.provider_audit CNF GRU 20/11/2026 27/11/2026 --adults 1
 python -m atlas.profile
 ```
 
-The model audit uses twelve fixed synthetic phrases. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
+The model audit uses thirteen fixed synthetic phrases. Run it in the bounded groups documented in the language guide so the free-tier burst limit does not look like an interpretation failure. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
 
 When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
 

@@ -54,7 +54,11 @@ A clean `atlas:validation` image build resolved the same pinned revision from sc
 
 # Trip-organization language audit — September 29, 2026
 
-Two additional fixed synthetic phrases mapped natural requests to the allowlisted `trip_summary` and `travel_checklist` actions. The focused Groq run passed both cases without traveler data. The complete corpus now contains twelve cases; the model selects commands while deterministic Atlas copy builds the summary and checklist.
+Two additional fixed synthetic phrases mapped natural requests to the allowlisted `trip_summary` and `travel_checklist` actions. The focused Groq run passed both cases without traveler data. The model selects commands while deterministic Atlas copy builds the summary and checklist.
+
+# Complete language audit — September 30, 2026
+
+All thirteen fixed synthetic cases passed against the configured Groq-hosted `openai/gpt-oss-20b` model when run in documented bounded groups. The added bus-start phrase mapped to the guided bus flow, while the separate bus-capability phrase mapped to reviewed explanatory copy. The first unpaced full-corpus run reached the free-tier burst boundary after six successful cases; it was not recorded as a product interpretation failure. No traveler messages or stored conversation data were sent during this audit.
 
 # Callback synchronization — September 29, 2026
 
