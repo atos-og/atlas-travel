@@ -31,7 +31,7 @@ This checklist separates implemented behavior from validation still needed. It i
 - [x] Synchronize and verify a replacement tunnel callback without rotating the WhatsApp access token.
 - [x] Confirm a new authorized inbound message produces a sent reply and renders the revised capability experience correctly.
 
-On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. The reconnection notice subsequently received a delivery confirmation. A new owner-driven feature test remains pending. The token and tunnel remain temporary; the owner is managing credential renewals while development continues.
+On September 24, 2026, account access was restored, a refreshed token was validated, and the callback and WhatsApp subscription were verified. The reconnection notice subsequently received a delivery confirmation. On September 30, another owner-managed renewal passed sanitized Meta, token, Groq, local-health, public-health, and callback-subscription checks on Atlas v12. A new owner-driven feature test remains pending. The token and tunnel remain temporary; the owner is managing credential renewals while development continues.
 
 ## Owner-driven WhatsApp acceptance
 

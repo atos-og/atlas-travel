@@ -52,7 +52,7 @@ The owner is handling access configuration and token renewals while product deve
 
 Account confirmation was completed by the owner. A new token was saved locally after app/scopes validation; the callback and account subscription were verified. The reconnection notice subsequently received a delivery confirmation. This does not complete acceptance of the latest conversation features.
 
-The temporary token expired again and was renewed with the same WhatsApp permissions. Read-only checks passed after renewal, with expiry reported at 22:00 UTC on September 24, 2026. A durable credential strategy remains pending; this is not a claim of ongoing availability.
+The temporary token was renewed again on September 30 with the same WhatsApp permissions. Read-only Meta and token checks passed, and the diagnostic reported a short remaining lifetime. A durable credential strategy remains pending; this is not a claim of ongoing availability.
 
 On September 25, the owner renewed the test token again. Atlas verified the token's app identity and WhatsApp scopes, replaced the expired quick-tunnel callback, subscribed the app to the test account, and passed independent local, public-tunnel, phone-number, and token checks. Meta reports this token expiring at 02:00 UTC on September 26, so another authorized inbound/outbound round trip is still required before the short-lived credential expires.
 
@@ -60,9 +60,11 @@ On September 27, Atlas replaced another expired quick tunnel and updated the exi
 
 The successful recovery path is now available as `python -m atlas.callback <HTTPS tunnel URL>`. The command validates the URL, updates the existing app subscription, and reads back the active callback and `messages` field without printing secrets. A live run against the current private Meta app succeeded.
 
-On September 29, after explicit owner authorization for the named Quick Tunnel, the callback was synchronized to `https://amounts-cables-empirical-scan.trycloudflare.com/webhook`. Meta reported the subscription active with `messages`. The first immediate read returned a false verification failure while a subsequent read returned the exact saved URL; the synchronizer now performs two short bounded rereads to tolerate this observed Graph API consistency delay.
+On September 29, after explicit owner authorization for a temporary Quick Tunnel, the callback was synchronized and Meta reported the subscription active with `messages`. The first immediate read returned a false verification failure while a subsequent read returned the exact saved URL; the synchronizer now performs two short bounded rereads to tolerate this observed Graph API consistency delay. Disposable tunnel hostnames are omitted from the repository.
 
 Later on September 29, the local webhook restarted on `atlas-conversation-v12`. The expired Quick Tunnel was replaced, and the new callback was synchronized and read back as active with the `messages` field. The saved WhatsApp token had already expired (`190/463`), so no owner-message acceptance was attempted or claimed for this runtime. The temporary callback hostname remains operational data and is intentionally omitted from the public documentation.
+
+On September 30, after another owner-managed token renewal, the local v12 webhook and a fresh Quick Tunnel were started again. Public health, the Meta app connection, the token, the Groq model, and the exact callback subscription all passed sanitized checks. Owner-driven acceptance of the newest copy remains pending.
 
 `python -m atlas.check` checks local readiness; `--meta` adds a read-only Meta API check, `--token` inspects expiry using the optional `META_APP_ID` setting, and `--groq` validates hosted interpretation with synthetic text. No WhatsApp messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline. The Groq check distinguishes configuration, credentials, access, quota/rate limits, request/model rejection, output validation, and network failures without returning raw provider text.
 

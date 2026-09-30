@@ -62,6 +62,10 @@ All thirteen fixed synthetic cases passed against the configured Groq-hosted `op
 
 # Callback synchronization — September 29, 2026
 
-With explicit owner approval for the named Cloudflare Quick Tunnel, Atlas updated the Meta app callback to `https://amounts-cables-empirical-scan.trycloudflare.com/webhook`. The sanitized readback reported an active `whatsapp_business_account` subscription containing the `messages` field and the exact callback URL. The public `/health` endpoint identified Atlas v11. No test message was sent during this check.
+With explicit owner approval for the temporary Cloudflare Quick Tunnel, Atlas updated the Meta app callback. The sanitized readback reported an active `whatsapp_business_account` subscription containing the `messages` field and the exact callback URL. The public `/health` endpoint identified Atlas v11. The disposable hostname is intentionally omitted. No test message was sent during this check.
+
+# Runtime recovery — September 30, 2026
+
+After the owner renewed the WhatsApp token, the read-only Meta, token, and Groq checks all passed. Atlas restarted locally as `atlas-conversation-v12`, a replacement Quick Tunnel returned the expected public health response, and the callback synchronizer confirmed an active `messages` subscription. The token diagnostic reported a short remaining lifetime, so this evidence demonstrates the restored private test session rather than durable availability. No owner-driven WhatsApp message was claimed during this recovery.
 
 The first read immediately after Meta accepted the update briefly returned a verification mismatch; a second read returned the expected value. The callback utility now retries this non-secret readback twice with short bounded delays. Its regression test simulates stale-then-current metadata without network access.
