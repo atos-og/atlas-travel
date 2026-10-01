@@ -36,7 +36,14 @@ AMBIGUOUS = {
 
 
 def resolve_airport(text):
-    name = plain(text)
+    name = ' '.join(plain(text).replace(',', ' ').split())
+    qualified = re.fullmatch(
+        r'(.+?)\s+(?:(?:na|no|em)\s+)?'
+        r'(?:brasil|colombia|peru|chile|portugal|espanha|argentina)',
+        name,
+    )
+    if qualified and (qualified[1] in AIRPORTS or qualified[1] in AMBIGUOUS):
+        name = qualified[1]
     if name in AMBIGUOUS:
         return None, AMBIGUOUS[name]
     if name in AIRPORTS:

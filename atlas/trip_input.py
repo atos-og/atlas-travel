@@ -39,6 +39,12 @@ def extract_trip(text):
         r'(?:(?:eu )?(?:quero|preciso de)|procure|busque|pode procurar|pode buscar) '
         r'(?:uma passagem|um voo)(?: de)? |de )', prefix))
     arrow_route = bool(re.search(r'(?:->|→)', prefix))
+    conversational_route = re.fullmatch(
+        r'(?:(?:eu )?(?:saio|parto|embarco|vou sair|quero sair) (?:de|do|da) )(.+?)'
+        r'\s+(?:e\s+)?(?:(?:eu )?)?(?:quero ir|vou|viajo|quero viajar|ir) '
+        r'(?:para|pra|a) (.+)',
+        prefix,
+    )
     route = re.fullmatch(
         r'(?:(?:eu )?(?:quero ir|vou|quero viajar) de |'
         r'(?:(?:eu )?(?:quero|preciso de)|procure|busque|pode procurar|pode buscar) '
@@ -52,7 +58,9 @@ def extract_trip(text):
         )
         for part in route.groups()
     ))
-    if (route and (explicit_route or arrow_route or bare_route_is_plausible)
+    if conversational_route:
+        fields.update(origin=conversational_route[1], destination=conversational_route[2])
+    elif (route and (explicit_route or arrow_route or bare_route_is_plausible)
             and not re.match(r'(?:(?:eu )?quero ir|mudar|trocar|alterar|eu gostaria)', route[1])):
         fields.update(origin=route[1], destination=route[2])
     else:
