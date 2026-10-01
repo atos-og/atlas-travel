@@ -44,7 +44,7 @@ def groq_check(config, *, opener=urlopen):
             failure['reason'] = 'network_or_response'
             raise
 
-    probe = 'como voce consegue me ajudar de um jeito melhor'
+    probe = 'pode me mostrar tudo que voce sabe fazer por aqui?'
     result = interpret(probe, 'origin', datetime.now(timezone.utc).date(), {}, config, opener=tracked)
     if failure:
         return {'enabled': True, 'configured': True, 'checked': True, 'ok': False,
