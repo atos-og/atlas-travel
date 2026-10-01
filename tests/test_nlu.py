@@ -4,7 +4,7 @@ import unittest
 from datetime import date
 
 from atlas.conversation import Conversation
-from atlas.nlu import ENDPOINT, interpret, needs_interpretation
+from atlas.nlu import ENDPOINT, SemanticMessage, interpret, needs_interpretation
 from atlas.trip_input import extract_trip
 
 
@@ -51,6 +51,8 @@ class NluTests(unittest.TestCase):
         request = json.loads(captured["request"].data)
         self.assertTrue(request["response_format"]["json_schema"]["strict"])
         self.assertFalse(request["response_format"]["json_schema"]["schema"]["additionalProperties"])
+        self.assertEqual(request["reasoning_effort"], "low")
+        self.assertEqual(request["max_completion_tokens"], 1024)
         self.assertNotIn("secret-test-value", request["messages"][0]["content"])
 
     def test_ignores_model_copy_for_an_allowlisted_command(self):
@@ -127,6 +129,57 @@ class NluTests(unittest.TestCase):
         result, _ = self.call(phrase, answer('trip_route', 'CNF -> ADZ'), 'departure')
         self.assertEqual(result, phrase)
 
+    def test_extracts_grounded_structured_requests(self):
+        phrase = 'o ponto de partida seria Confins e a chegada seria San Andrés'
+        value = json.dumps({'origin': 'Confins', 'destination': 'San Andrés'})
+        result, _ = self.call(phrase, answer('flight_request', value))
+        self.assertEqual(result, SemanticMessage('flight', {
+            'origin': 'Confins', 'destination': 'San Andrés'}))
+
+        itinerary = 'quero um roteiro no RJ por três dias, sem data, com natureza e ritmo tranquilo'
+        value = json.dumps({'city': 'rio de janeiro', 'start': 'sem data', 'days': '3',
+                            'interest': 'natureza', 'pace': 'tranquilo'})
+        result, _ = self.call(itinerary, answer('itinerary_request', value))
+        self.assertEqual(result.kind, 'itinerary')
+        self.assertEqual(result.fields['city'], 'rio de janeiro')
+
+        bus = ('quero ir de BH para São Paulo de ônibus no dia 23 de outubro de 2027, '
+               'somos dois adultos e prefiro a viagem mais rápida, até 500 reais')
+        value = json.dumps({'origin': 'BH', 'destination': 'São Paulo',
+                            'departure': '23 de outubro de 2027', 'adults': '2',
+                            'priority': '2', 'budget': '500'})
+        result, _ = self.call(bus, answer('bus_request', value))
+        self.assertEqual(result.kind, 'bus')
+        self.assertEqual(result.fields['budget'], '500')
+
+        numeric = json.dumps({'city': 'rio de janeiro', 'days': 3})
+        result, _ = self.call('quero roteiro no Rio de Janeiro por três dias',
+                              answer('itinerary_request', numeric))
+        self.assertEqual(result.fields['days'], '3')
+
+    def test_structured_requests_reject_unstated_or_malformed_fields(self):
+        phrase = 'quero sair de Confins'
+        invented = json.dumps({'origin': 'Confins', 'destination': 'Bogotá'})
+        result, _ = self.call(phrase, answer('flight_request', invented))
+        self.assertEqual(result, phrase)
+        result, _ = self.call('quero um roteiro no Rio', answer('itinerary_request', '{bad json'))
+        self.assertEqual(result, 'quero um roteiro no Rio')
+        value = json.dumps({'origin': 'Confins', 'adults': '8'})
+        result, _ = self.call('saio de Confins com oito adultos', answer('flight_request', value))
+        self.assertEqual(result, 'saio de Confins com oito adultos')
+
+    def test_maps_unclear_unsupported_and_product_questions_to_reviewed_copy(self):
+        mappings = (
+            ('nao sei direito como pedir isso', 'clarify_request', 'esclarecer pedido'),
+            ('reserve um hotel para mim', 'unsupported_request', 'recurso indisponivel'),
+            ('quem e voce afinal?', 'faq_identity', 'duvida identidade'),
+            ('como voce encontra essas passagens?', 'faq_sources', 'duvida fontes'),
+        )
+        for phrase, intent, expected in mappings:
+            with self.subTest(intent=intent):
+                result, _ = self.call(phrase, answer(intent))
+                self.assertEqual(result, expected)
+
     def test_rejects_invalid_or_out_of_context_answer(self):
         result, _ = self.call("somos oito", answer("step_answer", "8"), "adults")
         self.assertEqual(result, "somos oito")
@@ -172,7 +225,7 @@ class NluTests(unittest.TestCase):
         self.assertFalse(needs_interpretation(
             "quero comparar Guarulhos, Recife e Bogota", "discovery:candidates", self.today, candidates))
         self.assertTrue(needs_interpretation("eu parto la de Confins", "origin", self.today, {}))
-        self.assertFalse(needs_interpretation(
+        self.assertTrue(needs_interpretation(
             'saio de Confins e quero ir para San Andrés na Colômbia', 'origin', self.today, {}))
 
     def test_conversation_uses_interpreted_command(self):

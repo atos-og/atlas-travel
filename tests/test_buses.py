@@ -1,8 +1,10 @@
 import unittest
 from datetime import date
+from unittest.mock import Mock
 
 from atlas.buses import format_results, handle, normalize_offer, rank
-from atlas.conversation import Session
+from atlas.conversation import Conversation, Session
+from atlas.nlu import SemanticMessage
 
 
 def offer(price='120.00', duration=480, connections=0, service_class='Executivo'):
@@ -77,6 +79,22 @@ class BusDomainTests(unittest.TestCase):
         answer = format_results({'status': 'unauthorized'}, values)
         self.assertIn('não está credenciada', answer)
         self.assertIn('Nenhum preço foi estimado', answer)
+
+    def test_semantic_request_prefills_every_explicit_bus_choice(self):
+        semantic = SemanticMessage('bus', {
+            'origin': 'Belo Horizonte', 'destination': 'São Paulo',
+            'departure': '23/10/2027', 'adults': '2',
+            'priority': '2', 'budget': '500',
+        })
+        search = Mock(return_value={'status': 'empty', 'offers': []})
+        bot = Conversation(bus_search=search, interpreter=lambda *args: semantic)
+        answer = bot.reply('semantic-bus', 'pedido livre', today=self.today)
+        state = bot.sessions['semantic-bus'].values['_bus']
+        self.assertIn('Confirmar ônibus', answer)
+        self.assertEqual(state['stage'], 'confirm')
+        self.assertEqual(state['adults'], '2')
+        self.assertEqual(state['budget'], '500.00')
+        search.assert_not_called()
 
 
 if __name__ == '__main__':

@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from atlas.conversation import Conversation, Session
+from atlas.nlu import SemanticMessage
 
 
 class ConversationTests(unittest.TestCase):
@@ -117,6 +118,25 @@ class ConversationTests(unittest.TestCase):
         self.assertIn('Ônibus', answer)
         self.assertIn('Belo Horizonte → São Paulo', answer)
         self.assertIn('1 opção', answer)
+
+    def test_semantic_flight_request_applies_all_explicit_fields_at_once(self):
+        semantic = SemanticMessage('flight', {
+            'origin': 'Confins', 'destination': 'San Andrés na Colômbia',
+            'departure': '23/10/2027', 'return': '30/10/2027',
+            'adults': '2', 'priority': '1', 'budget': '3000',
+        })
+        bot = Conversation(lambda _: {'status': 'empty', 'offers': []},
+                           interpreter=lambda *args: semantic)
+        answer = bot.reply('semantic', 'uma solicitação em linguagem livre',
+                           today=date(2026, 9, 24))
+        self.assertIn('Confirmar busca: CNF → ADZ', answer)
+        self.assertEqual(bot.sessions['semantic'].values['adults'], '2')
+        self.assertEqual(bot.sessions['semantic'].values['budget'], '3000.00')
+
+    def test_semantic_product_questions_use_reviewed_responses(self):
+        bot = Conversation(lambda _: {'status': 'empty'},
+                           interpreter=lambda *args: 'duvida identidade')
+        self.assertIn('Eu sou o Atlas', bot.reply('u', 'quem é você?'))
 
 
 if __name__ == "__main__":

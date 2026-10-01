@@ -7,6 +7,7 @@ from atlas.conversation import Conversation, Session
 from atlas.destinations import CITIES, PLACES, get_place, reviewed_on
 from atlas.itinerary import build_plan, render, sources
 from atlas.interactive import payload_for
+from atlas.nlu import SemanticMessage
 
 
 class PlanTests(unittest.TestCase):
@@ -219,3 +220,18 @@ class ItineraryConversationTests(unittest.TestCase):
             payload = payload_for(self.bot.sessions['a'], answer)
             self.assertEqual(payload['interactive']['action']['button'], 'Explorar recursos')
             self.assertEqual(len(payload['interactive']['action']['sections'][0]['rows']), 9)
+
+    def test_semantic_request_prefills_all_explicit_itinerary_choices(self):
+        semantic = SemanticMessage('itinerary', {
+            'city': 'rio de janeiro', 'start': 'sem data', 'days': '3',
+            'interest': 'natureza', 'pace': 'tranquilo',
+        })
+        bot = Conversation(flight_search=self.search, interpreter=lambda *args: semantic)
+        answer = bot.reply('semantic-itinerary', 'pedido livre', today=self.today)
+        state = bot.sessions['semantic-itinerary'].values['_itinerary']
+        self.assertIn('Montar roteiro: Rio de Janeiro', answer)
+        self.assertEqual(state['stage'], 'confirm')
+        self.assertEqual(state['days'], 3)
+        self.assertEqual(state['interest'], 'natureza')
+        self.assertEqual(state['pace'], 'tranquilo')
+        self.assertNotIn('plan', state)
