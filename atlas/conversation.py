@@ -47,7 +47,7 @@ FAQ_RESPONSES = {
                           'preços, telefone e credenciais não entram nesse pedido.'),
     'duvida onibus': ('*Passagens de ônibus*\n\nO fluxo rodoviário já está implementado, mas Atlas ainda não consulta tarifas ao vivo nesta instalação. A fonte oficial escolhida exige credenciamento de parceiro antes da ativação. Digite *ônibus* para ver o estado da integração.'),
     'duvida alertas': ('*Alertas de preço*\n\nAtlas ainda não monitora preços em segundo plano nem envia alertas automáticos. Hoje, cada busca acontece quando você pede.'),
-    'duvida cobertura': ('*O que Atlas cobre hoje*\n\nAtlas consulta voos de ida e volta para adultos, compara orçamento e datas próximas, guarda preferências quando você pede e monta roteiros para São Paulo ou Bogotá.\n\nDigite *menu* para ver as opções.'),
+    'duvida cobertura': ('*O que Atlas cobre hoje*\n\nAtlas consulta voos de ida e volta para adultos, compara orçamento e datas próximas, guarda preferências quando você pede e monta roteiros para São Paulo, Bogotá ou Rio de Janeiro.\n\nDigite *menu* para ver as opções.'),
     'duvida conforto': ('*Conforto e qualidade*\n\nAtlas pode comparar preço, duração e quantidade de paradas. Ainda não avalia espaço do assento, serviço de bordo, bagagem ou qualidade da cabine.'),
     'obrigado atlas': ('Por nada! 😊\n\nQuando quiser continuar, digite *menu* para consultar voos, explorar destinos ou montar um roteiro.'),
 }
@@ -194,7 +194,7 @@ class Conversation:
                     '*Mais possibilidades*\n'
                     'Veja datas próximas ou compare até 3 destinos escolhidos por você.\n\n'
                     '*Passeios*\n'
-                    'Monte de 1 a 3 dias em São Paulo ou Bogotá.\n\n'
+                    'Monte de 1 a 3 dias em São Paulo, Bogotá ou Rio de Janeiro.\n\n'
                     '*Organização*\n'
                     'Veja o resumo e um checklist da sua viagem.\n\n'
                     '*Suas preferências*\n'
@@ -375,7 +375,7 @@ class Conversation:
                     "✈️ *Passagens*\nIda e volta para 1 a 6 adultos. Compare preço, duração e paradas.\n\n"
                     "🚌 *Ônibus*\nDigite ônibus para iniciar; preços reais só aparecem quando a fonte parceira estiver credenciada.\n\n"
                     "*Quer gastar menos?*\nUse orçamento, datas flexíveis (±1 dia) ou explorar destinos (até 3 aeroportos).\n\n"
-                    "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo ou Bogotá.\n\n"
+                    "*Passeios*\nDigite roteiro para planejar de 1 a 3 dias em São Paulo, Bogotá ou Rio de Janeiro.\n\n"
                     "*Organização*\nUse resumo da viagem ou checklist da viagem para reunir o plano e revisar preparativos.\n\n"
                     "*Suas preferências*\nSalvar preferências, minhas preferências, usar preferências ou apagar preferências.\n\n"
                     "*Depois da busca*\n"

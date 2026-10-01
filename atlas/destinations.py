@@ -5,9 +5,11 @@ are Atlas editorial classifications, not route or accessibility guarantees.
 """
 
 REVIEWED = '2026-09-24'
-CITIES = {'sao_paulo': 'São Paulo', 'bogota': 'Bogotá'}
+CITIES = {'sao_paulo': 'São Paulo', 'bogota': 'Bogotá', 'rio_de_janeiro': 'Rio de Janeiro'}
 ALIASES = {'sao paulo': 'sao_paulo', 'sp': 'sao_paulo', 'gru': 'sao_paulo',
-           'cgh': 'sao_paulo', 'bogota': 'bogota', 'bog': 'bogota'}
+           'cgh': 'sao_paulo', 'bogota': 'bogota', 'bog': 'bogota',
+           'rio de janeiro': 'rio_de_janeiro', 'rio': 'rio_de_janeiro',
+           'rj': 'rio_de_janeiro', 'gig': 'rio_de_janeiro', 'sdu': 'rio_de_janeiro'}
 
 PLACES = (
     {'id': 'masp', 'city': 'sao_paulo', 'name': 'MASP', 'region': 'Paulista',
@@ -35,8 +37,32 @@ PLACES = (
     {'id': 'jardin', 'city': 'bogota', 'name': 'Jardín Botánico de Bogotá', 'region': 'Jardín Botánico',
      'interest': 'natureza', 'description': 'Jardim botânico e coleções vegetais.',
      'source': 'https://jbb.gov.co/'},
+    {'id': 'jbrj', 'city': 'rio_de_janeiro', 'name': 'Jardim Botânico do Rio',
+     'region': 'Jardim Botânico', 'interest': 'natureza',
+     'description': 'Arboreto histórico e coleções vivas.',
+     'source': 'https://www.gov.br/jbrj/pt-br/assuntos/visitacao/horarios-e-ingressos',
+     'closed_dates': ['12-25', '01-01'], 'reviewed': '2026-10-01'},
+    {'id': 'parque_lage', 'city': 'rio_de_janeiro', 'name': 'Parque Lage',
+     'region': 'Jardim Botânico', 'interest': 'natureza',
+     'description': 'Parque público aos pés do Corcovado.',
+     'source': 'https://eavparquelage.rj.gov.br/o-parque', 'reviewed': '2026-10-01'},
+    {'id': 'museu_amanha', 'city': 'rio_de_janeiro', 'name': 'Museu do Amanhã',
+     'region': 'Centro', 'interest': 'cultura',
+     'description': 'Museu de ciências na Praça Mauá.',
+     'source': 'https://museudoamanha.org.br/visite/horarios-e-ingressos/',
+     'closed_weekdays': [2], 'reviewed': '2026-10-01'},
+    {'id': 'ccbb_rio', 'city': 'rio_de_janeiro', 'name': 'CCBB Rio de Janeiro',
+     'region': 'Centro', 'interest': 'cultura',
+     'description': 'Centro cultural no coração histórico da cidade.',
+     'source': 'https://ccbb.com.br/rio-de-janeiro/normas-de-visitacao/',
+     'closed_weekdays': [1], 'reviewed': '2026-10-01'},
 )
 
 
 def get_place(place_id):
     return next(place for place in PLACES if place['id'] == place_id)
+
+
+def reviewed_on(place):
+    """Return the editorial review date recorded for one catalog entry."""
+    return place.get('reviewed', REVIEWED)

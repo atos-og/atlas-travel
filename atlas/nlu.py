@@ -181,7 +181,8 @@ def needs_interpretation(text, step, today, values):
         return True
     if step.startswith("itinerary:"):
         stage = step.split(":", 1)[1]
-        if stage == "city" and value in {"sao paulo", "sp", "gru", "cgh", "bogota", "bog"}:
+        if stage == "city" and value in {"sao paulo", "sp", "gru", "cgh", "bogota", "bog",
+                                          "rio de janeiro", "rio", "rj", "gig", "sdu"}:
             return False
         if stage == "start":
             if value in {"sem data", "ainda sem data"}:
@@ -286,7 +287,7 @@ def _prompt(text, step, today, values):
     if step.startswith("itinerary:"):
         overlay_rules = """
 Itinerary step answers:
-- city: answer must be "sao paulo" or "bogota" and only when explicitly stated
+- city: answer must be "sao paulo", "bogota", or "rio de janeiro" and only when explicitly stated
 - start: preserve the explicit Portuguese date expression, or "sem data"
 - days: answer must be 1, 2, or 3
 - interest: answer must be "cultura", "natureza", or "misto"
@@ -311,7 +312,7 @@ Implemented actions:
 - menu: show capabilities
 - help: explain commands
 - flights: return to flight planning
-- itinerary: start sightseeing planning; only Sao Paulo and Bogota are supported
+- itinerary: start sightseeing planning; only Sao Paulo, Bogota, and Rio de Janeiro are supported
 - bus_search: start the implemented guided bus flow; live prices still require configured partner access
 - itinerary_show: display an itinerary that was already generated
 - itinerary_sources: show sources for an itinerary that was already generated
@@ -448,7 +449,7 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
     if step.startswith("itinerary:"):
         stage = step.split(":", 1)[1]
         allowed = {
-            "city": {"sao paulo", "bogota"},
+            "city": {"sao paulo", "bogota", "rio de janeiro"},
             "days": {"1", "2", "3"},
             "interest": {"cultura", "natureza", "misto"},
             "pace": {"tranquilo", "equilibrado"},

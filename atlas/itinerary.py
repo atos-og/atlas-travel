@@ -3,7 +3,7 @@
 import re
 from datetime import date, timedelta
 from .language import clean, parse_date, is_greeting, is_confirmation
-from .destinations import ALIASES, CITIES, PLACES, REVIEWED, get_place
+from .destinations import ALIASES, CITIES, PLACES, get_place, reviewed_on
 
 START = {'roteiro', 'montar roteiro', 'quero montar um roteiro', 'passeios'}
 INTERESTS = {'1': 'cultura', '2': 'natureza', '3': 'misto',
@@ -40,7 +40,7 @@ def build_plan(city, days, interest, pace, start=None, excluded=()):
 
 def prompt(state):
     return {
-        'city': '*Vamos montar seu roteiro.*\n\nPor enquanto, tenho passeios em São Paulo e Bogotá. Sua busca de voos fica preservada.\n\n*Qual cidade você quer conhecer?*',
+        'city': '*Vamos montar seu roteiro.*\n\nPor enquanto, tenho passeios em São Paulo, Bogotá e Rio de Janeiro. Sua busca de voos fica preservada.\n\n*Qual cidade você quer conhecer?*',
         'start': 'Qual será o primeiro dia disponível para passeios? Pode escrever uma data natural ou sem data. Não vou usar automaticamente o dia do voo.',
         'days': 'Quantos dias de passeios? Nesta versão, de 1 a 3 dias.',
         'interest': 'O que você prefere: cultura, natureza ou misto?',
@@ -69,22 +69,25 @@ def render(state):
             p = get_place(pid)
             lines.append(f"• {p['name']} ({p['region']})")
     lines.append('\n*Antes de sair*\nConfira abertura, ingressos e acessibilidade nas fontes. A disponibilidade nas suas datas não foi verificada. Reserve tempo para refeições e deslocamentos.')
-    lines.append(f'\nCatálogo revisado em {REVIEWED}.')
+    reviews = sorted({reviewed_on(get_place(pid)) for day in state['plan'] for pid in day['places']})
+    if reviews:
+        lines.append(f"\nFontes revisadas em {', '.join(reviews)}.")
     lines.append('\n*Quer ajustar alguma coisa?*\nUse as opções abaixo ou digite ajustar roteiro. Para os links, fontes do roteiro.')
     return '\n'.join(lines)
 
 
 def sources(state):
     ids = dict.fromkeys(pid for day in state.get('plan', []) for pid in day['places'])
-    return '\n\n'.join([f'*Fontes do roteiro*\nRevisão editorial: {REVIEWED}'] +
-                       [f"*{get_place(pid)['name']}*\n{get_place(pid)['source']}" for pid in ids] +
+    return '\n\n'.join(['*Fontes do roteiro*'] +
+                       [f"*{get_place(pid)['name']}*\nRevisado em {reviewed_on(get_place(pid))}\n{get_place(pid)['source']}" for pid in ids] +
                        ['Para continuar, digite *meu roteiro* ou *voltar aos voos*.'])
 
 
 def choices(state):
     stage = state.get('stage')
     options = {
-        'city': [('São Paulo', 'São Paulo'), ('Bogotá', 'Bogotá')],
+        'city': [('São Paulo', 'São Paulo'), ('Bogotá', 'Bogotá'),
+                 ('Rio de Janeiro', 'Rio de Janeiro')],
         'start': [('sem data', 'Ainda sem data')],
         'days': [(str(i), f'{i} dia' + ('s' if i > 1 else '')) for i in range(1, 4)],
         'interest': [('cultura', 'Cultura'), ('natureza', 'Natureza'), ('misto', 'Um pouco de tudo')],
@@ -179,7 +182,7 @@ def handle(session, text, today):
     if stage == 'city':
         city = ALIASES.get(command)
         if not city:
-            return 'A cobertura de roteiros por enquanto é São Paulo ou Bogotá. Qual delas?'
+            return 'A cobertura de roteiros por enquanto é São Paulo, Bogotá ou Rio de Janeiro. Qual delas?'
         state['city'] = city
     elif stage == 'start':
         try:

@@ -137,7 +137,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         url = urlsplit(self.path)
         if url.path == "/health":
-            return self.respond(200, "atlas-conversation-v13")
+            return self.respond(200, "atlas-conversation-v14")
         if url.path == "/ready":
             return self.respond(200, "ready") if ready(settings()) else self.respond(503, "not ready")
         if url.path != "/webhook":
