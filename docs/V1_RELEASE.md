@@ -2,11 +2,11 @@
 
 Status: **private acceptance in progress**, not a finished public service.
 
-The v1 scope is round-trip economy flights for adults, total-ticket budget filtering, nearby dates, explicit destination comparisons, saved preferences, native WhatsApp controls, and sourced sightseeing drafts for São Paulo and Bogotá. A disabled-by-default one-way bus integration boundary is included for portfolio demonstration; live bus fares, proactive price alerts, worldwide sightseeing, and whole-month search are outside this release.
+The v1 scope is round-trip economy flights for adults, total-ticket budget filtering, nearby dates, explicit destination comparisons, saved preferences, native WhatsApp controls, and sourced sightseeing drafts for São Paulo, Bogotá, and Rio de Janeiro. A disabled-by-default one-way bus integration boundary is included for portfolio demonstration; live bus fares, proactive price alerts, worldwide sightseeing, and whole-month search are outside this release.
 
 ## Completed engineering checks
 
-- 185 unit/integration tests pass locally, without paid services.
+- 187 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
 - A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
