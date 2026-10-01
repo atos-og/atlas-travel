@@ -45,6 +45,15 @@ class TripInputTests(unittest.TestCase):
         self.assertEqual(self.bot.sessions['u'].values['departure'], '23/10/2026')
         self.assertEqual(self.bot.sessions['u'].values['return'], '30/10/2026')
 
+    def test_conversational_route_fills_origin_and_destination_together(self):
+        self.send('oi')
+        answer = self.send('saio de Confins e quero ir para San Andrés na Colômbia')
+        self.assertIn('data de ida', answer)
+        self.assertEqual(self.bot.sessions['u'].values['origin'], 'CNF')
+        self.assertEqual(self.bot.sessions['u'].values['destination'], 'ADZ')
+        self.assertEqual(self.bot.sessions['u'].step, 'departure')
+        self.assertEqual(self.calls, [])
+
     def test_greeting_and_common_fare_words_in_combined_request(self):
         answer = self.send('Bom dia, pode procurar uma passagem de Confins pra Bogotá, ida 23/10/2026, volta 30/10/2026, somos um casal, quero a mais em conta, sem limite')
         self.assertIn('Confirmar busca', answer)

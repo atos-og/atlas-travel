@@ -118,6 +118,15 @@ class NluTests(unittest.TestCase):
         result, _ = self.call("eu parto lá de Confins", answer("step_answer", "Confins"))
         self.assertEqual(result, "Confins")
 
+    def test_extracts_two_explicit_places_without_inventing_airports(self):
+        phrase = 'meu embarque acontece em Confins e meu destino vai ser San Andrés'
+        result, _ = self.call(phrase, answer('trip_route', 'Confins -> San Andrés'))
+        self.assertEqual(result, 'Confins -> San Andrés')
+        result, _ = self.call(phrase, answer('trip_route', 'Confins -> Bogotá'))
+        self.assertEqual(result, phrase)
+        result, _ = self.call(phrase, answer('trip_route', 'CNF -> ADZ'), 'departure')
+        self.assertEqual(result, phrase)
+
     def test_rejects_invalid_or_out_of_context_answer(self):
         result, _ = self.call("somos oito", answer("step_answer", "8"), "adults")
         self.assertEqual(result, "somos oito")
@@ -163,6 +172,8 @@ class NluTests(unittest.TestCase):
         self.assertFalse(needs_interpretation(
             "quero comparar Guarulhos, Recife e Bogota", "discovery:candidates", self.today, candidates))
         self.assertTrue(needs_interpretation("eu parto la de Confins", "origin", self.today, {}))
+        self.assertFalse(needs_interpretation(
+            'saio de Confins e quero ir para San Andrés na Colômbia', 'origin', self.today, {}))
 
     def test_conversation_uses_interpreted_command(self):
         bot = Conversation(interpreter=lambda *args: "menu")

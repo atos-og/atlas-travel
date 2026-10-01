@@ -69,6 +69,8 @@ class FlightTests(unittest.TestCase):
 
     def test_ambiguous_destinations_require_choice(self):
         self.assertEqual(resolve_airport('Confins'), ('CNF', None))
+        self.assertEqual(resolve_airport('San Andrés na Colômbia'), ('ADZ', None))
+        self.assertEqual(resolve_airport('San Andrés, Colômbia'), ('ADZ', None))
         self.assertIsNone(resolve_airport('Colômbia')[0])
         self.assertIsNone(resolve_airport('São Paulo')[0])
 
