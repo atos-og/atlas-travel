@@ -71,7 +71,7 @@ The identity should support both the current private prototype and its future sc
 | Flights and buses in one comparison | Choose the transport that fits the journey | Flights available experimentally; buses planned |
 | Budget-led travel | Find options that respect what the person wants to spend | Total flight-price limit and comparison of up to three chosen destinations implemented |
 | Flexible dates | See whether another day improves the trip | Bounded ±1-day comparison implemented |
-| Personalized sightseeing plans | Know what to do, in an order that makes sense | Sourced 1–3-day drafts implemented for São Paulo and Bogotá |
+| Personalized sightseeing plans | Know what to do, in an order that makes sense | Sourced 1–3-day drafts implemented for São Paulo, Bogotá, and Rio de Janeiro |
 | Remembered preferences | Avoid repeating the same choices each time | Explicit save, reuse, update, and deletion implemented |
 | Useful travel alerts | Learn when a relevant option changes | Planned |
 | Contextual suggestions | Discover what Atlas can help with next | Native capability menu and contextual refinement choices implemented |
@@ -237,4 +237,4 @@ The immediate goal is not to make Atlas look enormous or fully finished. It is t
 
 ## 17. Copy-ready creative assignment
 
-> Apply the approved Atlas visual identity to a personal travel assistant. Preserve the supplied A-shaped route symbol, mint dot, and Atlas wordmark. Use Midnight #0B1F3B, Mint #2EE6B6, and Sand #FAF8F3. Adapt the approved light, dark, and circular-avatar compositions with generous space and readable supporting text. The current private prototype supports round-trip flight comparisons, total ticket budgets, bounded nearby dates, comparison of chosen destinations, saved preferences, sourced sightseeing drafts for São Paulo and Bogotá, and provider links. Buses, alerts, broader sightseeing coverage, and whole-month searches remain planned. Do not redraw the mark into a different concept, infer an exact font, imitate another assistant, or present planned capabilities as available. The optional tagline remains provisional.
+> Apply the approved Atlas visual identity to a personal travel assistant. Preserve the supplied A-shaped route symbol, mint dot, and Atlas wordmark. Use Midnight #0B1F3B, Mint #2EE6B6, and Sand #FAF8F3. Adapt the approved light, dark, and circular-avatar compositions with generous space and readable supporting text. The current private prototype supports round-trip flight comparisons, total ticket budgets, bounded nearby dates, comparison of chosen destinations, saved preferences, sourced sightseeing drafts for São Paulo, Bogotá, and Rio de Janeiro, and provider links. Buses, alerts, broader sightseeing coverage, and whole-month searches remain planned. Do not redraw the mark into a different concept, infer an exact font, imitate another assistant, or present planned capabilities as available. The optional tagline remains provisional.

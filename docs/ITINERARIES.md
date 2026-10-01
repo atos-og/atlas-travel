@@ -1,10 +1,10 @@
 # Sightseeing itineraries
 
-Atlas can build a small sightseeing draft without an AI subscription or a live travel API. The initial editorial catalog covers **São Paulo and Bogotá**, with four places in each city. This is a bounded feature, not worldwide itinerary generation.
+Atlas can build a small sightseeing draft without a paid AI subscription or a live travel API. The editorial catalog covers **São Paulo, Bogotá, and Rio de Janeiro**, with four places in each city. This is a bounded feature, not worldwide itinerary generation.
 
 ## Traveler flow
 
-Send `menu` to discover the available features through a native WhatsApp list, or send `roteiro` (itinerary). A direct request such as `roteiro para Bogotá` selects the supported city explicitly. The bot asks for:
+Send `menu` to discover the available features through a native WhatsApp list, or send `roteiro` (itinerary). A direct request such as `roteiro para Rio de Janeiro` selects the supported city explicitly. Common explicit aliases such as `RJ`, `GIG`, and `SDU` select the Rio catalog. The bot asks for:
 
 1. City.
 2. First day available for sightseeing, or `sem data` (no date yet).
@@ -13,7 +13,7 @@ Send `menu` to discover the available features through a native WhatsApp list, o
 5. Relaxed pace (at most one place per day) or balanced pace (at most two).
 6. Confirmation before generating the draft.
 
-Example messages: `roteiro para São Paulo` → `sem data` → `3 dias` → `misto` → `equilibrado` → `montar`.
+Example messages: `roteiro para Rio` → `sem data` → `3 dias` → `misto` → `equilibrado` → `montar`.
 
 The generated plan offers `fontes do roteiro` (sources), `ajustar roteiro` (edit), `remover passeio` (remove a place), and `voltar aos voos` (return to flights). Editing requires another confirmation. Removed places remain excluded when the plan is rebuilt; starting a new itinerary resets exclusions. `meu roteiro` reopens the generated plan. `apagar roteiro` removes the itinerary while preserving flight criteria; `cancelar` resets the entire current trip.
 
@@ -32,18 +32,22 @@ Regions are coarse editorial groupings, not calculated walking routes. A relaxed
 
 ## Sources and freshness
 
-The sources below were reviewed on **September 24, 2026**. `atlas/destinations.py` stores the original short descriptions, classifications, and source links. The bot provides the sources for the places actually selected. It does not fetch their latest information during a conversation.
+The original São Paulo and Bogotá entries were reviewed on **September 24, 2026**. Rio de Janeiro entries were reviewed on **October 1, 2026**. `atlas/destinations.py` stores the original short descriptions, classifications, source links, and per-place review date. The bot provides the sources and recorded review date for the places actually selected. It does not fetch their latest information during a conversation.
 
-| Place | Primary source | Recorded closure rules |
-| --- | --- | --- |
-| MASP | [Museum visitor information](https://masp.com.br/pt-br/visite) | Mondays; December 24, 25 and 31; January 1 |
-| Pina Luz | [Pinacoteca visitor information](https://pinacoteca.org.br/visita/como-chegar/) | Tuesdays |
-| Trianon | [São Paulo municipal park information](https://prefeitura.sp.gov.br/web/meio_ambiente/w/parques/regiao_centrooeste/5773) | Not modeled |
-| Ibirapuera | [São Paulo municipal park information](https://prefeitura.sp.gov.br/meio_ambiente/w/parques/regiao_sul/14062) | Not modeled |
-| Museo Botero | [Visit Bogotá](https://visitbogota.co/es/que-hacer-en-bogota/cultura/museo-botero-en-bogota) | Not modeled |
-| Museo del Oro | [Bogotá municipal tourism guide](https://bogota.gov.co/mi-ciudad/turismo/guia-turistica-de-bogota) | Not modeled |
-| Monserrate | [Attraction visitor information](https://monserrate.co/es/preparar-visita/) | Not modeled |
-| Jardín Botánico | [Garden website](https://jbb.gov.co/) | Not modeled |
+| Place | Primary source | Reviewed | Recorded closure rules |
+| --- | --- | --- | --- |
+| MASP | [Museum visitor information](https://masp.com.br/pt-br/visite) | 2026-09-24 | Mondays; December 24, 25 and 31; January 1 |
+| Pina Luz | [Pinacoteca visitor information](https://pinacoteca.org.br/visita/como-chegar/) | 2026-09-24 | Tuesdays |
+| Trianon | [São Paulo municipal park information](https://prefeitura.sp.gov.br/web/meio_ambiente/w/parques/regiao_centrooeste/5773) | 2026-09-24 | Not modeled |
+| Ibirapuera | [São Paulo municipal park information](https://prefeitura.sp.gov.br/meio_ambiente/w/parques/regiao_sul/14062) | 2026-09-24 | Not modeled |
+| Museo Botero | [Visit Bogotá](https://visitbogota.co/es/que-hacer-en-bogota/cultura/museo-botero-en-bogota) | 2026-09-24 | Not modeled |
+| Museo del Oro | [Bogotá municipal tourism guide](https://bogota.gov.co/mi-ciudad/turismo/guia-turistica-de-bogota) | 2026-09-24 | Not modeled |
+| Monserrate | [Attraction visitor information](https://monserrate.co/es/preparar-visita/) | 2026-09-24 | Not modeled |
+| Jardín Botánico de Bogotá | [Garden website](https://jbb.gov.co/) | 2026-09-24 | Not modeled |
+| Jardim Botânico do Rio | [Federal visitor information](https://www.gov.br/jbrj/pt-br/assuntos/visitacao/horarios-e-ingressos) | 2026-10-01 | December 25; January 1 |
+| Parque Lage | [EAV visitor information](https://eavparquelage.rj.gov.br/o-parque) | 2026-10-01 | Not modeled |
+| Museu do Amanhã | [Museum hours and tickets](https://museudoamanha.org.br/visite/horarios-e-ingressos/) | 2026-10-01 | Wednesdays |
+| CCBB Rio de Janeiro | [CCBB visitor rules](https://ccbb.com.br/rio-de-janeiro/normas-de-visitacao/) | 2026-10-01 | Tuesdays |
 
 “Not modeled” does not mean open every day. A source review date is not the publication date of the page and does not establish live availability. All drafts ask travelers to verify opening hours, tickets, and accessibility. No ticket price, free-admission claim, availability, reservation, transport duration, or complete holiday calendar is promised. Known closures improve a draft but do not turn it into a validated booking schedule.
 

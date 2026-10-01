@@ -23,7 +23,7 @@ A conversational travel assistant built as a public portfolio project. The curre
 - A guided one-way bus flow with price, duration, connection, declared-class, and total-budget ranking; its ClickBus partner source remains disabled until credentials are approved.
 - Signed webhooks, an allowlisted recipient, a SQLite queue, deduplication, and delivery-status tracking.
 - Fresh planning sessions on standalone greetings and after 30 minutes of inactivity, so old trips and prices do not reappear unexpectedly.
-- Sourced sightseeing drafts for São Paulo and Bogotá: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
+- Sourced sightseeing drafts for São Paulo, Bogotá, and Rio de Janeiro: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
 - Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
@@ -103,7 +103,7 @@ The model audit uses thirteen fixed synthetic phrases. Run it in the bounded gro
 
 When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
 
-Sightseeing also works in the offline simulator: send `roteiro para São Paulo`, `sem data`, `3 dias`, `misto`, `equilibrado`, then `montar`. Use `fontes do roteiro` for the sources and `voltar aos voos` to resume the flight flow. See [itinerary behavior and coverage](docs/ITINERARIES.md).
+Sightseeing also works in the offline simulator: send `roteiro para Rio de Janeiro`, `sem data`, `3 dias`, `misto`, `equilibrado`, then `montar`. Use `fontes do roteiro` for the sources and `voltar aos voos` to resume the flight flow. See [itinerary behavior and coverage](docs/ITINERARIES.md).
 
 ## Scope and limitations
 
