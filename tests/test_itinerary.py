@@ -120,6 +120,9 @@ class ItineraryConversationTests(unittest.TestCase):
         self.assertIn('Montar roteiro: Rio de Janeiro', answer)
         rendered = self.send('montar')
         self.assertIn('Rio de Janeiro', rendered)
+        self.assertTrue(any(place['description'] in rendered for place in PLACES
+                            if place['city'] == 'rio_de_janeiro'))
+        self.assertIn(' — ', rendered)
         source_text = self.send('fontes do roteiro')
         self.assertIn('Revisado em 2026-10-01', source_text)
         self.assertTrue('gov.br/jbrj' in source_text or 'museudoamanha.org.br' in source_text)
