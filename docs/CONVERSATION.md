@@ -25,7 +25,7 @@ The flow is still guided by conversation state, but users can use alternatives t
 
 Relative dates use Brasília time (UTC−3). Missing years mean the current year; past dates are rejected, never silently moved to the next year. Impossible dates, multiple alternatives, and incomplete phrases such as `dia 23` require clarification. Final confirmation always shows DD/MM/YYYY.
 
-This is not unrestricted AI understanding. Bare weekdays such as `sexta-feira` and arbitrary corrections are not interpreted because their intended date can be ambiguous. Supported combined requests use explicit route, departure, return, passenger, preference, and budget phrases. Parsing is local and does not require a paid AI service.
+Atlas first handles clear commands and simple answers locally. When hosted interpretation is enabled, GPT-OSS can classify free-form Portuguese and extract several explicit criteria from one flight, bus, or itinerary message, even when the traveler supplies them out of order. Python still resolves airports, dates, passengers, priorities, budgets, and catalog choices. Bare weekdays such as `sexta-feira` remain ambiguous without a relative cue, and Atlas asks for clarification instead of choosing a date.
 
 A standalone greeting such as `oi`, `bom dia Atlas`, or `boa tarde` starts a fresh planning session. Atlas discards the active route, dates, passenger count, budget, returned fares, sightseeing plan, bus flow, destination comparison, and native choices before asking for a new origin. A longer message that starts with a greeting is still parsed as a travel request and keeps every field explicitly supplied in that same message.
 
@@ -102,7 +102,7 @@ References: [Meta's official list/button examples](https://whatsapp.github.io/Wh
 
 ## Bus travel
 
-`ônibus` starts an independent one-way flow. A short explicit route such as `quero ir de BH pra São Paulo de ônibus` preserves both cities and asks for the date. The optional hosted interpreter can map varied wording to the allowlisted bus command and understand bounded answers inside the bus stages; Python still validates every answer and controls the final copy.
+`ônibus` starts an independent one-way flow. A short explicit route such as `quero ir de BH pra São Paulo de ônibus` preserves both cities and asks for the date. The optional hosted interpreter can extract the route, date, adults, ranking, and budget from one longer request. Python still validates every field, requires confirmation, and controls the final copy.
 
 The flow ranks only validated source offers. “More comfort” means only the class declared by the operator, not a subjective quality score. Atlas requires confirmation before search, multiplies a per-ticket provider price by the requested adult count, and applies the budget to that total. Purchase handoff remains disabled because the documented partner search does not expose a verified fare URL.
 

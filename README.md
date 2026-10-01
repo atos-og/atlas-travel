@@ -26,14 +26,14 @@ A conversational travel assistant built as a public portfolio project. The curre
 - Sourced sightseeing drafts for São Paulo, Bogotá, and Rio de Janeiro: 1–3 days, culture/nature, pace, edits, exclusions, and preserved flight searches.
 - A native capability menu plus contextual post-search suggestions that make nearby dates, sightseeing, and destination comparison discoverable.
 - Budget-led comparison of up to three chosen destination airports, with exact dates, separate query outcomes, and explicit selection.
-- Optional Groq-hosted natural-language interpretation that maps varied Portuguese wording to an allowlisted Atlas action or the current guided answer, including flight, itinerary, and destination-comparison steps.
+- Optional Groq-hosted semantic interpretation that understands varied Portuguese requests, extracts several explicit flight, bus, or itinerary criteria from one message, and maps questions to reviewed Atlas actions.
 - Controlled answers for natural questions about saved offers, baggage, buying, price freshness, privacy, buses, alerts, product coverage, and comfort limits.
 - A saved-trip summary and a domestic/international preparation checklist, available from the native menu or natural requests.
 - Thirty-day local retention by default, rotating integrity-checked SQLite snapshots, aggregate status output, and separate liveness/readiness endpoints.
 
 **Experimental data source:** live CNF–GRU searches succeeded for one and two adults, producing ranked results and links. Earlier searches returned no results, so availability remains uncertain. Checkout prices and purchases have not been validated. See the [live validation record](docs/LIVE_VALIDATION.md).
 
-Live bus-source activation, cross-mode comparison, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent; it does not generate fares, links, itineraries, or final replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
+Live bus-source activation, cross-mode comparison, broader itinerary coverage, whole-month date searches, and alerts are future milestones. Deterministic Portuguese parsing remains the fallback. When explicitly enabled, a Groq-hosted open-weight model translates the current message into a validated intent and explicit criteria. It can understand multi-part requests, corrections, product questions, unclear requests, unsupported requests, and casual conversation. It does not generate fares, links, itinerary places, or final operational replies. Ambiguous dates require clarification. Sightseeing uses a small editorial catalog with official source links, not live opening-hours or ticket-availability verification.
 
 ## Technology stack
 
@@ -41,7 +41,7 @@ Live bus-source activation, cross-mode comparison, broader itinerary coverage, w
 | --- | --- | --- |
 | Application | Python 3.12+ | Conversation state, validation, provider orchestration, and webhook worker |
 | Messaging | WhatsApp Cloud API and Meta Graph API | Inbound webhooks, native controls, delivery status, and outbound messages |
-| Language model | OpenAI GPT-OSS 20B (`openai/gpt-oss-20b`) | Bounded intent and current-step answer interpretation |
+| Language model | OpenAI GPT-OSS 20B (`openai/gpt-oss-20b`) | Intent classification and grounded multi-field travel extraction |
 | Model runtime | GroqCloud API | Hosted inference for GPT-OSS 20B; the private prototype uses Groq's free tier |
 | Deterministic NLU | Atlas local Portuguese parser | First-line parsing and fallback when hosted interpretation is unnecessary or unavailable |
 | Travel source | Google Flights through a pinned `fli` revision | Experimental round-trip fare discovery and links |
@@ -99,7 +99,7 @@ python -m atlas.provider_audit CNF GRU 20/11/2026 27/11/2026 --adults 1
 python -m atlas.profile
 ```
 
-The model audit uses thirteen fixed synthetic phrases. Run it in the bounded groups documented in the language guide so the free-tier burst limit does not look like an interpretation failure. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
+The model audit uses seventeen fixed synthetic phrases, including complete flight, bus, and itinerary requests. Run it in the bounded groups documented in the language guide so the free-tier burst limit does not look like an interpretation failure. The provider audit prints counts, a price range, and link domains without exposing booking URLs. The profile check reports branding readiness without printing the phone number, token, or profile-picture URL.
 
 When a temporary tunnel changes, synchronize its base URL with the existing Meta app subscription using `python -m atlas.callback https://example.trycloudflare.com`. The command adds `/webhook`, performs Meta's verification challenge, preserves the `messages` field, verifies the saved subscription, and prints no credentials. It does not generate or renew the WhatsApp access token.
 
@@ -129,7 +129,7 @@ The initial setup is a private test without purchased services. This does not gu
 - [Deployment boundary and container](docs/DEPLOYMENT.md)
 - [Optional zero-cost external hosting](docs/FREE_HOSTING.md)
 - [Conversation behavior and native controls](docs/CONVERSATION.md)
-- [Bounded natural-language interpretation](docs/NATURAL_LANGUAGE.md)
+- [Validated natural-language interpretation](docs/NATURAL_LANGUAGE.md)
 - [Sightseeing itinerary coverage, sources, and rules](docs/ITINERARIES.md)
 - [Destination comparison by budget](docs/DESTINATION_DISCOVERY.md)
 - [Bus travel source, flow, and activation](docs/BUS_TRAVEL.md)

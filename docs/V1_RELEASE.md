@@ -1,15 +1,15 @@
 # Version 1 release candidate
 
-Status: **private acceptance in progress**, not a finished public service.
+Status: **portfolio implementation complete; private acceptance remains in progress**. This is not a finished public service.
 
 The v1 scope is round-trip economy flights for adults, total-ticket budget filtering, nearby dates, explicit destination comparisons, saved preferences, native WhatsApp controls, and sourced sightseeing drafts for São Paulo, Bogotá, and Rio de Janeiro. A disabled-by-default one-way bus integration boundary is included for portfolio demonstration; live bus fares, proactive price alerts, worldwide sightseeing, and whole-month search are outside this release.
 
 ## Completed engineering checks
 
-- 189 unit/integration tests pass locally, without paid services.
+- 197 unit/integration tests pass locally, without paid services.
 - GitHub Actions compiles the application and runs the offline suite on every push and pull request.
 - The container image builds with the pinned provider dependency, starts as unprivileged UID `10001`, and answers its local health check.
-- A synthetic hosted-language check validates the configured Groq key and GPT-OSS 20B model without using traveler data.
+- Synthetic hosted-language checks validate the configured Groq key and GPT-OSS 20B model, including complete flight, itinerary, and bus requests, without using traveler data.
 - Live flight-provider queries returned complete round-trip offers.
 - Two-destination budget comparison succeeded against the real provider.
 - Flow navigation preserves flight criteria and allows switching between destination comparison and sightseeing.

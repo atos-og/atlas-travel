@@ -60,6 +60,14 @@ Two additional fixed synthetic phrases mapped natural requests to the allowliste
 
 All thirteen fixed synthetic cases passed against the configured Groq-hosted `openai/gpt-oss-20b` model when run in documented bounded groups. The added bus-start phrase mapped to the guided bus flow, while the separate bus-capability phrase mapped to reviewed explanatory copy. The first unpaced full-corpus run reached the free-tier burst boundary after six successful cases; it was not recorded as a product interpretation failure. No traveler messages or stored conversation data were sent during this audit.
 
+# Structured travel-language audit — October 1, 2026
+
+Three focused synthetic requests passed against the configured Groq-hosted `openai/gpt-oss-20b` model. One flight sentence produced origin, destination, departure, return, adults, lowest-price priority, and total budget. One itinerary sentence produced Rio de Janeiro, no fixed start date, three days, nature, and a relaxed pace. One bus sentence produced origin, destination, departure, adults, shortest-duration priority, and total budget. No traveler message, phone number, stored conversation, fare, booking link, or credential was sent.
+
+The production request now uses low reasoning effort and a 1,024-token completion ceiling. This resolved observed schema-generation failures from the previous 512-token setting. Atlas accepts safe scalar JSON values from the model, converts them to strings, verifies that places and supporting cues are grounded in the current message, and then runs the normal deterministic airport, date, passenger, priority, budget, and itinerary validators. The model did not trigger a source query during this audit.
+
+The local suite passed 197 tests after the expansion. The fixed hosted-language corpus now contains seventeen cases. Only the three new structured cases were called together during this focused validation to remain within the free-tier burst boundary.
+
 # Callback synchronization — September 29, 2026
 
 With explicit owner approval for the temporary Cloudflare Quick Tunnel, Atlas updated the Meta app callback. The sanitized readback reported an active `whatsapp_business_account` subscription containing the `messages` field and the exact callback URL. The public `/health` endpoint identified Atlas v11. The disposable hostname is intentionally omitted. No test message was sent during this check.
