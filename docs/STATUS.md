@@ -66,6 +66,8 @@ Later on September 29, the local webhook restarted on `atlas-conversation-v12`. 
 
 On September 30, after another owner-managed token renewal, the local v12 webhook and a fresh Quick Tunnel were started again. Public health, the Meta app connection, the token, the Groq model, and the exact callback subscription all passed sanitized checks. Owner-driven acceptance of the newest copy remains pending.
 
+On October 1, Atlas restarted locally as `atlas-conversation-v17`. Both the localhost and existing Quick Tunnel health endpoints returned the v17 identifier. Sanitized Meta access and token inspection passed; the temporary token remained valid but was scheduled to expire at 12:00 UTC that day. The final synthetic Groq health probe passed after its wording was aligned with the expanded semantic intents. GitHub Actions passed on the published final branch. No owner message was sent during this operational check.
+
 `python -m atlas.check` checks local readiness; `--meta` adds a read-only Meta API check, `--token` inspects expiry using the optional `META_APP_ID` setting, and `--groq` validates hosted interpretation with synthetic text. No WhatsApp messages are sent and credentials are not printed. The expiry check distinguishes unknown metadata, no scheduled expiry, an upcoming deadline, and an expired deadline. The Groq check distinguishes configuration, credentials, access, quota/rate limits, request/model rejection, output validation, and network failures without returning raw provider text.
 
 ## Sightseeing and capability discovery

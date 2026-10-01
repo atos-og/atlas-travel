@@ -68,6 +68,10 @@ The production request now uses low reasoning effort and a 1,024-token completio
 
 The local suite passed 197 tests after the expansion. The fixed hosted-language corpus now contains seventeen cases. Only the three new structured cases were called together during this focused validation to remain within the free-tier burst boundary.
 
+# Final v17 runtime check — October 1, 2026
+
+The local webhook and the existing Quick Tunnel both returned `atlas-conversation-v17`. The sanitized Meta resource check passed, the configured WhatsApp token was valid with a scheduled 12:00 UTC expiry that day, and the corrected synthetic Groq health probe passed. GitHub Actions completed successfully for the published final branch. The check sent no WhatsApp message and does not establish availability after the temporary token or tunnel expires.
+
 # Callback synchronization — September 29, 2026
 
 With explicit owner approval for the temporary Cloudflare Quick Tunnel, Atlas updated the Meta app callback. The sanitized readback reported an active `whatsapp_business_account` subscription containing the `messages` field and the exact callback URL. The public `/health` endpoint identified Atlas v11. The disposable hostname is intentionally omitted. No test message was sent during this check.
