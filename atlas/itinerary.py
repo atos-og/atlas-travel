@@ -67,7 +67,7 @@ def render(state):
             lines.append('Livre: não há outro local no catálogo que atenda a esse dia e aos seus filtros.')
         for pid in day['places']:
             p = get_place(pid)
-            lines.append(f"• {p['name']} ({p['region']})")
+            lines.append(f"• *{p['name']}* — {p['region']}\n  {p['description']}")
     lines.append('\n*Antes de sair*\nConfira abertura, ingressos e acessibilidade nas fontes. A disponibilidade nas suas datas não foi verificada. Reserve tempo para refeições e deslocamentos.')
     reviews = sorted({reviewed_on(get_place(pid)) for day in state['plan'] for pid in day['places']})
     if reviews:
