@@ -187,6 +187,58 @@ def prompt(state):
     return prompts[state['stage']]
 
 
+def apply_request(session, fields, today, bus_search=None):
+    """Prefill a bus request extracted by the hosted interpreter."""
+    if bus_search is None:
+        session.values['_bus'] = {'active': False, 'stage': 'unavailable'}
+        session.values['_bus_notice'] = True
+        return UNAVAILABLE
+    state = {'active': True, 'stage': 'origin'}
+    session.values['_bus'] = state
+    for key in ('origin', 'destination'):
+        if key in fields:
+            value = fields[key].strip()
+            if not 2 <= len(value) <= 100:
+                state['stage'] = key
+                return 'Informe uma cidade ou terminal com 2 a 100 caracteres.'
+            state[key] = value
+    if state.get('origin') and clean(state.get('destination', '')) == clean(state['origin']):
+        state.pop('destination', None)
+        state['stage'] = 'destination'
+        return 'O destino precisa ser diferente da origem.'
+    if 'departure' in fields:
+        try:
+            parsed = parse_date(fields['departure'], today)
+            if parsed < today:
+                raise ValueError
+            state['departure'] = parsed.strftime('%d/%m/%Y')
+        except ValueError:
+            state['stage'] = 'departure'
+            return 'Não consegui entender a data. Informe um dia futuro, por exemplo 23/10/2026.'
+    if 'adults' in fields:
+        if fields['adults'] not in {str(i) for i in range(1, 7)}:
+            state['stage'] = 'adults'
+            return 'Nesta primeira versão rodoviária, informe de 1 a 6 adultos.'
+        state['adults'] = fields['adults']
+    if 'priority' in fields:
+        if fields['priority'] not in PRIORITIES:
+            state['stage'] = 'priority'
+            return PRIORITY_PROMPT
+        state['priority'] = fields['priority']
+    if 'budget' in fields:
+        try:
+            state['budget'] = parse_budget(fields['budget'])
+        except ValueError:
+            state['stage'] = 'budget'
+            return BUDGET_PROMPT
+    for key in ('origin', 'destination', 'departure', 'adults', 'priority', 'budget'):
+        if key not in state:
+            state['stage'] = key
+            return prompt(state)
+    state['stage'] = 'confirm'
+    return _summary(state)
+
+
 def choices(state):
     stage = state.get('stage')
     if stage == 'adults':

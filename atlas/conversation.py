@@ -43,13 +43,19 @@ FAQ_RESPONSES = {
     'duvida precos': ('*Sobre os preços*\n\nAs tarifas são uma fotografia da consulta e podem mudar no fornecedor. '
                       'Atlas compara apenas as opções retornadas pela fonte e não garante o menor preço de todo o mercado.'),
     'duvida privacidade': ('*Seus dados no Atlas*\n\nA conversa e as preferências ficam no armazenamento privado do serviço. '
-                          'Quando a interpretação inteligente é necessária, apenas a mensagem atual e um contexto curto da etapa são enviados ao Groq; '
+                          'Quando a interpretação inteligente é necessária, a mensagem atual, a etapa e os critérios atuais da viagem são enviados ao Groq; '
                           'preços, telefone e credenciais não entram nesse pedido.'),
     'duvida onibus': ('*Passagens de ônibus*\n\nO fluxo rodoviário já está implementado, mas Atlas ainda não consulta tarifas ao vivo nesta instalação. A fonte oficial escolhida exige credenciamento de parceiro antes da ativação. Digite *ônibus* para ver o estado da integração.'),
     'duvida alertas': ('*Alertas de preço*\n\nAtlas ainda não monitora preços em segundo plano nem envia alertas automáticos. Hoje, cada busca acontece quando você pede.'),
     'duvida cobertura': ('*O que Atlas cobre hoje*\n\nAtlas consulta voos de ida e volta para adultos, compara orçamento e datas próximas, guarda preferências quando você pede e monta roteiros para São Paulo, Bogotá ou Rio de Janeiro.\n\nDigite *menu* para ver as opções.'),
     'duvida conforto': ('*Conforto e qualidade*\n\nAtlas pode comparar preço, duração e quantidade de paradas. Ainda não avalia espaço do assento, serviço de bordo, bagagem ou qualidade da cabine.'),
     'obrigado atlas': ('Por nada! 😊\n\nQuando quiser continuar, digite *menu* para consultar voos, explorar destinos ou montar um roteiro.'),
+    'duvida identidade': ('*Eu sou o Atlas* ✈️\n\nSou um assistente de viagem em desenvolvimento. Ajudo a organizar critérios, consultar voos, comparar opções e montar roteiros com fontes. Não sou uma agência e não vendo passagens.'),
+    'duvida funcionamento': ('*Como o Atlas funciona*\n\nVocê escreve o que quer em linguagem natural. Eu organizo os critérios, confirmo os dados e só então consulto a fonte de viagens. O GPT-OSS ajuda a interpretar sua intenção; preços, links e decisões finais continuam validados pelo sistema.'),
+    'duvida fontes': ('*De onde vêm as informações*\n\nTarifas de voo vêm da fonte de busca configurada e podem mudar. Passeios vêm do catálogo editorial com links das fontes. O GPT-OSS interpreta pedidos, mas não cria preços, ofertas ou locais.'),
+    'esclarecer pedido': ('*Quero entender melhor*\n\nPosso ajudar com voos, orçamento, datas flexíveis, comparação de destinos e roteiros. Conte o que deseja mudar ou envie origem, destino, datas e passageiros na mesma mensagem.\n\nDigite *menu* para ver as opções.'),
+    'recurso indisponivel': ('*Entendi o pedido, mas esse recurso ainda não está disponível.*\n\nPosso continuar com voos, comparação de destinos, orçamento, datas próximas e roteiros das cidades atendidas. Digite *menu* para escolher outra opção.'),
+    'conversa casual': ('Tudo certo por aqui 😊\n\nQuando quiser planejar uma viagem, pode escrever do seu jeito ou abrir o *menu*.'),
 }
 
 BRAZIL_AIRPORTS = {'CNF', 'GRU', 'CGH', 'VCP', 'GIG', 'SDU', 'BSB', 'SSA',
@@ -140,6 +146,32 @@ class Conversation:
         self.interpreter = interpreter
         self.bus_search = bus_search
 
+    def apply_semantic(self, user_id, semantic, today):
+        """Apply model-extracted fields through deterministic domain validators."""
+        session = self.sessions.setdefault(user_id, Session())
+        if semantic.kind == 'flight':
+            for overlay in ('_itinerary', '_discovery', '_bus'):
+                if session.values.get(overlay):
+                    session.values[overlay]['active'] = False
+            if self.flight_search is None:
+                return 'A busca real de voos não está ativa neste simulador. Digite cancelar para testar o fluxo passo a passo.'
+            return self.apply_trip_fields(session, semantic.fields, today)
+        if semantic.kind == 'itinerary':
+            if session.values.get('_discovery'):
+                session.values['_discovery']['active'] = False
+            if session.values.get('_bus'):
+                session.values['_bus']['active'] = False
+            from .itinerary import apply_request
+            return apply_request(session, semantic.fields, today)
+        if semantic.kind == 'bus':
+            if session.values.get('_discovery'):
+                session.values['_discovery']['active'] = False
+            if session.values.get('_itinerary'):
+                session.values['_itinerary']['active'] = False
+            from .buses import apply_request
+            return apply_request(session, semantic.fields, today, self.bus_search)
+        return FAQ_RESPONSES['esclarecer pedido']
+
     def reply(self, user_id: str, text: str, *, today: date | None = None) -> str:
         text = text.strip()
         today = today or local_today()
@@ -149,6 +181,7 @@ class Conversation:
         if is_greeting(text):
             self.sessions.pop(user_id, None)
         current = self.sessions.get(user_id)
+        semantic = None
         if self.interpreter:
             try:
                 step = current.step if current else 'origin'
@@ -162,10 +195,17 @@ class Conversation:
                 elif current and current.values.get('_bus', {}).get('active'):
                     context = current.values['_bus']
                     step = 'bus:' + context['stage']
-                text = self.interpreter(text, step, today, context)
+                interpreted = self.interpreter(text, step, today, context)
+                from .nlu import SemanticMessage
+                if isinstance(interpreted, SemanticMessage):
+                    semantic = interpreted
+                else:
+                    text = interpreted
             except Exception:
                 # Natural-language interpretation is optional; deterministic parsing remains available.
                 pass
+        if semantic is not None:
+            return self.apply_semantic(user_id, semantic, today)
         command = clean(text)
         if current:
             current.values.pop('_capabilities', None)

@@ -2,6 +2,7 @@
 
 import json
 import re
+from dataclasses import dataclass
 from urllib.request import Request, urlopen
 
 
@@ -15,6 +16,15 @@ INTENTS = {
     "unchanged",
     "step_answer",
     "trip_route",
+    "flight_request",
+    "itinerary_request",
+    "bus_request",
+    "clarify_request",
+    "unsupported_request",
+    "social_reply",
+    "faq_identity",
+    "faq_how",
+    "faq_sources",
     "menu",
     "help",
     "flights",
@@ -98,6 +108,12 @@ COMMANDS = {
     "gratitude": "obrigado atlas",
     "trip_summary": "resumo da viagem",
     "travel_checklist": "checklist da viagem",
+    "clarify_request": "esclarecer pedido",
+    "unsupported_request": "recurso indisponivel",
+    "social_reply": "conversa casual",
+    "faq_identity": "duvida identidade",
+    "faq_how": "duvida funcionamento",
+    "faq_sources": "duvida fontes",
 }
 
 LOW_RISK_INTENTS = {
@@ -105,6 +121,8 @@ LOW_RISK_INTENTS = {
     'faq_baggage', 'faq_purchase', 'faq_prices', 'faq_privacy',
     'faq_bus', 'faq_alerts', 'faq_scope', 'faq_comfort', 'gratitude',
     'trip_summary', 'travel_checklist',
+    'clarify_request', 'unsupported_request', 'social_reply',
+    'faq_identity', 'faq_how', 'faq_sources',
 }
 
 SCHEMA = {
@@ -117,6 +135,121 @@ SCHEMA = {
     "required": ["intent", "answer", "confidence"],
     "additionalProperties": False,
 }
+
+
+@dataclass(frozen=True)
+class SemanticMessage:
+    """Validated structured meaning passed to the deterministic conversation."""
+    kind: str
+    fields: dict
+
+
+SEMANTIC_INTENTS = {'flight_request', 'itinerary_request', 'bus_request'}
+FLIGHT_FIELDS = {'origin', 'destination', 'departure', 'return', 'adults', 'priority', 'budget'}
+ITINERARY_FIELDS = {'city', 'start', 'days', 'interest', 'pace'}
+BUS_FIELDS = {'origin', 'destination', 'departure', 'adults', 'priority', 'budget'}
+
+
+def _decode_fields(answer, allowed):
+    """Read the model's inner JSON without accepting extra or empty values."""
+    try:
+        fields = json.loads(answer)
+    except (TypeError, ValueError):
+        return None
+    if not isinstance(fields, dict) or not fields or not set(fields) <= allowed:
+        return None
+    normalized = {}
+    for key, value in fields.items():
+        if isinstance(value, bool) or not isinstance(value, (str, int, float)):
+            return None
+        value = str(value).strip()
+        if not value or len(value) > 100:
+            return None
+        normalized[key] = value
+    return normalized
+
+
+def _semantic_message(intent, answer, text, step):
+    """Validate structured extractions before they can change conversation state."""
+    from .language import clean
+
+    source = clean(text)
+    passenger_cue = re.search(r'\b(?:adultos?|pessoas?|passageiros?|viajantes?|somos|casal|eu e|minha esposa|meu marido|nos dois)\b', source)
+    priority_cue = re.search(r'\b(?:barat|econom|preco|valor|rapid|duracao|tempo|sem escala|sem parada|diret|conexao|car|confort)\w*', source)
+    budget_cue = re.search(r'\b(?:orcamento|limite|ate|reais|r\$|sem limite)\b|\d', source)
+    date_cue = re.search(
+        r'\b(?:hoje|amanha|depois de amanha|dia|dias?|sem data|janeiro|fevereiro|marco|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b|\d',
+        source)
+    if intent == 'flight_request':
+        if step.startswith(('itinerary:', 'bus:', 'discovery:')):
+            return None
+        fields = _decode_fields(answer, FLIGHT_FIELDS)
+        if not fields:
+            return None
+        for key in ('origin', 'destination'):
+            if key in fields and clean(fields[key]) not in source:
+                return None
+        if 'adults' in fields and fields['adults'] not in {str(i) for i in range(1, 7)}:
+            return None
+        if 'adults' in fields and not passenger_cue:
+            return None
+        if 'priority' in fields and fields['priority'] not in {'1', '2', '3', '4'}:
+            return None
+        if 'priority' in fields and not priority_cue:
+            return None
+        if 'budget' in fields and not budget_cue:
+            return None
+        if 'departure' in fields and not date_cue:
+            return None
+        if 'return' in fields and (not date_cue or not re.search(
+                r'\b(?:volta|voltar|retorno|retornar|regresso|regressar)\w*\b', source)):
+            return None
+        return SemanticMessage('flight', fields)
+    if intent == 'itinerary_request':
+        fields = _decode_fields(answer, ITINERARY_FIELDS)
+        if not fields or 'city' not in fields:
+            return None
+        from .destinations import ALIASES
+        city_key = ALIASES.get(clean(fields['city']))
+        if not city_key or not any(mapped == city_key and re.search(
+                rf'\b{re.escape(alias)}\b', source) for alias, mapped in ALIASES.items()):
+            return None
+        if fields.get('days') and fields['days'] not in {'1', '2', '3'}:
+            return None
+        if fields.get('days') and not re.search(r'\b(?:um|dois|tres|1|2|3) dias?\b', source):
+            return None
+        if fields.get('interest') and fields['interest'] not in {'cultura', 'natureza', 'misto'}:
+            return None
+        if fields.get('interest') and not re.search(r'\b(?:cultura|museu|arte|natureza|parque|misto|de tudo)\w*', source):
+            return None
+        if fields.get('pace') and fields['pace'] not in {'tranquilo', 'equilibrado'}:
+            return None
+        if fields.get('pace') and not re.search(r'\b(?:tranquil|sem pressa|equilibrad)\w*', source):
+            return None
+        if 'start' in fields and not date_cue:
+            return None
+        return SemanticMessage('itinerary', fields)
+    if intent == 'bus_request':
+        fields = _decode_fields(answer, BUS_FIELDS)
+        if not fields:
+            return None
+        for key in ('origin', 'destination'):
+            if key in fields and clean(fields[key]) not in source:
+                return None
+        if 'adults' in fields and fields['adults'] not in {str(i) for i in range(1, 7)}:
+            return None
+        if 'adults' in fields and not passenger_cue:
+            return None
+        if 'priority' in fields and fields['priority'] not in {'1', '2', '3', '4'}:
+            return None
+        if 'priority' in fields and not priority_cue:
+            return None
+        if 'budget' in fields and not budget_cue:
+            return None
+        if 'departure' in fields and not date_cue:
+            return None
+        return SemanticMessage('bus', fields)
+    return None
 
 CANONICAL_INPUTS = set(COMMANDS.values()) | {
     "menu", "recursos", "quais recursos", "me mostre o menu",
@@ -152,9 +285,17 @@ def needs_interpretation(text, step, today, values):
     if re.search(r"\b(?:criancas?|bebes?)\b", value):
         return False
     if re.search(r"\b(?:onibus|rodoviari[oa])\b", value):
-        # A capability question can use the controlled FAQ. A concrete bus trip
-        # stays with the local parser, which explicitly refuses flight substitution.
-        return bool(re.search(r"\b(?:tambem|pesquisa|consultar|consegue|pode|oferece|tem)\b", value))
+        # Natural bus requests may contain several criteria at once. The model
+        # extracts only explicit fields; Python keeps control of validation.
+        return True
+    if re.search(r'\b(?:roteiro|passeios?|programacao da viagem)\b', value):
+        return True
+    if (len(value.split()) >= 7 and
+            re.search(r'\b(?:viaj|voo|passagem|embar|saio|sair|parto|partir|ir|vou|destino|chegada)\w*\b', value) and
+            re.search(r'\b(?:de|do|da)\b.+\b(?:para|pra|ate)\b', value)):
+        # Long requests frequently combine route, dates, passengers and budget.
+        # Let the semantic extractor separate them before the narrow regex parser.
+        return True
     if step.startswith("bus:"):
         stage = step.split(":", 1)[1]
         if stage in {'origin', 'destination'} and 1 <= len(value.split()) <= 5:
@@ -284,6 +425,10 @@ def needs_interpretation(text, step, today, values):
 
 def _prompt(text, step, today, values):
     departure = values.get("departure", "not supplied")
+    known = {key: values[key] for key in (
+        'origin', 'destination', 'departure', 'return', 'adults', 'priority',
+        'budget', 'city', 'start', 'days', 'interest', 'pace')
+             if key in values and isinstance(values[key], (str, int, float, type(None)))}
     overlay_rules = ""
     if step.startswith("itinerary:"):
         overlay_rules = """
@@ -340,10 +485,18 @@ Implemented actions:
 - trip_summary: show a summary of flight and itinerary data already stored in the current session
 - travel_checklist: show a deterministic preparation checklist for the current trip
 - trip_route: extract two explicitly stated flight places from one message; answer exactly "origin -> destination"
+- flight_request: extract one or more explicit flight criteria into a JSON string
+- itinerary_request: start or prefill a sightseeing plan from explicit details in one message
+- bus_request: start or prefill a bus search from explicit details in one message
+- clarify_request: the traveler appears to want an Atlas feature, but the requested action or required detail is unclear
+- unsupported_request: the request is understandable but Atlas does not implement it
+- social_reply: ordinary social conversation that does not ask for travel data or a product action
+- faq_identity, faq_how, faq_sources: questions about Atlas, how it works, or where travel results come from
 
 Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}
 Known departure date: {departure}
+Known current criteria: {json.dumps(known, ensure_ascii=False)}
 {overlay_rules}
 
 Rules:
@@ -358,9 +511,15 @@ Rules:
 8. For budget, answer must contain only the explicit amount or "sem limite".
 9. For flexibility, answer must be "comparar 1 dia" or "manter datas".
 10. For trip_route, copy the two explicit place names and format the answer exactly as "origin -> destination". Never replace a place with an airport code or infer a city from a country.
-11. For command intents, answer must be empty. For unchanged or unknown, answer must be empty.
-12. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
-13. Distinguish these common requests carefully:
+11. For flight_request, bus_request, or itinerary_request, put a compact JSON object inside answer. Include only fields explicitly stated in the current message:
+    - flight_request keys: origin, destination, departure, return, adults, priority, budget
+    - bus_request keys: origin, destination, departure, adults, priority, budget
+    - itinerary_request keys: city, start, days, interest, pace
+    Copy place and date wording instead of resolving it. Normalize adults to 1-6; priority to 1=cheapest, 2=shortest, 3=nonstop/fewer connections, 4=highest price for flights or comfort for buses; itinerary interest to cultura/natureza/misto and pace to tranquilo/equilibrado. Use "sem data" or "sem limite" only when explicitly stated.
+12. Prefer a structured request when one message provides multiple criteria, corrects a criterion that is not the current guided step, or starts an itinerary/bus request with details. Do not copy known criteria into answer unless the traveler repeats or changes them now.
+13. For command intents, answer must be empty. For unchanged, unknown, clarify_request, unsupported_request, social_reply, and FAQ intents, answer must be empty.
+14. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
+15. Distinguish these common requests carefully:
     - "qual dessas passagens faz mais sentido pra mim?" is offer_recommendation
     - "me explica a diferenca entre elas" is offer_comparison
     - "de onde sairam as informacoes dos passeios?" is itinerary_sources
@@ -389,7 +548,8 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         "model": config.get("GROQ_MODEL") or DEFAULT_MODEL,
         "messages": [{"role": "user", "content": _prompt(text, step, today, values)}],
         "temperature": 0,
-        "max_completion_tokens": 512,
+        "max_completion_tokens": 1024,
+        "reasoning_effort": "low",
         "response_format": {
             "type": "json_schema",
             "json_schema": {"name": "atlas_intent", "strict": True, "schema": SCHEMA},
@@ -431,6 +591,8 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         return text
     if intent in {"unknown", "unchanged"}:
         return text
+    if intent in SEMANTIC_INTENTS:
+        return _semantic_message(intent, answer, text, step) or text
     if intent == 'trip_route':
         match = re.fullmatch(r'\s*(.{2,100}?)\s*->\s*(.{2,100}?)\s*', answer)
         if not match or step not in {'origin', 'destination'}:

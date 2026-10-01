@@ -48,6 +48,52 @@ def prompt(state):
     }[state['stage']]
 
 
+def apply_request(session, fields, today):
+    """Prefill an itinerary request extracted by the hosted interpreter."""
+    state = {'active': True, 'stage': 'city'}
+    session.values['_itinerary'] = state
+    if 'city' in fields:
+        city = ALIASES.get(clean(fields['city']))
+        if not city:
+            return 'Ainda não tenho um catálogo para essa cidade. ' + prompt(state)
+        state['city'] = city
+    if 'start' in fields:
+        try:
+            start = None if clean(fields['start']) in {'sem data', 'ainda sem data'} else parse_date(fields['start'], today)
+            if start and (start < today or start > date.max - timedelta(days=2)):
+                raise ValueError
+            state['start'] = start.isoformat() if start else None
+        except ValueError:
+            state['stage'] = 'start'
+            return 'Informe uma data futura completa para começar os passeios ou escreva sem data.'
+    if 'days' in fields:
+        value = clean(fields['days'])
+        words = {'um': 1, 'dois': 2, 'tres': 3, 'um dia': 1, 'dois dias': 2, 'tres dias': 3}
+        days = int(value) if value in {'1', '2', '3'} else words.get(value)
+        if not days:
+            state['stage'] = 'days'
+            return 'Posso montar de 1 a 3 dias nesta versão. Quantos dias de passeios?'
+        state['days'] = days
+    if 'interest' in fields:
+        value = clean(fields['interest'])
+        if value not in INTERESTS:
+            state['stage'] = 'interest'
+            return 'Escolha cultura, natureza ou misto. Outros interesses ainda não têm catálogo nesta versão.'
+        state['interest'] = INTERESTS[value]
+    if 'pace' in fields:
+        value = clean(fields['pace'])
+        if value not in PACES:
+            state['stage'] = 'pace'
+            return prompt(state)
+        state['pace'] = PACES[value]
+    for key in ('city', 'start', 'days', 'interest', 'pace'):
+        if key not in state:
+            state['stage'] = key
+            return prompt(state)
+    state['stage'] = 'confirm'
+    return summary(state)
+
+
 def summary(state):
     start = date.fromisoformat(state['start']).strftime('%d/%m/%Y') if state.get('start') else 'sem data definida'
     return (f"*Montar roteiro: {CITIES[state['city']]}*\n\n"
