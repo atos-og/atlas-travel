@@ -51,7 +51,7 @@ class ConversationTests(unittest.TestCase):
         self.assertIn('ainda não consulta tarifas ao vivo', self.send('duvida onibus'))
         self.assertIn('credenciamento', self.send('duvida onibus'))
         self.assertIn('ainda não monitora', self.send('duvida alertas'))
-        self.assertIn('São Paulo ou Bogotá', self.send('duvida cobertura'))
+        self.assertIn('São Paulo, Bogotá ou Rio de Janeiro', self.send('duvida cobertura'))
         self.assertIn('Ainda não avalia', self.send('duvida conforto'))
         self.assertIn('Por nada', self.send('obrigado atlas'))
 

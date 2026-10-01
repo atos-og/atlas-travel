@@ -188,6 +188,9 @@ class NluTests(unittest.TestCase):
         self.assertEqual(result, "quero bastante tempo")
         result, _ = self.call("quero arte e museus", answer("step_answer", "cultura"), "itinerary:interest")
         self.assertEqual(result, "cultura")
+        result, _ = self.call("quero conhecer a cidade maravilhosa",
+                              answer("step_answer", "rio de janeiro"), "itinerary:city")
+        self.assertEqual(result, "rio de janeiro")
         result, _ = self.call("escolho a segunda", answer("step_answer", "destino 2"), "discovery:done")
         self.assertEqual(result, "destino 2")
         result, _ = self.call("pode colocar qualquer um", answer("step_answer", "destino 4"), "discovery:done")

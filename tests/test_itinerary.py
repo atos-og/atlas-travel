@@ -4,7 +4,7 @@ from datetime import date
 from unittest.mock import Mock
 
 from atlas.conversation import Conversation, Session
-from atlas.destinations import CITIES, PLACES, get_place
+from atlas.destinations import CITIES, PLACES, get_place, reviewed_on
 from atlas.itinerary import build_plan, render, sources
 from atlas.interactive import payload_for
 
@@ -37,6 +37,15 @@ class PlanTests(unittest.TestCase):
         plan = build_plan('sao_paulo', 3, 'cultura', 'equilibrado', date(2026, 12, 31))
         self.assertEqual(plan[1]['date'], '2027-01-01')
         self.assertNotIn('masp', plan[0]['places'] + plan[1]['places'])
+
+    def test_rio_catalog_uses_individual_review_dates_and_known_closures(self):
+        places = [place for place in PLACES if place['city'] == 'rio_de_janeiro']
+        self.assertEqual(len(places), 4)
+        self.assertTrue(all(reviewed_on(place) == '2026-10-01' for place in places))
+        tuesday = build_plan('rio_de_janeiro', 1, 'cultura', 'equilibrado', date(2026, 10, 6))
+        self.assertNotIn('ccbb_rio', tuesday[0]['places'])
+        wednesday = build_plan('rio_de_janeiro', 1, 'cultura', 'equilibrado', date(2026, 10, 7))
+        self.assertNotIn('museu_amanha', wednesday[0]['places'])
 
     def test_exclusions_and_sparse_catalog_are_honest(self):
         plan = build_plan('bogota', 3, 'cultura', 'equilibrado', excluded=('botero', 'oro'))
@@ -104,6 +113,16 @@ class ItineraryConversationTests(unittest.TestCase):
     def test_unsupported_city_is_not_substituted(self):
         self.assertIn('Ainda não tenho', self.send('roteiro para Paris'))
         self.assertNotIn('city', self.bot.sessions['a'].values['_itinerary'])
+
+    def test_rio_alias_builds_sourced_plan(self):
+        for text in ('roteiro para RJ', 'sem data', '2 dias', 'misto', 'equilibrado'):
+            answer = self.send(text)
+        self.assertIn('Montar roteiro: Rio de Janeiro', answer)
+        rendered = self.send('montar')
+        self.assertIn('Rio de Janeiro', rendered)
+        source_text = self.send('fontes do roteiro')
+        self.assertIn('Revisado em 2026-10-01', source_text)
+        self.assertTrue('gov.br/jbrj' in source_text or 'museudoamanha.org.br' in source_text)
 
     def test_edits_invalidate_generated_plan_and_require_new_confirmation(self):
         self.complete()
