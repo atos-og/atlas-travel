@@ -2,6 +2,7 @@ import unittest
 from datetime import date
 
 from atlas.nlu_audit import CASES, evaluate
+from atlas.nlu import SemanticMessage
 
 
 class NluAuditTests(unittest.TestCase):
@@ -33,6 +34,13 @@ class NluAuditTests(unittest.TestCase):
         result = evaluate({}, cases=subset, interpreter=lambda *args: next(expected))
         self.assertTrue(result['ok'])
         self.assertEqual(result['total'], 2)
+
+    def test_route_case_accepts_equivalent_structured_extraction(self):
+        route = tuple(case for case in CASES if case[0] == 'flight_route')
+        semantic = SemanticMessage('flight', {
+            'origin': 'Confins', 'destination': 'San Andres'})
+        result = evaluate({}, cases=route, interpreter=lambda *args: semantic)
+        self.assertTrue(result['ok'])
 
 
 if __name__ == '__main__':
