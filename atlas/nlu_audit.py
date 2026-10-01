@@ -12,6 +12,8 @@ from .webhook import settings
 CASES = (
     ('capabilities', 'pode me mostrar tudo que voce sabe fazer por aqui?', 'origin', {}, 'menu'),
     ('origin', 'eu embarco la pelo aeroporto de Confins', 'origin', {}, 'confins'),
+    ('flight_route', 'meu embarque acontece em Confins e meu destino vai ser San Andres',
+     'origin', {}, 'Confins -> San Andres'),
     ('itinerary_days', 'acho que dois dias ficam de bom tamanho', 'itinerary:days', {}, '2'),
     ('itinerary_sources', 'de onde sairam as informacoes dos passeios?', 'itinerary:done', {}, 'fontes do roteiro'),
     ('offer_recommendation', 'qual dessas passagens faz mais sentido pra mim?', 'complete', {}, 'recomendar oferta'),

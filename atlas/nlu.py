@@ -14,6 +14,7 @@ INTENTS = {
     "unknown",
     "unchanged",
     "step_answer",
+    "trip_route",
     "menu",
     "help",
     "flights",
@@ -338,6 +339,7 @@ Implemented actions:
 - gratitude: a short thank-you directed to Atlas
 - trip_summary: show a summary of flight and itinerary data already stored in the current session
 - travel_checklist: show a deterministic preparation checklist for the current trip
+- trip_route: extract two explicitly stated flight places from one message; answer exactly "origin -> destination"
 
 Current guided step: {step}
 Current date in Sao Paulo: {today.isoformat()}
@@ -348,15 +350,17 @@ Rules:
 1. Choose only an implemented intent. Use unknown when uncertain or when the user asks for an unsupported feature.
 2. Never invent a capability, place, airport, date, passenger count, budget, preference, price, or link.
 3. Use step_answer only when the message clearly answers the current flight step.
+   Use trip_route when both an origin and a destination are explicitly present, even during the origin or destination step.
 4. For origin or destination, copy only the place stated by the traveler. Never resolve a city or country to an airport code.
 5. For departure or return, keep the explicit date expression in Portuguese; do not add a missing day or month.
 6. For adults, answer must be a digit from 1 through 6.
 7. For priority, answer must be 1 for cheapest, 2 for shortest duration, 3 for nonstop, or 4 for highest price.
 8. For budget, answer must contain only the explicit amount or "sem limite".
 9. For flexibility, answer must be "comparar 1 dia" or "manter datas".
-10. For command intents, answer must be empty. For unchanged or unknown, answer must be empty.
-11. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
-12. Distinguish these common requests carefully:
+10. For trip_route, copy the two explicit place names and format the answer exactly as "origin -> destination". Never replace a place with an airport code or infer a city from a country.
+11. For command intents, answer must be empty. For unchanged or unknown, answer must be empty.
+12. A greeting, ordinary place name, date, number, or already clear command may be unchanged.
+13. Distinguish these common requests carefully:
     - "qual dessas passagens faz mais sentido pra mim?" is offer_recommendation
     - "me explica a diferenca entre elas" is offer_comparison
     - "de onde sairam as informacoes dos passeios?" is itinerary_sources
@@ -427,6 +431,18 @@ def interpret(text, step, today, values, config, *, opener=urlopen):
         return text
     if intent in {"unknown", "unchanged"}:
         return text
+    if intent == 'trip_route':
+        match = re.fullmatch(r'\s*(.{2,100}?)\s*->\s*(.{2,100}?)\s*', answer)
+        if not match or step not in {'origin', 'destination'}:
+            return text
+        from .language import clean
+        source = clean(text)
+        origin, destination = (part.strip() for part in match.groups())
+        # The model may remove harmless grammar around a place, but every
+        # returned place must still occur explicitly in the traveler message.
+        if clean(origin) not in source or clean(destination) not in source:
+            return text
+        return f'{origin} -> {destination}'
     if intent in COMMANDS:
         if intent == "itinerary_delete":
             from .language import clean
