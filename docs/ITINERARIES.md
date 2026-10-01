@@ -15,7 +15,7 @@ Send `menu` to discover the available features through a native WhatsApp list, o
 
 Example messages: `roteiro para Rio` → `sem data` → `3 dias` → `misto` → `equilibrado` → `montar`.
 
-The generated plan offers `fontes do roteiro` (sources), `ajustar roteiro` (edit), `remover passeio` (remove a place), and `voltar aos voos` (return to flights). Editing requires another confirmation. Removed places remain excluded when the plan is rebuilt; starting a new itinerary resets exclusions. `meu roteiro` reopens the generated plan. `apagar roteiro` removes the itinerary while preserving flight criteria; `cancelar` resets the entire current trip.
+The generated plan presents each selected place with its editorial region and a short catalog description. It offers `fontes do roteiro` (sources), `ajustar roteiro` (edit), `remover passeio` (remove a place), and `voltar aos voos` (return to flights). Editing requires another confirmation. Removed places remain excluded when the plan is rebuilt; starting a new itinerary resets exclusions. `meu roteiro` reopens the generated plan. `apagar roteiro` removes the itinerary while preserving flight criteria; `cancelar` resets the entire current trip.
 
 The flight question, criteria, and results are preserved while sightseeing is active. Dates are collected explicitly rather than treating a flight departure date as an available sightseeing day. The existing SQLite session stores the itinerary, including across process restarts. No separate user profile or external sharing is introduced.
 
